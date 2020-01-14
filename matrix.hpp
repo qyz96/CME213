@@ -69,6 +69,38 @@ class Matrix
         return output;
     }
 
+    Matrix<T> operator - (const Matrix<T>& mat1) const {
+        Matrix<T> output(mat1.Size());
+        if (mat1.Size()!=this->Size()) {
+            cerr << "Matrices should have the same sizes!\n";
+            return output;
+        }
+        for (unsigned int i=0; i<mat1.Size(); i++) {
+            for (unsigned int j=0; j<mat1.Size(); j++) {
+                output(i,j)=(*this)(i,j)-mat1(i,j);
+            }
+        }
+        
+        return output;
+    }
+
+    Matrix<T> operator * (const Matrix<T>& mat1) const {
+        Matrix<T> output(mat1.Size());
+        if (mat1.Size()!=this->Size()) {
+            cerr << "Matrices should have the same sizes!\n";
+            return output;
+        }
+        for (unsigned int i=0; i<mat1.Size(); i++) {
+            for (unsigned int j=0; j<mat1.Size(); j++) {
+                output(i,j)=0
+                for (unsigned int k=0; k<mat1.Size(); k++)
+                output(i,j)+=(*this)(i,k)*mat1(k,j);
+            }
+        }
+        
+        return output;
+    }
+
     
 
     
