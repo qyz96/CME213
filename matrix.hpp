@@ -15,7 +15,7 @@ class Matrix
     const T& operator ()(unsigned int i, unsigned int j) const { return Entry(i,j);}
     T& operator ()(unsigned int i, unsigned int j) { return Entry(i,j);}
 
-    /*
+    
     Matrix<T>& operator + (const Matrix<T>& mat1) const {
         Matrix<T> output(mat1.Size());
         if (mat1.Size()!=this->Size()) {
@@ -30,7 +30,7 @@ class Matrix
         }
         return output;
     }
-    */
+    
     
     friend ostream& operator << (ostream& os, Matrix<T>& mat) {
         for (int i=0; i<mat.Size(); i++) {
@@ -82,7 +82,7 @@ class MatrixSymmetric: public Matrix<T>
         }
     }
 
-    /*
+    
     const T& Entry(unsigned int i, unsigned int j) const {
 
         if (i>j) {
@@ -93,7 +93,7 @@ class MatrixSymmetric: public Matrix<T>
             return *(data[i]+j);
         }
     }
-    */
+    
 
     ~MatrixSymmetric() {
 
