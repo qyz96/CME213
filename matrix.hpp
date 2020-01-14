@@ -16,8 +16,8 @@ class Matrix
     
     
     friend ostream& operator << (ostream& os, Matrix<T>& mat) {
-        for (int i=0; i<mat.Size(); i++) {
-            for (int j=0; j<mat.Size(); j++) {
+        for (int i=0; i<mat.size; i++) {
+            for (int j=0; j<mat.size; j++) {
                 os<<mat(i,j)<<" ";
             }
             os<<"\n";
