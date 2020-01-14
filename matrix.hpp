@@ -11,11 +11,11 @@ class Matrix
     public :
     Matrix(unsigned int n): size(n) {}
     T& Entry(unsigned int i, unsigned int j) {};
-    const T& Entry(unsigned int i, unsigned int j) const{};
-    const T& operator ()(unsigned int i, unsigned int j) const { return Entry(i,j);}
+    //const T& Entry(unsigned int i, unsigned int j) const{};
+    //const T& operator ()(unsigned int i, unsigned int j) const { return Entry(i,j);}
     T& operator ()(unsigned int i, unsigned int j) { return Entry(i,j);}
 
-    
+    /*
     Matrix<T>& operator + (const Matrix<T>& mat1) const {
         Matrix<T> output(mat1.Size());
         if (mat1.Size()!=this->Size()) {
@@ -30,6 +30,7 @@ class Matrix
         }
         return output;
     }
+    */
     
     
     friend ostream& operator << (ostream& os, Matrix<T>& mat) {
