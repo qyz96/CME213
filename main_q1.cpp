@@ -12,7 +12,6 @@ int main()
         for (unsigned int j=0; j<n; j++){
             mat1(i,j)=i+j;
         }
-        cout<<"\n";
     }
     
     //Matrix<double>* mat3;
