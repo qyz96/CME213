@@ -13,10 +13,10 @@ int main()
             mat2(i,j)=3*3*i;
         }
     }
-    Matrix<double> data1, data2;
-    data1=mat1;
-    data2=mat2;
-    Matrix<double> mat3=data1+data2;
+    std::vector<Matrix<double>> data(2);
+    data[0]=mat1;
+    data[1]=mat2;
+    Matrix<double> mat3=data[1]+data[2];
     cout<<mat3;
     std::cout<<"L0 norm is "<<mat1.l0norm()<<"\n";
     return 0;
