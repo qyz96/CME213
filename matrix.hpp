@@ -93,8 +93,9 @@ class Matrix
         for (unsigned int i=0; i<mat1.Size(); i++) {
             for (unsigned int j=0; j<mat1.Size(); j++) {
                 output(i,j)=0
-                for (unsigned int k=0; k<mat1.Size(); k++)
+                for (unsigned int k=0; k<mat1.Size(); k++) {
                 output(i,j)+=(*this)(i,k)*mat1(k,j);
+                }
             }
         }
         
