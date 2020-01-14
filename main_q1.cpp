@@ -17,7 +17,7 @@ int main()
     *data[0]=mat1;
     *data[1]=mat2;
     cout<<mat1<<mat2;
-    Matrix<double> mat3=*data[0]+*data[1];
+    Matrix mat3=*data[0]+*data[1];
     cout<<mat3;
     std::cout<<"L0 norm is "<<mat1.l0norm()<<"\n";
     return 0;
