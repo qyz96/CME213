@@ -40,9 +40,9 @@ class MatrixSymmetric: public Matrix<T>
     }
     T& Entry(unsigned int i, unsigned int j) {
 
-        if (i>j) {
+        if (i>=j) {
 
-            return *(data[i]+j);
+            return *(data[j]+i);
         }
         else {
             return *(data[i]+j);
