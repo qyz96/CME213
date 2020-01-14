@@ -54,11 +54,11 @@ class Matrix
     }
 
     
-    Matrix<T> operator + (Matrix<T>& mat1) {
+    Matrix<T> operator + (const Matrix<T>& mat1) const {
         Matrix<T> output(mat1.Size());
         if (mat1.Size()!=this->Size()) {
-            cout << mat1.Size() << " " << this->Size() << "\n";
-            //cerr << "Matrices should have the same sizes!\n";
+            //cout << mat1.Size() << " " << this->Size() << "\n";
+            cerr << "Matrices should have the same sizes!\n";
             return output;
         }
         cout<<mat1<<(*this);
@@ -66,7 +66,6 @@ class Matrix
         for (unsigned int i=0; i<mat1.Size(); i++) {
             for (unsigned int j=0; j<mat1.Size(); j++) {
                 output(i,j)=mat1(i,j)+(*this)(i,j);
-                //cout<<mat1(i,j)<<" "<<(*this)(i,j)<<"\n";
             }
         }
         
