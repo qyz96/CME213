@@ -3,7 +3,7 @@
 
 int main()
 {
-    int n=10;
+    int n=2;
     MatrixSymmetric<double> mat1(n);
     MatrixSymmetric<double> mat2(n);  
     
@@ -14,14 +14,14 @@ int main()
         }
     }
     
-    //MatrixSymmetric<double> mat3(n);
-    //mat3=mat1+mat2;
+    MatrixSymmetric<double> mat3(n);
+    mat3=mat1+mat2;
     for (unsigned int i=0; i<n; i++){
         for (unsigned int j=0; j<n; j++){
-            cout<<mat1(i,j)<<" ";
+            //cout<<mat1(i,j)<<" ";
             mat1(i,j)+=1;
         }
-        cout<<"\n";
+        //cout<<"\n";
     }
     cout<<mat1;
     std::cout<<"L0 norm is "<<mat1.l0norm()<<"\n";
