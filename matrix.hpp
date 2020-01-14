@@ -30,7 +30,7 @@ class Matrix
     Matrix<T>& operator + (const Matrix<T>& mat1) const {
         Matrix<T> output(mat1.Size());
         if (mat1.Size()!=this->Size()) {
-
+            cerr << mat1.Size() << " " << this->Size() << "\n";
             cerr << "Matrices should have the same sizes!\n";
             return output;
         }
