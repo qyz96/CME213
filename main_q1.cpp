@@ -21,7 +21,7 @@ int main()
         }
         cout<<"\n";
     }
-    cout<<mat1;
+    //cout<<mat1;
     //std::cout<<"L0 norm is "<<mat1.l0norm()<<"\n";
     return 0;
 }
