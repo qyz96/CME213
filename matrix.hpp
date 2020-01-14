@@ -26,6 +26,21 @@ class Matrix
         }
         return os;
     }
+
+    Matrix<T>& operator + (const Matrix<T>& mat1) const {
+        Matrix<T> output(mat1.Size());
+        if (mat1.Size()!=this->Size()) {
+
+            cerr << "Matrices should have the same sizes!\n";
+            return output;
+        }
+        for (unsigned int i=0; i<mat1.Size(); i++) {
+            for (unsigned int j=0; j<mat1.Size(); j++) {
+                output(i,j)=mat1(i,j)+(*this)(i,j);
+            }
+        }
+        return output;
+    }
         unsigned int l0norm() {
         unsigned int norm=0;
         for (unsigned int i=0; i<size; i++) {
@@ -37,6 +52,8 @@ class Matrix
         }
         return norm;
     }
+
+
 
 
     private:
