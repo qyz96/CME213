@@ -5,7 +5,7 @@
 #include <stdexcept>
 using namespace std;
 
-typedef double T
+typedef double T;
 
 //template <typename T>
 class Matrix
@@ -98,10 +98,10 @@ class Matrix
     unsigned int size;
 };
 //template <typename T>
-class MatrixSymmetric: public Matrix<T>
+class MatrixSymmetric: public Matrix
 {
     public:
-    MatrixSymmetric(int n): Matrix<T>(n, false), data(new T*[n]) {
+    MatrixSymmetric(int n): Matrix(n, false), data(new T*[n]) {
         for (int i=0; i<n; i++) {
             data[i]=new T[n-i];
         }
