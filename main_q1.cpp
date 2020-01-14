@@ -3,10 +3,9 @@
 
 int main()
 {
-    
-    MatrixSymmetric<double> mat1(10);
-    MatrixSymmetric<double> mat2(10);  
-    int n=2;
+    int n=10;
+    MatrixSymmetric<double> mat1(n);
+    MatrixSymmetric<double> mat2(n);  
     
     for (unsigned int i=0; i<n; i++){
         for (unsigned int j=0; j<n; j++){
