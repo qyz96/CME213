@@ -33,7 +33,7 @@ class Matrix
             return *(DensePtr[j]+i);
         }
     };
-    const T& Entry(unsigned int i, unsigned int j) const{
+    virtual const T& Entry(unsigned int i, unsigned int j) const{
         if (IsDense) {
             return *(DensePtr[j]+i);
         }
@@ -134,16 +134,13 @@ class MatrixSymmetric: public Matrix<T>
     
 
     ~MatrixSymmetric() {
-
-        
+      
         for (int i=0; i<1; i++) {
             delete[] data[i];
-            //data[i]=nullptr;
         }
         delete [] data;
         
     }
-
     private:
     T** data;
 
