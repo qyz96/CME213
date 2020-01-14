@@ -105,12 +105,15 @@ class MatrixSymmetric: public Matrix<T>
             //cerr << "Matrices should have the same sizes!\n";
             return output;
         }
+        /*
         for (unsigned int i=0; i<mat1.Size(); i++) {
             for (unsigned int j=0; j<=i; j++) {
                 output(i,j)=mat1(i,j)+(*this)(i,j);
                 cout<<mat1(i,j)<<" "<<(*this)(i,j)<<" "<<output(i,i)<<"\n";
             }
         }
+        */
+        cout<<(*this)<<mat1;
         return output;
     }
     
