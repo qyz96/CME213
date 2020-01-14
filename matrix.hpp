@@ -97,7 +97,22 @@ class MatrixSymmetric: public Matrix<T>
         }
     }
 
-    
+    MatrixSymmetric<T> operator + (const MatrixSymmetric<T>& mat1) const {
+        MatrixSymmetric<T> output(mat1.Size());
+        if (mat1.Size()!=this->Size()) {
+            cout << mat1.Size() << " " << this->Size() << "\n";
+            //cerr << "Matrices should have the same sizes!\n";
+            return output;
+        }
+        for (unsigned int i=0; i<mat1.Size(); i++) {
+            for (unsigned int j=0; j<mat1.Size(); j++) {
+                output(i,j)=mat1(i,j)+(*this)(i,j);
+                cout<<output(i,i)<<" ";
+            }
+            cout<<"\n";
+        }
+        return output;
+    }
 
     ~MatrixSymmetric() {
 
