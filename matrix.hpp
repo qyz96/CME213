@@ -43,7 +43,7 @@ class Matrix
 
     
     
-    friend ostream& operator << (ostream& os, Matrix<T>& mat) {
+    friend ostream& operator << (ostream& os, const Matrix<T>& mat) const {
         for (int i=0; i<mat.size; i++) {
             for (int j=0; j<mat.size; j++) {
                 os<<mat(i,j)<<" ";
