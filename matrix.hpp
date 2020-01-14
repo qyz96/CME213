@@ -24,6 +24,17 @@ class Matrix
         }
         return os;
     }
+        unsigned int l0norm() {
+        unsigned int norm=0;
+        for (unsigned int i=0; i<size; i++) {
+            for (unsigned int j=0; j<size; j++) {
+                if ((*this)(i,j)>0) {
+                    norm++;
+                }
+            }
+        }
+        return norm;
+    }
 
 
     private:
@@ -43,7 +54,6 @@ class MatrixSymmetric: public Matrix<T>
         if (i>=j) {
 
             return *(data[j]+i-j);
-            //cout<<j<<" "<<i-j<<"\n";
         }
         else {
             return *(data[i]+j-i);
