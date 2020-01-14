@@ -14,8 +14,8 @@ int main()
         }
     }
     std::vector<Matrix<double>*> data(2);
-    data[0]=&mat1;
-    data[1]=&mat2;
+    *data[0]=mat1;
+    *data[1]=mat2;
     cout<<mat1<<mat2;
     Matrix<double> mat3=*data[0]+*data[1];
     Matrix<double> mat4=*data[0]-*data[1];
