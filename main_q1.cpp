@@ -19,6 +19,7 @@ int main()
     for (unsigned int i=0; i<n; i++){
         for (unsigned int j=0; j<n; j++){
             cout<<mat1(i,j)<<" ";
+            mat1(i,j)+=1;
         }
         cout<<"\n";
     }
