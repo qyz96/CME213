@@ -28,7 +28,7 @@ class Matrix
     }
 
     
-    Matrix<T> operator + (const Matrix<T>& mat1) const {
+    Matrix<T> operator + (Matrix<T>& mat1) {
         Matrix<T> output(mat1.Size());
         if (mat1.Size()!=this->Size()) {
             cout << mat1.Size() << " " << this->Size() << "\n";
