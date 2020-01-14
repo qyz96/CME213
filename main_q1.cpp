@@ -10,9 +10,9 @@ int main()
     for (unsigned int i=0; i<10; i++){
         for (unsigned int j=0; j<10; j++){
             mat1(i,j)=i+j;
-            cout<<mat1(i,j)<<" "<<i+j<<"\n";
-            mat2(i,j)=2*i+3*j;
+            cout<<mat1(i,j)<<" ";
         }
+        cout<<"\n";
     }
     
     //Matrix<double>* mat3;
