@@ -62,6 +62,17 @@ class MatrixSymmetric: public Matrix<T>
         }
     }
 
+    const T& Entry(unsigned int i, unsigned int j) const {
+
+        if (i>=j) {
+
+            return *(data[j]+i-j);
+        }
+        else {
+            return *(data[i]+j-i);
+        }
+    }
+
     
 
     ~MatrixSymmetric() {
