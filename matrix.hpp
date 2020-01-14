@@ -22,10 +22,10 @@ class Matrix
 
     ~Matrix() {
         if (IsDense) {
-            for (int i=0; i<n; i++) {
+            for (int i=0; i<Size(); i++) {
             delete[] DensePtr[i];
         }
-        delete[] DensePtr[i];
+        delete[] DensePtr;
         }
     }
     virtual T& Entry(unsigned int i, unsigned int j) {
@@ -129,26 +129,7 @@ class MatrixSymmetric: public Matrix<T>
         }
     }
     
-    /*
-    MatrixSymmetric<T> operator + (const MatrixSymmetric<T>& mat1) const {
-        MatrixSymmetric<T> output(mat1.Size());
-        if (mat1.Size()!=this->Size()) {
-            cout << mat1.Size() << " " << this->Size() << "\n";
-            //cerr << "Matrices should have the same sizes!\n";
-            return output;
-        }
-        
-        for (unsigned int i=0; i<mat1.Size(); i++) {
-            for (unsigned int j=0; j<=i; j++) {
-                output(i,j)=mat1(i,j)+(*this)(i,j);
-                cout<<mat1(i,j)<<" "<<(*this)(i,j)<<" "<<output(i,i)<<"\n";
-            }
-        }
-        
-        cout<<mat1;
-        return output;
-    }
-    */
+
     
     
 
