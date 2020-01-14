@@ -53,7 +53,9 @@ class Matrix
         return norm;
     }
 
-
+    const unsigned int Size() const {
+        return this->size;
+    }
 
 
     private:
