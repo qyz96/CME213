@@ -7,7 +7,7 @@
 
 unsigned int CountData(const std::set<double>& data, double low, double high) {
 
-    if (low > high) {std::cerr<<"Low value higher than high value!\n"}
+    if (low > high) {std::cerr<<"Low value higher than high value!\n";}
     std::set<double>::iterator it1=data.lower_bound (low);                //       ^
     std::set<double>::iterator it2=data.upper_bound (high); 
     std::set<double>::iterator it;
