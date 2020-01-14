@@ -107,9 +107,9 @@ class MatrixSymmetric: public Matrix<T>
             return output;
         }
         for (unsigned int i=0; i<mat1.Size(); i++) {
-            for (unsigned int j=0; j<mat1.Size(); j++) {
+            for (unsigned int j=0; j<=i; j++) {
                 output(i,j)=mat1(i,j)+(*this)(i,j);
-                cout<<output(i,i)<<" ";
+                cout<<output(i,j)<<" ";
             }
             cout<<"\n";
         }
