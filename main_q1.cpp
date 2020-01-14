@@ -16,7 +16,7 @@ int main()
     
     //Matrix<double>* mat3;
     //*mat3=mat1+mat2;
-    std::cout<<mat1(0,0);
+    std::cout<<mat1(0,0)<<"\n";
     
     //std::cout<<"L0 norm is "<<mat1.l0norm()<<"\n";
     return 0;
