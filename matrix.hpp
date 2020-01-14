@@ -102,7 +102,7 @@ template <typename T>
 class MatrixSymmetric: public Matrix<T>
 {
     public:
-    MatrixSymmetric(int n): Matrix<T>(n), data(new T*[n]) {
+    MatrixSymmetric(int n): Matrix<T>(n, false), data(new T*[n]) {
         for (int i=0; i<n; i++) {
             data[i]=new T[n-i];
         }
