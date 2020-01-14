@@ -57,8 +57,8 @@ class Matrix
     Matrix<T> operator + (const Matrix<T>& mat1) const {
         Matrix<T> output(mat1.Size());
         if (mat1.Size()!=this->Size()) {
-            //cout << mat1.Size() << " " << this->Size() << "\n";
-            cerr << "Matrices should have the same sizes!\n";
+            cout << mat1.Size() << " " << this->Size() << "\n";
+            //cerr << "Matrices should have the same sizes!\n";
             return output;
         }
         for (unsigned int i=0; i<mat1.Size(); i++) {
