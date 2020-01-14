@@ -5,7 +5,9 @@
 #include <stdexcept>
 using namespace std;
 
-template <typename T>
+typedef double T
+
+//template <typename T>
 class Matrix
 {
     public :
@@ -95,7 +97,7 @@ class Matrix
     bool IsDense;
     unsigned int size;
 };
-template <typename T>
+//template <typename T>
 class MatrixSymmetric: public Matrix<T>
 {
     public:
