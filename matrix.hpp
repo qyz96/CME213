@@ -42,7 +42,7 @@ class MatrixSymmetric: public Matrix<T>
 
         if (i>j) {
 
-            return *(data[j]+i);
+            return *(data[i]+j);
         }
         else {
             return *(data[i]+j);
