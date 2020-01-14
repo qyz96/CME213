@@ -43,6 +43,7 @@ class MatrixSymmetric: public Matrix<T>
         if (i>=j) {
 
             return *(data[j]+i-j);
+            cout<<j<<" "<<i-j<<"\n";
         }
         else {
             return *(data[i]+j-i);
