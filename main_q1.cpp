@@ -14,7 +14,7 @@ int main()
         }
     }
     
-    MatrixSymmetric<double> mat3=mat1+mat2;
+    Matrix<double> mat3=mat1+mat2;
     for (unsigned int i=0; i<n; i++){
         for (unsigned int j=0; j<n; j++){
             //cout<<mat1(i,j)<<" ";
