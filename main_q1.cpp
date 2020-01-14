@@ -10,10 +10,11 @@ int main()
     for (unsigned int i=0; i<n; i++){
         for (unsigned int j=0; j<n; j++){
             mat1(i,j)=i+j;
+            mat2(i,j)=3*3*i;
         }
     }
     
-    Matrix<double>* mat3(new Matrix<double>(n));
+    Matrix<double>* mat3;
     *mat3=mat1+mat2;
     for (unsigned int i=0; i<n; i++){
         for (unsigned int j=0; j<n; j++){
