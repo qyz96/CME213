@@ -18,7 +18,7 @@ int main()
     *mat3=mat1+mat2;
     for (unsigned int i=0; i<n; i++){
         for (unsigned int j=0; j<n; j++){
-            cout<<(*mat3)(i,j)<<" ";
+            cout<<mat1(i,j)<<" ";
         }
         cout<<"\n";
     }
