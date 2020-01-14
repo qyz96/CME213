@@ -17,12 +17,11 @@ int main()
     Matrix<double> mat3=mat1+mat2;
     for (unsigned int i=0; i<n; i++){
         for (unsigned int j=0; j<n; j++){
-            //cout<<mat1(i,j)<<" ";
-            mat1(i,j)+=1;
+            cout<<mat3(i,j)<<" ";
         }
         //cout<<"\n";
     }
-    cout<<mat1;
+    cout<<mat3;
     std::cout<<"L0 norm is "<<mat1.l0norm()<<"\n";
     return 0;
 }
