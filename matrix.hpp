@@ -5,9 +5,7 @@
 #include <stdexcept>
 using namespace std;
 
-typedef double T;
-
-//template <typename T>
+template <typename T>
 class Matrix
 {
     public :
@@ -45,7 +43,7 @@ class Matrix
 
     
     
-    friend ostream& operator << (ostream& os, const Matrix& mat) {
+    friend ostream& operator << (ostream& os, const Matrix<T>& mat) {
         for (int i=0; i<mat.size; i++) {
             for (int j=0; j<mat.size; j++) {
                 os<<mat(i,j)<<" ";
@@ -56,11 +54,10 @@ class Matrix
     }
 
     
-    Matrix operator + (const Matrix& mat1) const {
-        Matrix output(mat1.Size());
+    Matrix<T> operator + (const Matrix<T>& mat1) const {
+        Matrix<T> output(mat1.Size());
         if (mat1.Size()!=this->Size()) {
-            cout << mat1.Size() << " " << this->Size() << "\n";
-            //cerr << "Matrices should have the same sizes!\n";
+            cerr << "Matrices should have the same sizes!\n";
             return output;
         }
         for (unsigned int i=0; i<mat1.Size(); i++) {
@@ -97,11 +94,11 @@ class Matrix
     bool IsDense;
     unsigned int size;
 };
-//template <typename T>
-class MatrixSymmetric: public Matrix
+template <typename T>
+class MatrixSymmetric: public Matrix<T>
 {
     public:
-    MatrixSymmetric(int n): Matrix(n, false), data(new T*[n]) {
+    MatrixSymmetric(int n): Matrix<T>(n, false), data(new T*[n]) {
         for (int i=0; i<n; i++) {
             data[i]=new T[n-i];
         }
