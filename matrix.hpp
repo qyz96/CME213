@@ -38,7 +38,9 @@ class Matrix
         for (unsigned int i=0; i<mat1.Size(); i++) {
             for (unsigned int j=0; j<mat1.Size(); j++) {
                 output(i,j)=mat1(i,j)+(*this)(i,j);
+                cout<<output(i,i)<<" "
             }
+            cout<<"\n";
         }
         return output;
     }
