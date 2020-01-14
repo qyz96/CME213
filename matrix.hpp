@@ -98,7 +98,7 @@ class MatrixSymmetric: public Matrix<T>
             return *(data[i]+j-i);
         }
     }
-    
+    /*
     MatrixSymmetric<T> operator + (const MatrixSymmetric<T>& mat1) const {
         MatrixSymmetric<T> output(mat1.Size());
         if (mat1.Size()!=this->Size()) {
@@ -116,6 +116,7 @@ class MatrixSymmetric: public Matrix<T>
         return output;
     }
     
+    */
 
     ~MatrixSymmetric() {
 
