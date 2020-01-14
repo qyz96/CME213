@@ -9,9 +9,35 @@ template <typename T>
 class Matrix
 {
     public :
-    Matrix(unsigned int n): size(n) {}
-    virtual T& Entry(unsigned int i, unsigned int j) {};
-    const T& Entry(unsigned int i, unsigned int j) const{};
+    Matrix(): size(0), IsDense(false) {}
+    //Initialize with dense matrix class
+    Matrix(unsigned int n): size(n), IsDense(true), DensePtr(new T*[n]) {
+        for (int i=0; i<n; i++) {
+            DensePtr[i]=new T[n];
+        }
+    }
+    //Initialize with abstract matrix class
+    Matrix(unsigned int n, bool dense): size(n), IsDense(dense) {}
+
+
+    ~Matrix() {
+        if (IsDense) {
+            for (int i=0; i<n; i++) {
+            delete[] DensePtr[i];
+        }
+        delete[] DensePtr[i];
+        }
+    }
+    virtual T& Entry(unsigned int i, unsigned int j) {
+        if (IsDense) {
+            return *(DensePtr[j]+i);
+        }
+    };
+    const T& Entry(unsigned int i, unsigned int j) const{
+        if (IsDense) {
+            return *(DensePtr[j]+i);
+        }
+    };
     const T& operator ()(unsigned int i, unsigned int j) const { return Entry(i,j);}
     T& operator ()(unsigned int i, unsigned int j) { return Entry(i,j);}
 
@@ -68,6 +94,8 @@ class Matrix
 
 
     private:
+    T** DensePtr;
+    bool IsDense;
     unsigned int size;
 };
 template <typename T>
