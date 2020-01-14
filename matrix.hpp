@@ -45,7 +45,7 @@ class Matrix
 
     
     
-    friend ostream& operator << (ostream& os, const Matrix<T>& mat) {
+    friend ostream& operator << (ostream& os, const Matrix& mat) {
         for (int i=0; i<mat.size; i++) {
             for (int j=0; j<mat.size; j++) {
                 os<<mat(i,j)<<" ";
@@ -56,8 +56,8 @@ class Matrix
     }
 
     
-    Matrix<T> operator + (const Matrix<T>& mat1) const {
-        Matrix<T> output(mat1.Size());
+    Matrix operator + (const Matrix& mat1) const {
+        Matrix output(mat1.Size());
         if (mat1.Size()!=this->Size()) {
             cout << mat1.Size() << " " << this->Size() << "\n";
             //cerr << "Matrices should have the same sizes!\n";
