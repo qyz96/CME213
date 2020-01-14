@@ -11,8 +11,8 @@ class Matrix
     public :
     Matrix(unsigned int n): size(n) {}
     T& Entry(unsigned int i, unsigned int j) {};
-    //const T& Entry(unsigned int i, unsigned int j) const{};
-    //const T& operator ()(unsigned int i, unsigned int j) const { return Entry(i,j);}
+    const T& Entry(unsigned int i, unsigned int j) const{};
+    const T& operator ()(unsigned int i, unsigned int j) const { return Entry(i,j);}
     T& operator ()(unsigned int i, unsigned int j) { return Entry(i,j);}
 
     
