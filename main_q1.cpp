@@ -33,6 +33,7 @@ int main()
     auto f1=[](unsigned int i, unsigned int j) {return (i+j+1);};
     auto f2=[](unsigned int i, unsigned int j){return (i*i+j*j+1);};
     AssignVal(mat_small, f1);
+    AssignVal(mat_small2, f2);
     AssignVal(mat_large, f2);
     if (VerifySymmetry(mat_small)) {
         std::cout<<"Small matrix symmetry verified!\n";
@@ -41,7 +42,7 @@ int main()
         std::cout<<"Large matrix symmetry verified!\n";
     }
     std::cout<<"Printing small matrix 1:\n"<<mat_small;
-    std::cout<<"Printing small matrix 2:\n"<<mat_small;
+    std::cout<<"Printing small matrix 2:\n"<<mat_small2;
     std::cout<<"Printing large matrix:\n"<<mat_large;
     //std::vector<Matrix<double>*> data(2);
     std::cout<<"L0 norm of large matrix is "<<mat_large.l0norm()<<"\n";
