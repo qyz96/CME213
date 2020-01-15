@@ -32,7 +32,7 @@ int main()
     auto f1=[](unsigned int i, unsigned int j) {return (double)(1/(i+j+1));};
     auto f2=[](unsigned int i, unsigned int j) {return (double)(1/(i*i+j*j+1));};
     AssignVal(mat_small, f1);
-    AssignVal(mat_large, f2)
+    AssignVal(mat_large, f2);
     if (VerifySymmetry(mat_small)) {
         std::cout<<"Small matrix symmetry verified!\n";
     }
