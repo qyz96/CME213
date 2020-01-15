@@ -40,7 +40,7 @@ struct Student
 bool all_students_passed(const std::vector<Student>& students, double pass_threshold) 
 {
     // TODO 
-    return std::all_of(students.begin(), students.end(), [=](const Student& s){
+    return std::all_of(students.begin(), students.end(), [](const Student& s){
         return (s.homework*HOMEWORK_WEIGHT+s.midterm*MIDTERM_WEIGHT+s.final_exam*FINAL_EXAM_WEIGHT>=pass_threshold);
     });
 }
