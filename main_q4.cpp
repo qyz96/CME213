@@ -101,10 +101,18 @@ int main()
     const std::vector<int> q4_y = {-2, -1, 0, 1, 2};
     std::vector<int> z=daxpy(Q4_A, q4a_x, q4_y);
     std::cout<<"ax+y is:\n";
+    bool q1=true;
     for (unsigned int i=0; i<5; i++) {
-        std::cout<<z[i]<<" ";
+        if (z[i] != Q4_A*q4a_x[i]+q4_y[i]) {
+            q1=false;
+        }
     }
-    std::cout<<"\n";
+    if (q1) {
+        std::cout<<"Q1 computation successful!\n";
+    }
+    else{
+        std::cout<<"Q1 computation failed!\n";
+    }
     // TODO: Verify your Q4a implementation
 
     // Q4b test
@@ -130,8 +138,29 @@ int main()
 
     sort_odd_even(odd_even_sorted);
     std::cout<<"Sorted odd even list\n";
-    for (unsigned int i=0; i<odd_even_sorted.size(); i++) {
-        std::cout<<odd_even_sorted[i]<<" ";
+    bool q3=true;
+    auto f1=[](int a, int b){
+        if (a % 2 != 0 && b % 2 == 0) {
+            return true;
+        }
+        else if (a % 2 ==0 && b % 2 != 0) {
+            return false;
+        }
+        else {
+            return a < b;
+        }
+    };
+    for (unsigned int i=0; i<odd_even_sorted.size()-1; i++) {
+        if (f1(odd_even_sorted[i+1],odd_even_sorted[i])) {
+            q3=false;
+            break;
+        }
+    }
+    if (q3) {
+        std::cout<<"Q3 sorting successful!\n";
+    }
+    else {
+        std::cout<<"Q3 sorting failed!\n";
     }
     std::cout<<"\n";
     // TODO: Verify your Q4c implementation
@@ -142,11 +171,31 @@ int main()
             SparseMatrixCoordinate<int>(2, 2, 2),
             SparseMatrixCoordinate<int>(3, 4, 3)};
 
+    auto f2=[](SparseMatrixCoordinate<int> a, SparseMatrixCoordinate<int> b) {
+        if (a.row < b.row) {
+            return true;
+        }
+        else if (a.row == b.row && a.col<b.col) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
     sparse_matrix_sort(sparse);
-    std::cout<<"Sorted Coordinates:\n";
-    for (std::list<SparseMatrixCoordinate<int>>::iterator it=sparse.begin(); it != sparse.end(); it++) {
-        std::cout<<it->row<<" "<<it->col<<"\n";
+    bool q4=true;
+    for (std::list<SparseMatrixCoordinate<int>>::iterator it=sparse.begin(); std::next(it,1) != sparse.end(); it++) {
+        if (f2(*(std::next(it,1)), *(it))) {
+            q4=false;
+        }
     }
+    if(q4) {
+        std::cout<<"Q4 sorting successful!\n";
+    }
+    else {
+        std::cout<<"Q4 sorting failed!\n";
+    }
+
     // TODO: Verify your Q4d implementation
 
     return 0;
