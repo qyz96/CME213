@@ -26,9 +26,9 @@ void AssignVal(MatrixSymmetric<T>& data, F f) {
 
 int main()
 {
-    int n=2;
-    MatrixSymmetric<double> mat_small(2);
-    MatrixSymmetric<double> mat_small2(2);
+    int n=5;
+    MatrixSymmetric<double> mat_small(n);
+    MatrixSymmetric<double> mat_small2(n);
     MatrixSymmetric<double> mat_large(20);  
     auto f1=[](unsigned int i, unsigned int j) {return (i+j+1);};
     auto f2=[](unsigned int i, unsigned int j){return (i*i+j*j+2);};
