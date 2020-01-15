@@ -12,28 +12,36 @@ bool VerifySymmetry(const MatrixSymmetric<T>& data) {
     return true;
 }
 
+template <typename T, typename F>
+void AssignVal(MatrixSymmetric<T>& data, F f) {
+    for (unsigned int j=0; j<data.Size(); j++) {
+        for (unsigned int i=j; i<data.Size(); i++) {
+            data(i,j)=f(i,j);
+        }
+    }
+    return;
+}
+
+
+
 int main()
 {
     int n=2;
     MatrixSymmetric<double> mat_small(2);
     MatrixSymmetric<double> mat_large(20);  
-    
-    for (unsigned int i=0; i<n; i++){
-        for (unsigned int j=0; j<n; j++){
-            mat1(i,j)=i+j;
-            mat2(i,j)=3*3*i;
-        }
+    auto f1=[](unsigned int i, unsigned int j) {return (double)(1/(i+j+1));};
+    auto f2=[](unsigned int i, unsigned int j) {return (double)(1/(i*i+j*j+1));};
+    AssignVal(mat_small, f1);
+    AssignVal(mat_large, f2)
+    if (VerifySymmetry(mat_small)) {
+        std::cout<<"Small matrix symmetry verified!\n";
     }
-    std::vector<Matrix<double>*> data(2);
-    data[0]=&mat1;
-    data[1]=&mat2;
-    cout<<mat1<<mat2;
-    Matrix<double> mat3=*data[0]+*data[1];
-    Matrix<double> mat4=*data[0]-*data[1];
-    Matrix<double> mat5=(*data[0])*(*data[1]);
-    cout<<mat3;
-    cout<<mat4;
-    cout<<mat5;
-    std::cout<<"L0 norm is "<<mat1.l0norm()<<"\n";
+    if (VerifySymmetry(mat_large)) {
+        std::cout<<"Large matrix symmetry verified!\n";
+    }
+    std::cout<<"Printing small matrix:\n"<<mat_small;
+    std::cout<<"Printing large matrix:\n"<<mat_large;
+    //std::vector<Matrix<double>*> data(2);
+    std::cout<<"L0 norm of large matrix is "<<mat_large.l0norm()<<"\n";
     return 0;
 }
