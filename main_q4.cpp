@@ -115,8 +115,8 @@ int main()
             Student(1., 1., 1.),
             Student(0, 0, 0)};
 
-    std::cout<<all_students_passed(all_pass_students)<<"\n";
-    std::cout<<all_students_passed(not_all_pass_students)<<"\n";
+    std::cout<<all_students_passed(all_pass_students, 0.6)<<"\n";
+    std::cout<<all_students_passed(not_all_pass_students, 0.6)<<"\n";
     // TODO: Verify your Q4b implementation
 
     // Q4c test
@@ -134,8 +134,7 @@ int main()
             SparseMatrixCoordinate<int>(2, 2, 2),
             SparseMatrixCoordinate<int>(3, 4, 3)};
 
-    std::list<SparseMatrixCoordinate>::iterator it;
-    for (it=sparse.begin(); it != sparse.end(); it++) {
+    for (std::list<SparseMatrixCoordinate>::iterator it=sparse.begin(); it != sparse.end(); it++) {
         std::cout<<it->row<<" "<<it->col<<"\n";
     }
     // TODO: Verify your Q4d implementation
