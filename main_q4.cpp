@@ -52,13 +52,13 @@ void sort_odd_even(std::vector<int>& data)
     // TODO
     std::sort(data.begin(),data.end(), [](int a, int b){
         if (a % 2 != 0 && b % 2 == 0) {
-            return false;
-        }
-        else if (a % 2 ==0 && b % 2 != 0) {
             return true;
         }
+        else if (a % 2 ==0 && b % 2 != 0) {
+            return false;
+        }
         else {
-            return a>b;
+            return a < b;
         }
     });
     return;
@@ -81,10 +81,10 @@ void sparse_matrix_sort(std::list<SparseMatrixCoordinate<T>>& list)
 {
     // TODO
     list.sort([](SparseMatrixCoordinate<T> a, SparseMatrixCoordinate<T> b) {
-        if (a.row > b.row) {
+        if (a.row < b.row) {
             return true;
         }
-        else if (a.row == b.row && a.col>b.col) {
+        else if (a.row == b.row && a.col<b.col) {
             return true;
         }
         else {
@@ -120,8 +120,9 @@ int main()
     // TODO: Verify your Q4b implementation
 
     // Q4c test
-    std::vector<int> odd_even_sorted = {-5, -3, -1, 1, 3, -4, -2, 0, 2, 4};
+    std::vector<int> odd_even_sorted = {-5, -4, -3, 2, -1, 0, 2, 5, 4, 1};
 
+    sort_odd_even(odd_even_sorted);
     for (unsigned int i=0; i<odd_even_sorted.size(); i++) {
         std::cout<<odd_even_sorted[i]<<" ";
     }
