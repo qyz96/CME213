@@ -45,6 +45,17 @@ bool all_students_passed(const std::vector<Student>& students, double pass_thres
     });
 }
 
+//Test function using for loop
+bool test_q3(const std::vector<Student>& students, double pass_threshold) {
+    bool out=true;
+    for (unsigned int i=0; i<students.size(); i++) {
+        double score=students[i].homework*HOMEWORK_WEIGHT+students[i].midterm*MIDTERM_WEIGHT+students[i].final_exam*FINAL_EXAM_WEIGHT;
+        if (score < pass_threshold) {
+            return false;
+        }
+    }
+    return true;
+}
 
 /**********  Q4c: Odd first, even last **********/
 void sort_odd_even(std::vector<int>& data)
@@ -93,6 +104,9 @@ void sparse_matrix_sort(std::list<SparseMatrixCoordinate<T>>& list)
     });
 }
 
+
+
+
 int main() 
 {    
     // Q4a test
@@ -125,11 +139,12 @@ int main()
             Student(1., 1., 1.),
             Student(0, 0, 0)};
 
-    if (all_students_passed(all_pass_students, 0.6)) {
-        std::cout<<"all_pass_students have passed the class!\n";
+    if (all_students_passed(all_pass_students, 0.6)==test_q3(all_pass_students, 0.6) &&
+        all_students_passed(not_all_pass_students, 0.6) == test_q3(not_all_pass_students, 0.60)) {
+        std::cout<<"Q2 compuation successful!\n";
     }
-    if (!all_students_passed(not_all_pass_students, 0.6)) {
-        std::cout<<"not_all_pass_students have not passed the class!\n";
+    else {
+        std::cout<<"Q2 computation failed!\n";
     }
     // TODO: Verify your Q4b implementation
 
@@ -137,7 +152,6 @@ int main()
     std::vector<int> odd_even_sorted = {-5, -4, -3, 2, -1, 0, 2, 5, 4, 1};
 
     sort_odd_even(odd_even_sorted);
-    std::cout<<"Sorted odd even list\n";
     bool q3=true;
     auto f1=[](int a, int b){
         if (a % 2 != 0 && b % 2 == 0) {
@@ -162,7 +176,6 @@ int main()
     else {
         std::cout<<"Q3 sorting failed!\n";
     }
-    std::cout<<"\n";
     // TODO: Verify your Q4c implementation
 
     // Q4d test
