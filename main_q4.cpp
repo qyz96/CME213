@@ -11,7 +11,14 @@ template <typename T>
 std::vector<T> daxpy(T a, const std::vector<T>& x, const std::vector<T>& y)
 {
     // TODO
-    return std::vector<T>();
+    if (x.size()!= y.size()) {
+        std::cout<<"Adding vectors with different sizes!\n";
+        exit(0);
+    }
+    unsigned int i=0;
+    std::vector<T> z(x.size());
+    std::for_each(z.begin(); z.end(); [&](T& s){s=a*x[i]+y[i];i++;})
+    return z;
 }
 
 
@@ -67,7 +74,10 @@ int main()
     const int Q4_A = 2;
     const std::vector<int> q4a_x = {-2, -1, 0, 1, 2};
     const std::vector<int> q4_y = {-2, -1, 0, 1, 2};
-
+    std::vector<int> z=daxpy(Q4_A, q4a_x, q4_y);
+    for (unsigned int i=0; i<5; i++) {
+        std::cout<<z[i]<<" ";
+    }
     // TODO: Verify your Q4a implementation
 
     // Q4b test
