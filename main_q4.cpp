@@ -47,7 +47,6 @@ bool all_students_passed(const std::vector<Student>& students, double pass_thres
 
 //Test function using for loop
 bool test_q3(const std::vector<Student>& students, double pass_threshold) {
-    bool out=true;
     for (unsigned int i=0; i<students.size(); i++) {
         double score=students[i].homework*HOMEWORK_WEIGHT+students[i].midterm*MIDTERM_WEIGHT+students[i].final_exam*FINAL_EXAM_WEIGHT;
         if (score < pass_threshold) {
@@ -114,7 +113,6 @@ int main()
     const std::vector<int> q4a_x = {-2, -1, 0, 1, 2};
     const std::vector<int> q4_y = {-2, -1, 0, 1, 2};
     std::vector<int> z=daxpy(Q4_A, q4a_x, q4_y);
-    std::cout<<"ax+y is:\n";
     bool q1=true;
     for (unsigned int i=0; i<5; i++) {
         if (z[i] != Q4_A*q4a_x[i]+q4_y[i]) {
