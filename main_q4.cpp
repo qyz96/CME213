@@ -17,7 +17,7 @@ std::vector<T> daxpy(T a, const std::vector<T>& x, const std::vector<T>& y)
     }
     unsigned int i=0;
     std::vector<T> z(x.size());
-    std::for_each(z.begin(); z.end(); [&](T& s){s=a*x[i]+y[i];i++;});
+    std::for_each(z.begin(), z.end(), [&](T& s){s=a*x[i]+y[i];i++;});
     return z;
 }
 
