@@ -30,8 +30,8 @@ int main()
     MatrixSymmetric<double> mat_small(n);
     MatrixSymmetric<double> mat_small2(n);
     MatrixSymmetric<double> mat_large(2*n);  
-    auto f1=[](unsigned int i, unsigned int j) {return (i+j+1);};
-    auto f2=[](unsigned int i, unsigned int j){return (i-j-3);};
+    auto f1=[](unsigned int i, unsigned int j) {return (double)(i+j+1);};
+    auto f2=[](unsigned int i, unsigned int j){return (double)(i-j-3);};
     AssignVal(mat_small, f1);
     AssignVal(mat_small2, f2);
     AssignVal(mat_large, f2);
