@@ -100,9 +100,11 @@ int main()
     const std::vector<int> q4a_x = {-2, -1, 0, 1, 2};
     const std::vector<int> q4_y = {-2, -1, 0, 1, 2};
     std::vector<int> z=daxpy(Q4_A, q4a_x, q4_y);
+    std::cout<<"ax+y is:\n";
     for (unsigned int i=0; i<5; i++) {
         std::cout<<z[i]<<" ";
     }
+    std::cout<<"\n";
     // TODO: Verify your Q4a implementation
 
     // Q4b test
@@ -115,14 +117,19 @@ int main()
             Student(1., 1., 1.),
             Student(0, 0, 0)};
 
-    std::cout<<all_students_passed(all_pass_students, 0.6)<<"\n";
-    std::cout<<all_students_passed(not_all_pass_students, 0.6)<<"\n";
+    if (all_students_passed(all_pass_students, 0.6)) {
+        std::cout<<"all_pass_students have passed the class!\n";
+    }
+    if (!all_students_passed(not_all_pass_students, 0.6)) {
+        std::cout<<"not_all_pass_students have not passed the class!\n";
+    }
     // TODO: Verify your Q4b implementation
 
     // Q4c test
     std::vector<int> odd_even_sorted = {-5, -4, -3, 2, -1, 0, 2, 5, 4, 1};
 
     sort_odd_even(odd_even_sorted);
+    std::cout<<"Sorted odd even list\n";
     for (unsigned int i=0; i<odd_even_sorted.size(); i++) {
         std::cout<<odd_even_sorted[i]<<" ";
     }
@@ -136,6 +143,7 @@ int main()
             SparseMatrixCoordinate<int>(3, 4, 3)};
 
     sparse_matrix_sort(sparse);
+    std::cout<<"Sorted Coordinates:\n";
     for (std::list<SparseMatrixCoordinate<int>>::iterator it=sparse.begin(); it != sparse.end(); it++) {
         std::cout<<it->row<<" "<<it->col<<"\n";
     }
