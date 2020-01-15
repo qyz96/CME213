@@ -134,6 +134,7 @@ int main()
             SparseMatrixCoordinate<int>(2, 2, 2),
             SparseMatrixCoordinate<int>(3, 4, 3)};
 
+    sparse_matrix_sort(sparse);
     for (std::list<SparseMatrixCoordinate<int>>::iterator it=sparse.begin(); it != sparse.end(); it++) {
         std::cout<<it->row<<" "<<it->col<<"\n";
     }
