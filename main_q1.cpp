@@ -1,11 +1,22 @@
 #include "matrix.hpp"
 
+template <typename T>
+bool VerifySymmetry(const MatrixSymmetric<T>& data) {
+    for (unsigned int j=0; j<data.Size(); j++) {
+        for (unsigned int i=j; i<data.Size(); i++) {
+            if (data(i,j) != data(j,i)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
 
 int main()
 {
     int n=2;
-    MatrixSymmetric<double> mat1(n);
-    MatrixSymmetric<double> mat2(n);  
+    MatrixSymmetric<double> mat_small(2);
+    MatrixSymmetric<double> mat_large(20);  
     
     for (unsigned int i=0; i<n; i++){
         for (unsigned int j=0; j<n; j++){
