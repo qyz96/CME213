@@ -28,6 +28,7 @@ int main()
 {
     int n=2;
     MatrixSymmetric<double> mat_small(2);
+    MatrixSymmetric<double> mat_small2(2);
     MatrixSymmetric<double> mat_large(20);  
     auto f1=[](unsigned int i, unsigned int j) {return (i+j+1);};
     auto f2=[](unsigned int i, unsigned int j){return (i*i+j*j+1);};
@@ -39,9 +40,13 @@ int main()
     if (VerifySymmetry(mat_large)) {
         std::cout<<"Large matrix symmetry verified!\n";
     }
-    std::cout<<"Printing small matrix:\n"<<mat_small;
+    std::cout<<"Printing small matrix 1:\n"<<mat_small;
+    std::cout<<"Printing small matrix 2:\n"<<mat_small;
     std::cout<<"Printing large matrix:\n"<<mat_large;
     //std::vector<Matrix<double>*> data(2);
     std::cout<<"L0 norm of large matrix is "<<mat_large.l0norm()<<"\n";
+    std::cout<<"Adding mat_small and matsmall2:\n"<<mat_small+mat_small2;
+    std::cout<<"Subtracting mat_small2 from mat_small:\n"<<mat_small-mat_small2;
+    std::cout<<"Computing mat_small*mat_small2:\n"<<mat_small*mat_small2;
     return 0;
 }
