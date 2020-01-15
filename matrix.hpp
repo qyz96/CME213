@@ -19,7 +19,7 @@ class Matrix
     //Initialize with abstract matrix class
     Matrix(unsigned int n, bool dense): size(n), IsDense(dense) {}
 
-
+    //Free memory
     ~Matrix() {
         if (IsDense) {
             for (int i=0; i<Size(); i++) {
@@ -28,6 +28,7 @@ class Matrix
         delete[] DensePtr;
         }
     }
+    //Read data
     virtual T& Entry(unsigned int i, unsigned int j) {
         if (IsDense) {
             return *(DensePtr[j]+i);
@@ -38,11 +39,12 @@ class Matrix
             return *(DensePtr[j]+i);
         }
     };
+    //Read data from operator()
     const T& operator ()(unsigned int i, unsigned int j) const { return Entry(i,j);}
     T& operator ()(unsigned int i, unsigned int j) { return Entry(i,j);}
 
     
-    
+    //Passing data to ostream
     friend ostream& operator << (ostream& os, const Matrix<T>& mat) {
         for (int i=0; i<mat.size; i++) {
             for (int j=0; j<mat.size; j++) {
@@ -53,7 +55,7 @@ class Matrix
         return os;
     }
 
-    
+    //Adding two matrices
     Matrix<T> operator + (const Matrix<T>& mat1) const {
         Matrix<T> output(mat1.Size());
         if (mat1.Size()!=this->Size()) {
@@ -69,6 +71,7 @@ class Matrix
         return output;
     }
 
+    //Subtracting matrices
     Matrix<T> operator - (const Matrix<T>& mat1) const {
         Matrix<T> output(mat1.Size());
         if (mat1.Size()!=this->Size()) {
@@ -84,6 +87,7 @@ class Matrix
         return output;
     }
 
+    //Multiplying matrices
     Matrix<T> operator * (const Matrix<T>& mat1) const {
         Matrix<T> output(mat1.Size());
         if (mat1.Size()!=this->Size()) {
@@ -104,8 +108,8 @@ class Matrix
 
     
 
-    
-        unsigned int l0norm() {
+    //Return the number of nonzero entries
+    unsigned int l0norm() {
         unsigned int norm=0;
         for (unsigned int i=0; i<size; i++) {
             for (unsigned int j=0; j<size; j++) {
@@ -117,6 +121,7 @@ class Matrix
         return norm;
     }
 
+    //Return the size of the matrix
     const unsigned int Size() const {
         return this->size;
     }
@@ -131,11 +136,13 @@ template <typename T>
 class MatrixSymmetric: public Matrix<T>
 {
     public:
+    //Allocate O(n(n+2)/2) space for data storage
     MatrixSymmetric(int n): Matrix<T>(n, false), data(new T*[n]) {
         for (int i=0; i<n; i++) {
             data[i]=new T[n-i];
         }
     }
+    //Read data
     T& Entry(unsigned int i, unsigned int j) {
 
         if (i>=j) {
@@ -161,7 +168,7 @@ class MatrixSymmetric: public Matrix<T>
 
     
     
-
+    //Free memory
     ~MatrixSymmetric() {
       
         for (int i=0; i<1; i++) {

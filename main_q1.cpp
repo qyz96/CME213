@@ -23,7 +23,8 @@ void AssignVal(MatrixSymmetric<T>& data, F f) {
 }
 
 
-
+/*This test code creates matrices with different values and sizes, 
+    checks symmetry and arithmetic operations*/
 int main()
 {
     int n=5;
@@ -41,13 +42,15 @@ int main()
     if (VerifySymmetry(mat_large)) {
         std::cout<<"Large matrix symmetry verified!\n";
     }
-    std::cout<<"Printing small matrix 1:\n"<<mat_small;
+    std::vector<Matrix<double>*> data(2);
+    data[0]=&mat_small;
+    data[1]=&mat_large;
+    std::cout<<"Printing small matrix 1:\n"<<*data[0];
     std::cout<<"Printing small matrix 2:\n"<<mat_small2;
-    std::cout<<"Printing large matrix:\n"<<mat_large;
-    //std::vector<Matrix<double>*> data(2);
-    std::cout<<"L0 norm of large matrix is "<<mat_large.l0norm()<<"\n";
-    std::cout<<"Adding mat_small and matsmall2:\n"<<mat_small+mat_small2;
-    std::cout<<"Subtracting mat_small2 from mat_small:\n"<<mat_small-mat_small2;
-    std::cout<<"Computing mat_small*mat_small2:\n"<<mat_small*mat_small2;
+    std::cout<<"Printing large matrix:\n"<<*data[1];
+    std::cout<<"L0 norm of large matrix is "<<data[1]->l0norm()<<"\n";
+    std::cout<<"Adding mat_small and matsmall2:\n"<<*data[0]+mat_small2;
+    std::cout<<"Subtracting mat_small2 from mat_small:\n"<<*data[0]-mat_small2;
+    std::cout<<"Computing mat_small*mat_small2:\n"<<*data[0]*mat_small2;
     return 0;
 }

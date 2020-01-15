@@ -25,14 +25,12 @@ int main()
     std::set<double> data;
     double low=0.2;
     double high=0.8;
-    unsigned int n=100;
+    unsigned int n=1000;
     std::default_random_engine generator;
     std::normal_distribution<double> distribution(0.0, 1.0);
     for (unsigned int i = 0; i < n; ++i)
         data.insert(distribution(generator));
-    for (std::set<double>::iterator it=data.begin(); it != data.end(); it++) {
-        std::cout<<*it<<" ";
-    }
+
 
     // TODO: print out number of points in [2, 10] //
     std::cout<<CountData(data,low, high)<<" values between "<<low<<" and "<<high<<".\n";
