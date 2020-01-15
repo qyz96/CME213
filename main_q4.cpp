@@ -40,7 +40,9 @@ struct Student
 bool all_students_passed(const std::vector<Student>& students, double pass_threshold) 
 {
     // TODO 
-    return false;
+    return std::all_of(students.begin(), students.end(), [=](Student& s){
+        return (s.homework*HOMEWORK_WEIGHT+s.midterm*MIDTERM_WEIGHT+s.final_exam*FINAL_EXAM_WEIGHT>=pass_threshold);
+    });
 }
 
 
@@ -48,6 +50,18 @@ bool all_students_passed(const std::vector<Student>& students, double pass_thres
 void sort_odd_even(std::vector<int>& data)
 {
     // TODO
+    std::sort(data.begin(),data.end(), [](int a, int b){
+        if (a % 2 != 0 && b % 2 == 0) {
+            return false;
+        }
+        else if (a % 2 ==0 && b % 2 != 0) {
+            return true;
+        }
+        else {
+            return a>b;
+        }
+    });
+    return;
 }
 
 /**********  Q4d: Sparse matrix list sorting **********/
@@ -66,6 +80,17 @@ template <typename T>
 void sparse_matrix_sort(std::list<SparseMatrixCoordinate<T>>& list) 
 {
     // TODO
+    list.sort([](SparseMatrixCoordinate<T> a, SparseMatrixCoordinate<T> b) {
+        if (a.row > b.row) {
+            return true;
+        }
+        else if (a.row == b.row && a.col>b.col) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    });
 }
 
 int main() 
@@ -90,11 +115,17 @@ int main()
             Student(1., 1., 1.),
             Student(0, 0, 0)};
 
+    std::cout<<all_students_passed(all_pass_students)<<"\n";
+    std::cout<<all_students_passed(not_all_pass_students)<<"\n";
     // TODO: Verify your Q4b implementation
 
     // Q4c test
     std::vector<int> odd_even_sorted = {-5, -3, -1, 1, 3, -4, -2, 0, 2, 4};
 
+    for (unsigned int i=0; i<odd_even_sorted.size(); i++) {
+        std::cout<<odd_even_sorted[i]<<" ";
+    }
+    std::cout<<"\n";
     // TODO: Verify your Q4c implementation
 
     // Q4d test
@@ -103,6 +134,10 @@ int main()
             SparseMatrixCoordinate<int>(2, 2, 2),
             SparseMatrixCoordinate<int>(3, 4, 3)};
 
+    std::list<SparseMatrixCoordinate>::iterator it;
+    for (it=sparse.begin(); it != sparse.end(); it++) {
+        std::cout<<it->row<<" "<<it->col<<"\n";
+    }
     // TODO: Verify your Q4d implementation
 
     return 0;
