@@ -42,13 +42,13 @@ class Matrix
     //Read data from operator()
     const T& operator ()(unsigned int i, unsigned int j) const { 
         if (i>this->Size() || j>this->Size()) {
-            throw std::out_of_range("Index out of range");
+            throw std::out_of_range("Index out of range\n");
         }
         
         return Entry(i,j);}
     T& operator ()(unsigned int i, unsigned int j) { 
         if (i>this->Size() || j>this->Size()) {
-            throw std::out_of_range("Index out of range");
+            throw std::out_of_range("Index out of range\n");
         }
         return Entry(i,j);
         }
