@@ -12,7 +12,7 @@ class Matrix
     Matrix(): size(0), IsDense(false) {}
     //Initialize with dense matrix class
     Matrix(unsigned int n): size(n), IsDense(true), DensePtr(new T*[n]) {
-        for (int i=0; i<n; i++) {
+        for (unsigned int i=0; i<n; i++) {
             DensePtr[i]=new T[n];
         }
     }
@@ -22,7 +22,7 @@ class Matrix
     //Free memory
     ~Matrix() {
         if (IsDense) {
-            for (int i=0; i<Size(); i++) {
+            for (unsigned int i=0; i<Size(); i++) {
             delete[] DensePtr[i];
         }
         delete[] DensePtr;
@@ -56,8 +56,8 @@ class Matrix
     
     //Passing data to ostream
     friend ostream& operator << (ostream& os, const Matrix<T>& mat) {
-        for (int i=0; i<mat.size; i++) {
-            for (int j=0; j<mat.size; j++) {
+        for (unsigned int i=0; i<mat.size; i++) {
+            for (unsigned int j=0; j<mat.size; j++) {
                 os<<mat(i,j)<<" ";
             }
             os<<"\n";
@@ -144,7 +144,7 @@ class MatrixSymmetric: public Matrix<T>
 {
     public:
     //Allocate O(n(n+2)/2) space for data storage
-    MatrixSymmetric(int n): Matrix<T>(n, false), data(new T*[n]) {
+    MatrixSymmetric(unsigned int n): Matrix<T>(n, false), data(new T*[n]) {
         for (int i=0; i<n; i++) {
             data[i]=new T[n-i];
         }
