@@ -27,7 +27,7 @@ void AssignVal(MatrixSymmetric<T>& data, F f) {
     checks symmetry and arithmetic operations*/
 int main()
 {
-    int n=5;
+    unsigned int n=5;
     MatrixSymmetric<double> mat_small(n);
     MatrixSymmetric<double> mat_small2(n);
     MatrixSymmetric<double> mat_large(2*n);  
