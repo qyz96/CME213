@@ -45,6 +45,8 @@ int main()
     std::vector<Matrix<double>*> data(2);
     data[0]=&mat_small;
     data[1]=&mat_large;
+    int c=mat_small(100,1);
+    std::cout<<mat_small+mat_large;
     std::cout<<"Printing small matrix 1:\n"<<*data[0];
     std::cout<<"Printing small matrix 2:\n"<<mat_small2;
     std::cout<<"Printing large matrix:\n"<<*data[1];
