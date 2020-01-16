@@ -40,8 +40,18 @@ class Matrix
         }
     };
     //Read data from operator()
-    const T& operator ()(unsigned int i, unsigned int j) const { return Entry(i,j);}
-    T& operator ()(unsigned int i, unsigned int j) { return Entry(i,j);}
+    const T& operator ()(unsigned int i, unsigned int j) const { 
+        if (i>this->Size() || j>this->Size()) {
+            throw std::out_of_range("Index out of range");
+        }
+        
+        return Entry(i,j);}
+    T& operator ()(unsigned int i, unsigned int j) { 
+        if (i>this->Size() || j>this->Size()) {
+            throw std::out_of_range("Index out of range");
+        }
+        return Entry(i,j);
+        }
 
     
     //Passing data to ostream
@@ -59,8 +69,7 @@ class Matrix
     Matrix<T> operator + (const Matrix<T>& mat1) const {
         Matrix<T> output(mat1.Size());
         if (mat1.Size()!=this->Size()) {
-            cerr << "Matrices should have the same sizes!\n";
-            return output;
+            throw std::invalid_argument("Matrices should have the same sizes!\n");
         }
         for (unsigned int i=0; i<mat1.Size(); i++) {
             for (unsigned int j=0; j<mat1.Size(); j++) {
@@ -75,8 +84,7 @@ class Matrix
     Matrix<T> operator - (const Matrix<T>& mat1) const {
         Matrix<T> output(mat1.Size());
         if (mat1.Size()!=this->Size()) {
-            cerr << "Matrices should have the same sizes!\n";
-            return output;
+            throw std::invalid_argument("Matrices should have the same sizes!\n");
         }
         for (unsigned int i=0; i<mat1.Size(); i++) {
             for (unsigned int j=0; j<mat1.Size(); j++) {
@@ -91,8 +99,7 @@ class Matrix
     Matrix<T> operator * (const Matrix<T>& mat1) const {
         Matrix<T> output(mat1.Size());
         if (mat1.Size()!=this->Size()) {
-            cerr << "Matrices should have the same sizes!\n";
-            return output;
+            throw std::invalid_argument("Matrices should have the same sizes!\n");
         }
         for (unsigned int i=0; i<mat1.Size(); i++) {
             for (unsigned int j=0; j<mat1.Size(); j++) {
