@@ -23,7 +23,7 @@ void AssignVal(MatrixSymmetric<T>& data, F f) {
 }
 
 template <typename T>
-unsigned int TestL0Norm(const MatrixSymmetric<T>& data) {
+unsigned int TestL0Norm(const Matrix<T>& data) {
     unsigned int l0=0;
     for (unsigned int j=0; j<data.Size(); j++) {
         for (unsigned int i=0; i<data.Size(); i++) {
