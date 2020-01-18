@@ -35,6 +35,47 @@ unsigned int TestL0Norm(const Matrix<T>& data) {
     return l0;
 }
 
+template <typename T>
+unsigned int TestAdd(const Matrix<T>& z, const Matrix<T>& x,const Matrix<T>& y) {
+    for (unsigned int j=0; j<x.Size(); j++) {
+        for (unsigned int i=0; i<x.Size(); i++) {
+            if (z(i,j) != x(i,j)+y(i,j)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+template <typename T>
+unsigned int TestSubtract(const Matrix<T>& z, const Matrix<T>& x,const Matrix<T>& y) {
+    for (unsigned int j=0; j<x.Size(); j++) {
+        for (unsigned int i=0; i<x.Size(); i++) {
+            if (z(i,j) != x(i,j)-y(i,j)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+template <typename T>
+unsigned int TestMultiply(const Matrix<T>& z, const Matrix<T>& x,const Matrix<T>& y) {
+    for (unsigned int j=0; j<x.Size(); j++) {
+        for (unsigned int i=0; i<x.Size(); i++) {
+            T sum=0;
+            for (unsigned int k=0; k<x.Size(); k++ ) {
+                sum+=x(i,k)*y(k,j);
+            }
+            if (z(i,j) != sum) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+
 
 /*This test code creates matrices with different values and sizes, 
     checks symmetry and arithmetic operations*/
@@ -63,8 +104,11 @@ int main()
     std::cout<<"Printing large matrix:\n"<<*data[1];
     assert(data[1]->l0norm()==TestL0Norm(*data[1]));
     std::cout<<"L0 norm of large matrix is "<<data[1]->l0norm()<<"\n";
+    assert(TestAdd(*data[0]+mat_small2, *data[0],mat_small2));
     std::cout<<"Adding mat_small and matsmall2:\n"<<*data[0]+mat_small2;
+    assert(TestSubtract(*data[0]-mat_small2, *data[0],mat_small2));
     std::cout<<"Subtracting mat_small2 from mat_small:\n"<<*data[0]-mat_small2;
+    assert(TestMultiply(*data[0]*mat_small2, *data[0],mat_small2));
     std::cout<<"Computing mat_small*mat_small2:\n"<<*data[0]*mat_small2;
     return 0;
 }
