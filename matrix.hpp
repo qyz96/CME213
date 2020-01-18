@@ -3,6 +3,7 @@
 #include<iostream>
 #include<algorithm>
 #include <stdexcept>
+#include <cassert>
 using namespace std;
 
 template <typename T>
