@@ -1,5 +1,5 @@
 #include "matrix.hpp"
-
+#include <cassert>
 template <typename T>
 bool VerifySymmetry(const MatrixSymmetric<T>& data) {
     for (unsigned int j=0; j<data.Size(); j++) {
