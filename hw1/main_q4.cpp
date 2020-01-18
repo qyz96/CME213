@@ -4,6 +4,7 @@
 #include <list>
 #include <numeric>
 #include <stdexcept>
+#include <cassert>
 
 
 /**********  Q4a: DAXPY **********/
@@ -119,12 +120,8 @@ int main()
             q1=false;
         }
     }
-    if (q1) {
-        std::cout<<"Q1 computation successful!\n";
-    }
-    else{
-        std::cout<<"Q1 computation failed!\n";
-    }
+    assert(q1);
+    std::cout<<"Q1 computation successful!\n";
     // TODO: Verify your Q4a implementation
 
     // Q4b test
@@ -137,13 +134,8 @@ int main()
             Student(1., 1., 1.),
             Student(0, 0, 0)};
 
-    if (all_students_passed(all_pass_students, 0.6)==test_q3(all_pass_students, 0.6) &&
-        all_students_passed(not_all_pass_students, 0.6) == test_q3(not_all_pass_students, 0.60)) {
-        std::cout<<"Q2 compuation successful!\n";
-    }
-    else {
-        std::cout<<"Q2 computation failed!\n";
-    }
+    assert(all_students_passed(all_pass_students, 0.6)==test_q3(all_pass_students, 0.6) && all_students_passed(not_all_pass_students, 0.6) == test_q3(not_all_pass_students, 0.60)); 
+    std::cout<<"Q2 compuation successful!\n";
     // TODO: Verify your Q4b implementation
 
     // Q4c test
@@ -168,12 +160,8 @@ int main()
             break;
         }
     }
-    if (q3) {
-        std::cout<<"Q3 sorting successful!\n";
-    }
-    else {
-        std::cout<<"Q3 sorting failed!\n";
-    }
+    assert(q3);
+    std::cout<<"Q3 sorting successful!\n";
     // TODO: Verify your Q4c implementation
 
     // Q4d test
@@ -200,13 +188,8 @@ int main()
             q4=false;
         }
     }
-    if(q4) {
-        std::cout<<"Q4 sorting successful!\n";
-    }
-    else {
-        std::cout<<"Q4 sorting failed!\n";
-    }
-
+    assert(q4); 
+    std::cout<<"Q4 sorting successful!\n";
     // TODO: Verify your Q4d implementation
 
     return 0;
