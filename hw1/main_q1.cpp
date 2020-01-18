@@ -22,6 +22,19 @@ void AssignVal(MatrixSymmetric<T>& data, F f) {
     return;
 }
 
+template <typename T>
+unsigned int TestL0Norm(const MatrixSymmetric<T>& data) {
+    unsigned int l0=0;
+    for (unsigned int j=0; j<data.Size(); j++) {
+        for (unsigned int i=0; i<data.Size(); i++) {
+            if (data(i,j) != 0) {
+                l0++;
+            }
+        }
+    }
+    return l0;
+}
+
 
 /*This test code creates matrices with different values and sizes, 
     checks symmetry and arithmetic operations*/
@@ -48,6 +61,7 @@ int main()
     std::cout<<"Printing small matrix 1:\n"<<*data[0];
     std::cout<<"Printing small matrix 2:\n"<<mat_small2;
     std::cout<<"Printing large matrix:\n"<<*data[1];
+    assert(data[1]->l0norm()==TestL0Norm(*data[1]));
     std::cout<<"L0 norm of large matrix is "<<data[1]->l0norm()<<"\n";
     std::cout<<"Adding mat_small and matsmall2:\n"<<*data[0]+mat_small2;
     std::cout<<"Subtracting mat_small2 from mat_small:\n"<<*data[0]-mat_small2;
