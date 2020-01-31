@@ -16,12 +16,12 @@ const uint kSize = 30000000;
 std::vector<uint> serialSum(const std::vector<uint>& v) {
     std::vector<uint> sums(2);
     // TODO
-    for (auto& it:v) {
-        if (it%2==0) {
-            sums[0]+=it;
+    for (uint i=0; i<v.size(); i++) {
+        if (v[i]%2==0) {
+            sums[0]+=v[i];
         }
         else {
-            sums[1]+=it;
+            sums[1]+=v[i];
         }
     }
     return sums;
@@ -31,13 +31,12 @@ std::vector<uint> parallelSum(const std::vector<uint>& v) {
     std::vector<uint> sums(2);
     uint sum1,sum2;
     #pragma omp parallel for default(shared) reduction(+:sum1, sum2)
-    for (auto& it:v) {
-        if (it%2==0) {
-            sum1+=it;
-            //printf("Thread %d works on element\n", omp_get_thread_num());
+    for (uint i=0; i<v.size(), i++) {
+        if (v[i]%2==0) {
+            sum1+=v[i];
         }
         else {
-            sum2+=it;
+            sum2+=v[i];
         }
     }
     
