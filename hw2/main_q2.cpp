@@ -30,7 +30,7 @@ std::vector<uint> computeBlockHistograms(const std::vector<uint> &keys,
     uint mask=(1<<numBits)-1;
     auto TakeBits=[&](uint a) { return ((a>>startBit) & mask);};
     uint i;
-    #pragma omp parallel for shared(keys) 
+    #pragma omp parallel for shared(blockHistograms,keys) 
     for (i=0; i<numBlocks; i++) {
         for (uint j=0; j<blockSize; j++) {
             if (i*blockSize+j >= keys.size()) {
