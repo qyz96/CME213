@@ -31,7 +31,7 @@ std::vector<uint> parallelSum(const std::vector<uint>& v) {
     std::vector<uint> sums(2);
     uint sum1,sum2;
     #pragma omp parallel for default(shared) reduction(+:sum1, sum2)
-    for (uint i=0; i<v.size(), i++) {
+    for (uint i=0; i<v.size(); i++) {
         if (v[i]%2==0) {
             sum1+=v[i];
         }
