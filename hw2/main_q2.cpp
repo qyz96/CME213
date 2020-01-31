@@ -57,7 +57,7 @@ std::vector<uint> reduceLocalHistoToGlobal(const std::vector<uint> &
         temp[j]=0;
     }
     // TODO
-    #pragma omp parallel for reduction(+: temp[:numBuckets])
+    //#pragma omp parallel for reduction(+: temp[:numBuckets])
     for (uint i=0; i<numBlocks; i++) {
         for (uint j=0; j<numBuckets; j++) {
             temp[j]+=blockHistograms[i*numBuckets+j];
