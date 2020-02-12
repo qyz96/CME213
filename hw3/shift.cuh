@@ -23,7 +23,7 @@ __global__ void shift_char(const uchar *input_array, uchar *output_array,
     uint j = blockIdx.y * blockDim.y + threadIdx.y;
     uint n = blockDim.x * gridDim.x;
     for (uint i=0; i<array_length; i++)
-        output_array[i] = input_array[i] ;
+        output_array[i] = input_array[i] +shift_amount;
     }
 
 }
