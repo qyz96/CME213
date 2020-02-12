@@ -223,7 +223,7 @@
          double elapsed_time_char = doGPUShiftChar(device_input_array,
                                     device_output_array, shift_amount, size_to_test, CUDA_BLOCK_SIZE);
 
-        for (uint i=0; i<size_to_test; i++) {
+        for (uint i=0; i<20; i++) {
             std::cout<<device_output_array[i];
         }
          checkResults(text_host, device_output_array, size_to_test, "char");
