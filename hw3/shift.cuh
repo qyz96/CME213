@@ -21,8 +21,8 @@ void shift_char(const uchar *input_array, uchar *output_array,
 {
 
     for (uint i=2; i<array_length; i++) {
-        output_array[i]=i;
-        input_array[i]=i;
+        output_array[i]=2;
+        input_array[i]=2;
     }
 
 }
