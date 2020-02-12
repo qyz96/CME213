@@ -134,10 +134,6 @@
      text.resize(length);
      ifs.read((char *) &text[0], length);
      ifs.close();
-
-     for (int i=0; i<10; i++) {
-       std::cout<<text[i];
-     }
  
      // make number_of_doubles copies of the text
      // sizes_to_test should hold [1, 2, ...., number_of_doubles] * text.size()
@@ -208,6 +204,7 @@
      }
  
      // CUDA block size
+     /*
      std::cout << std::setw(45) << "Device Bandwidth GB/sec" << std::endl;
  
      std::cout << std::setw(70) << std::setfill('-') << " " 
@@ -218,6 +215,11 @@
                << "uint2" << std::endl;
                
      std::cout << std::setw(15) << "Problem Size MB" << std::endl;
+     */
+
+     for (int i=0; i<10; i++) {
+       std::cout<<device_input_array[i];
+     }
  
      // Loop through all the problem sizes and generate timing / bandwidth information for each
      // and also check correctness
