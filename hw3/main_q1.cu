@@ -222,6 +222,12 @@
      // and also check correctness
      for (const uint size_to_test : sizes_to_test) 
      {
+ 
+         // generate GPU uint output
+         double elapsed_time_uint = doGPUShiftUInt(device_input_array,
+                                    device_output_array, shift_amount, size_to_test, CUDA_BLOCK_SIZE);
+         checkResults(text_host, device_output_array, size_to_test, "uint");
+         cudaMemset(device_output_array, 0, size_to_test);
          // generate GPU char output
          double elapsed_time_char = doGPUShiftChar(device_input_array,
                                     device_output_array, shift_amount, size_to_test, CUDA_BLOCK_SIZE);
