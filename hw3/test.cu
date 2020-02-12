@@ -1,12 +1,69 @@
-#include <iostream>
-#include <math.h>
-// Kernel function to add the elements of two arrays
-__global__
-void add(int n, float *x, float *y)
-{
-  for (int i = 0; i < n; i++)
-    y[i] = x[i] + y[i];
-}
+#include <algorithm>
+ #include <cstdlib>
+ #include <iostream>
+ #include <iomanip>
+ #include <ctime>
+ #include <fstream>
+ #include <vector>
+ 
+ #include "util.cuh"
+ #include "shift.cuh"
+ 
+ 
+ constexpr const char *MOBY_DICK = "mobydick.txt";
+ constexpr const int CUDA_BLOCK_SIZE = 256;
+ 
+ void host_shift(std::vector<unsigned char> &input_array, 
+                 std::vector<unsigned char> &output_array,
+                 unsigned char shift_amount) 
+ {
+     std::transform(input_array.begin(), input_array.end(), output_array.begin(),
+         [&shift_amount](unsigned char& element) {
+             return element + shift_amount;
+         }
+     );
+ }
+ 
+ void checkResults(std::vector<unsigned char> &text_host, 
+                   unsigned char *device_output_array,
+                   unsigned int num_entries, 
+                   const char *type) 
+ {
+     // allocate space on host for gpu results
+     std::vector<unsigned char> text_from_gpu(num_entries);
+ 
+     // download and inspect the result on the host:
+     cudaMemcpy(&text_from_gpu[0], device_output_array, num_entries,
+                cudaMemcpyDeviceToHost);
+     check_launch("copy from gpu");
+ 
+     // check CUDA output versus reference output
+     int error = 0;
+ 
+     for (unsigned int i = 0; i < num_entries; i++) 
+     {
+         if (text_host[i] == text_from_gpu[i])
+             continue;
+ 
+         ++error;
+         std::cerr << "Mismatch at pos: " << i << std::endl
+                   << "Expected " << static_cast<int>(text_host[i])
+                   << " and got " << static_cast<int>(text_from_gpu[i])
+                   << std::endl;
+ 
+         if (error > 10) 
+         {
+             std::cerr << std::endl << "Too many errors, quitting..." << std::endl;
+             break;
+         }
+     }
+ 
+     if (error) 
+     {
+         std::cerr << "\nError(s) in " << type << " kernel!" << std::endl;
+         exit(1);
+     }
+ }
 
 int main(void)
 {
