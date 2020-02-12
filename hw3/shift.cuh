@@ -21,7 +21,7 @@ __global__ void shift_char(const uchar *input_array, uchar *output_array,
 
     const uint i = (uint)(blockIdx.x * blockDim.x + threadIdx.x);
     if (i<array_length) {
-        output_array[i]=(uchar)(3);
+        output_array[i]=input_array[i];
     }
 
 }
