@@ -20,7 +20,7 @@ __global__ void shift_char(const uchar *input_array, uchar *output_array,
 {
     // TODO: fill in
     uint i = blockIdx.x * blockDim.x + threadIdx.x;
-    uint j = blockIdx.y * blockDim.y + threadIdx.y;
+    //uint j = blockIdx.y * blockDim.y + threadIdx.y;
     uint n = array_length;
     if(i < n) {
         output_array[i] = input_array[i] + shift_amount;
@@ -56,7 +56,7 @@ __global__ void shift_int2(const uint2 *input_array, uint2 *output_array,
 {
     // TODO: fill in
     uint i = blockIdx.x * blockDim.x + threadIdx.x;
-    uint j = blockIdx.y * blockDim.y + threadIdx.y;
+    //uint j = blockIdx.y * blockDim.y + threadIdx.y;
     uint n = array_length;
     if(i<n) {
         output_array[i].x=input_array[i].x;
@@ -64,7 +64,7 @@ __global__ void shift_int2(const uint2 *input_array, uint2 *output_array,
 
         for (uint k=0; k<4; k++) {
             output_array[i].x+=(shift_amount<<k);
-            output_array[i].y=(shift_amount<<k);
+            output_array[i].y+=(shift_amount<<k);
         }
     }
 }
