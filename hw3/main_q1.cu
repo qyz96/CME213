@@ -57,7 +57,7 @@
      int error = 0;
  
     for (uint i=0; i<20; i++) {
-            std::cout<<"?";
+            std::cout<<static_cast<int>(text_from_gpu[i]);
         }
      for (unsigned int i = 0; i < num_entries; i++) 
      {
