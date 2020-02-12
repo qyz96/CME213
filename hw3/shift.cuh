@@ -20,9 +20,9 @@ void shift_char(const uchar *input_array, uchar *output_array,
                            uchar shift_amount, uint array_length) 
 {
 
-    for (uint i=2; i<array_length; i++) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i<array_length) {
         output_array[i]=2;
-        input_array[i]=2;
     }
 
 }
