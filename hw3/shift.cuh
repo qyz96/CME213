@@ -22,7 +22,7 @@ void shift_char(const uchar *input_array, uchar *output_array,
 
     const int i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i<array_length) {
-        output_array[i]=2;
+        output_array[1]=2;
     }
 
 }
