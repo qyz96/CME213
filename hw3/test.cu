@@ -1,4 +1,20 @@
-#include <algorithm>
+/* This is machine problem 1, part 1, shift problem
+ *
+ * The problem is to take in a string (a vector of characters) and a shift amount,
+ * and add that number to each element of
+ * the string, effectively "shifting" each element in the
+ * string.
+ *
+ * We do this in three different ways:
+ * 1. With a cuda kernel loading chars and outputting chars for each thread
+ * 2. With a cuda kernel, casting the character pointer to an int so that
+ *    we load and store 4 bytes each time instead of 1 which gives us better coalescing
+ *    and uses the memory effectively to achieve higher bandwidth
+ * 3. Same spiel except with a uint2, so that we load 8 bytes each time
+ *
+ */
+
+ #include <algorithm>
  #include <cstdlib>
  #include <iostream>
  #include <iomanip>
@@ -64,10 +80,10 @@
          exit(1);
      }
  }
-
-int main(void)
-{
-  int exit_code = 0;
+ 
+ int main(int argc, char** argv) 
+ {
+     int exit_code = 0;
      
      // check that the correct number of command line arguments were given
      if (argc != 2)
@@ -198,11 +214,46 @@ int main(void)
                << "uint2" << std::endl;
                
      std::cout << std::setw(15) << "Problem Size MB" << std::endl;
-
-     for (int i=0; i<100; i++) {
-       std::cout<<text_host[i];
+ 
+     // Loop through all the problem sizes and generate timing / bandwidth information for each
+     // and also check correctness
+     for (const uint size_to_test : sizes_to_test) 
+     {
+         // generate GPU char output
+         double elapsed_time_char = doGPUShiftChar(device_input_array,
+                                    device_output_array, shift_amount, size_to_test, CUDA_BLOCK_SIZE);
+         checkResults(text_host, device_output_array, size_to_test, "char");
+ 
+         // make sure we don't falsely say the next kernel is correct because we've left the correct answer sitting in memory
+         cudaMemset(device_output_array, 0, size_to_test);
+ 
+         // generate GPU uint output
+         double elapsed_time_uint = doGPUShiftUInt(device_input_array,
+                                    device_output_array, shift_amount, size_to_test, CUDA_BLOCK_SIZE);
+         checkResults(text_host, device_output_array, size_to_test, "uint");
+ 
+         // make sure we don't falsely say the next kernel is correct because we've left the correct answer sitting in memory
+         cudaMemset(device_output_array, 0, size_to_test);
+ 
+         // generate GPU uint2 output
+         double elapsed_time_uint2 = doGPUShiftUInt2(device_input_array,
+                                     device_output_array, shift_amount, size_to_test, CUDA_BLOCK_SIZE);
+         checkResults(text_host, device_output_array, size_to_test, "uint2");
+ 
+         // make sure we don't falsely say the next kernel is correct because we've left the correct answer sitting in memory
+         cudaMemset(device_output_array, 0, size_to_test);
+ 
+         std::cout << std::setw(15) << size_to_test / 1E6 << " " 
+                   << std::setw(15) << 2 * size_to_test / (elapsed_time_char / 1000.) / 1E9 
+                   << std::setw(15) << 2 * size_to_test / (elapsed_time_uint / 1000.) / 1E9
+                   << std::setw(15) << 2 * size_to_test / (elapsed_time_uint2 / 1000.) / 1E9
+                   << std::endl;
      }
-
-     return 0;
-}
+ 
+     // deallocate memory
+     cudaFree(device_input_array);
+     cudaFree(device_output_array);
+ 
+     return exit_code;
+ }
 
