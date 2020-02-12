@@ -61,7 +61,7 @@ __global__ void shift_int2(const uint2 *input_array, uint2 *output_array,
     if(i < n && j < n) {
         output_array[n*i + j]=input_array[n*i + j];
         for (uint k=0; k<8; k++) {
-            output_array[n*i + j]+=(shift_amount<<k)
+            output_array[n*i + j]+=(shift_amount<<k);
         }
     }
 }
