@@ -41,7 +41,7 @@ __global__ void shift_int(const uint *input_array, uint *output_array,
     uint n = blockDim.x * gridDim.x;
     if(i + j*n<array_length) {
         output_array[i+j*n]=input_array[i+j*n];
-        for (int k=0; k<4; k++) {
+        for (uint k=0; k<4; k++) {
             output_array[i+j*n]+=(shift_amount<<k);
         }
     }
@@ -62,8 +62,8 @@ __global__ void shift_int2(const uint2 *input_array, uint2 *output_array,
         output_array[i+j*n].y=input_array[i+j*n].y;
 
         for (uint k=0; k<4; k++) {
-            output_array[i].x+=(shift_amount<<k);
-            output_array[i].y+=(shift_amount<<k);
+            output_array[i+j*n].x+=(shift_amount<<k);
+            output_array[i+j*n].y+=(shift_amount<<k);
         }
     }
 }
