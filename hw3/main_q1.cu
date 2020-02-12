@@ -56,6 +56,9 @@
      // check CUDA output versus reference output
      int error = 0;
  
+    for (uint i=0; i<20; i++) {
+            std::cout<<text_from_gpu[i];
+        }
      for (unsigned int i = 0; i < num_entries; i++) 
      {
          if (text_host[i] == text_from_gpu[i])
@@ -223,9 +226,6 @@
          double elapsed_time_char = doGPUShiftChar(device_input_array,
                                     device_output_array, shift_amount, size_to_test, CUDA_BLOCK_SIZE);
 
-        for (uint i=0; i<20; i++) {
-            std::cout<<device_output_array[i];
-        }
          checkResults(text_host, device_output_array, size_to_test, "char");
  
          // make sure we don't falsely say the next kernel is correct because we've left the correct answer sitting in memory
