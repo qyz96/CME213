@@ -217,9 +217,6 @@
      std::cout << std::setw(15) << "Problem Size MB" << std::endl;
      */
 
-     for (int i=0; i<10; i++) {
-       std::cout<<device_input_array[i];
-     }
  
      // Loop through all the problem sizes and generate timing / bandwidth information for each
      // and also check correctness

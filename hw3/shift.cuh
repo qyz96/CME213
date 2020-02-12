@@ -15,14 +15,13 @@ typedef unsigned int uint;
 /**
  * Implements a per-element shift by loading a single byte and shifting it.
  */ 
-__global__ 
-void shift_char(const uchar *input_array, uchar *output_array,
+__global__ void shift_char(const uchar *input_array, uchar *output_array,
                            uchar shift_amount, uint array_length) 
 {
 
-    const int i = blockIdx.x * blockDim.x + threadIdx.x;
+    const uint i = (uint)(blockIdx.x * blockDim.x + threadIdx.x);
     if (i<array_length) {
-        output_array[i]=static_cast<unsigned char>(1);
+        output_array[i]=(uchar)(3);
     }
 
 }
