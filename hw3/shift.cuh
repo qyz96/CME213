@@ -20,9 +20,10 @@ __global__ void shift_char(const uchar *input_array, uchar *output_array,
 {
     // TODO: fill in
     uint i = blockIdx.x * blockDim.x + threadIdx.x;
-    //uint j = blockIdx.y * blockDim.y + threadIdx.y;
-    if(i < array_length) {
-        output_array[i] = input_array[i] + shift_amount;
+    uint j = blockIdx.y * blockDim.y + threadIdx.y;
+    uint n = blockDim.x * gridDim.x;
+    if(i+j*n < array_length) {
+        output_array[i+j*n] = input_array[i+j*n] + shift_amount;
     }
 
 }
@@ -36,11 +37,12 @@ __global__ void shift_int(const uint *input_array, uint *output_array,
 {
     // TODO: fill in
     uint i = blockIdx.x * blockDim.x + threadIdx.x;
-    //uint j = blockIdx.y * blockDim.y + threadIdx.y;
-    if(i<array_length) {
-        output_array[i]=input_array[i];
+    uint j = blockIdx.y * blockDim.y + threadIdx.y;
+    uint n = blockDim.x * gridDim.x;
+    if(i + j*n<array_length) {
+        output_array[i+j*n]=input_array[i+j*n];
         for (int k=0; k<4; k++) {
-            output_array[i]+=(shift_amount<<k);
+            output_array[i+j*n]+=(shift_amount<<k);
         }
     }
 }
@@ -53,10 +55,11 @@ __global__ void shift_int2(const uint2 *input_array, uint2 *output_array,
 {
     // TODO: fill in
     uint i = blockIdx.x * blockDim.x + threadIdx.x;
-    //uint j = blockIdx.y * blockDim.y + threadIdx.y;
-    if(i<array_length) {
-        output_array[i].x=input_array[i].x;
-        output_array[i].y=input_array[i].y;
+    uint j = blockIdx.y * blockDim.y + threadIdx.y;
+    uint n = blockDim.x * gridDim.x;
+    if(i + j*n<array_length) {
+        output_array[i+j*n].x=input_array[i+j*n].x;
+        output_array[i+j*n].y=input_array[i+j*n].y;
 
         for (uint k=0; k<4; k++) {
             output_array[i].x+=(shift_amount<<k);
