@@ -21,7 +21,7 @@ void shift_char(const uchar *input_array, uchar *output_array,
 {
     // TODO: fill in
     uint i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i==0) output_array[0] = 33;
+    output_array[0] = 33;
 
 }
 
