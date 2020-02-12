@@ -134,6 +134,10 @@
      text.resize(length);
      ifs.read((char *) &text[0], length);
      ifs.close();
+
+     for (int i=0; i<10; i++) {
+       std::cout<<text[i];
+     }
  
      // make number_of_doubles copies of the text
      // sizes_to_test should hold [1, 2, ...., number_of_doubles] * text.size()
