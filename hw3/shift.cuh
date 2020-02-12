@@ -22,8 +22,8 @@ __global__ void shift_char(const uchar *input_array, uchar *output_array,
     uint i = blockIdx.x * blockDim.x + threadIdx.x;
     uint j = blockIdx.y * blockDim.y + threadIdx.y;
     uint n = blockDim.x * gridDim.x;
-    if(i+j*n < array_length) {
-        output_array[i+j*n] = input_array[i+j*n] ;
+    if(i< array_length) {
+        output_array[i] = input_array[i] ;
     }
 
 }
