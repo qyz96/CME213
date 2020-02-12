@@ -37,7 +37,6 @@ __global__ void shift_int(const uint *input_array, uint *output_array,
     // TODO: fill in
     uint i = blockIdx.x * blockDim.x + threadIdx.x;
     //uint j = blockIdx.y * blockDim.y + threadIdx.y;
-    output_array[i]=0;
     if(i<array_length) {
         output_array[i]=input_array[i];
         for (int k=0; k<4; k++) {
