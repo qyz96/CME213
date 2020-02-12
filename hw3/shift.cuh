@@ -41,8 +41,8 @@ __global__ void shift_int(const uint *input_array, uint *output_array,
     uint n = array_length;
     output_array[n*i + j]=0;
     if(i < n && j < n) {
-        output_array[n*i + j]=0;
-        for (uint k=0; k<4; k++) {
+        output_array[n*i + j]=(uint)0;
+        for (int k=0; k<4; k++) {
             output_array[n*i + j]+=(((input_array[n*i + j]>>(3-k))+shift_amount)<<(3-k));
         }
     }
@@ -58,10 +58,9 @@ __global__ void shift_int2(const uint2 *input_array, uint2 *output_array,
     uint i = blockIdx.x * blockDim.x + threadIdx.x;
     uint j = blockIdx.y * blockDim.y + threadIdx.y;
     uint n = array_length;
-    output_array[n*i + j]=0;
     if(i < n && j < n) {
-        output_array[n*i + j]=0;
-        for (uint k=0; k<8; k++) {
+        output_array[n*i + j]=(uint2)0;
+        for (int k=0; k<8; k++) {
             output_array[n*i + j]+=(((input_array[n*i + j]>>(8-k))+shift_amount)<<(8-k));
         }
     }
