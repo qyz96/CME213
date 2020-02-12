@@ -237,14 +237,6 @@
          // make sure we don't falsely say the next kernel is correct because we've left the correct answer sitting in memory
          cudaMemset(device_output_array, 0, size_to_test);
  
-         // generate GPU uint output
-         double elapsed_time_uint = doGPUShiftUInt(device_input_array,
-                                    device_output_array, shift_amount, size_to_test, CUDA_BLOCK_SIZE);
-         checkResults(text_host, device_output_array, size_to_test, "uint");
- 
-         // make sure we don't falsely say the next kernel is correct because we've left the correct answer sitting in memory
-         cudaMemset(device_output_array, 0, size_to_test);
- 
          // generate GPU uint2 output
          double elapsed_time_uint2 = doGPUShiftUInt2(device_input_array,
                                      device_output_array, shift_amount, size_to_test, CUDA_BLOCK_SIZE);
