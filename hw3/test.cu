@@ -26,7 +26,7 @@
  #include "shift.cuh"
  
  
- constexpr const char *MOBY_DICK = "mobydick.txt";
+ constexpr const char *MOBY_DICK = "lessThan5Letters.txt";
  constexpr const int CUDA_BLOCK_SIZE = 256;
  
  void host_shift(std::vector<unsigned char> &input_array, 
