@@ -10,7 +10,7 @@ main_q1: $(SRC1)
 main_q2: $(SRC2)
 	$(CXX) $(CXXFLAGS) $(SRC2) -o $@
 test: $(SRC2)
-	$(CXX) $(CXXFLAGS) $(SRC2) -o $@
+	$(CXX) $(CXXFLAGS) $(SRC3) -o $@
 
 clean:
 	rm -f *.o *~ *~ main_q1 main_q2 test
