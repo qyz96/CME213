@@ -35,7 +35,7 @@ __global__ void shift_int(const uint *input_array, uint *output_array,
                           uint shift_amount, uint array_length)
 {
     // TODO: fill in
-    const int i = blockIdx.x * blockDim.x + threadIdx.x;
+    const int i = 0;
     if (i<array_length) {
         output_array[i]=input_array[i];
     }
