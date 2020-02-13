@@ -22,10 +22,9 @@ __global__ void device_graph_propagate(
 ) {
 
     const uint i = (uint)(blockIdx.x * blockDim.x + threadIdx.x);
-    if (i==0) {
+    if (i<4) {
         float sum = 0.f;
 
-        // for all of its edges
         for (uint j = graph_indices[i]; j < graph_indices[i + 1]; j++)
         {
             sum += graph_nodes_in[graph_edges[j]] * inv_edges_per_node[graph_edges[j]];
