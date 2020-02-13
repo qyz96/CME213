@@ -165,7 +165,7 @@ double device_graph_iterate(
 uint get_total_bytes(uint nodes, uint edges, uint iterations)
 {
     // TODO
-    return 0; 
+    return nodes*sizeof(float)*2+sizeof(float)+edges*nodes*sizeof(uint)+(nodes+1)*sizeof(uint); 
 }
 
 #endif
