@@ -107,6 +107,11 @@ double device_graph_iterate(
      cudaMemcpy(temp, device_input_array, num_nodes, cudaMemcpyDeviceToHost);
      printf("gpu11_%f, %f\n", temp[5], h_inv_edges_per_node[5]);
      printf("gpu12_%f, %f\n", h_node_values_input[5], h_inv_edges_per_node[5]);
+     for (uint k=0; k<num_nodes; k++) {
+         if (temp[k]!=h_node_values_input[k]){
+             std::cout<<k;
+         }
+     }
 
     event_pair timer;
     start_timer(&timer);
