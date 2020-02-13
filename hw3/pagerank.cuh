@@ -76,7 +76,6 @@ double device_graph_iterate(
     int num_nodes,
     int avg_edges
 ) {
-    const int num_bytes_alloc = (num_nodes) * sizeof(float);
     float *device_input_array  = nullptr;
     float *device_output_array = nullptr;
     float *device_invs = nullptr;
@@ -84,11 +83,11 @@ double device_graph_iterate(
     uint *device_indices = nullptr;
 
     // TODO: allocate GPU memory
-    cudaMalloc((void **) &device_input_array,  num_bytes_alloc);
-    cudaMalloc((void **) &device_output_array, num_bytes_alloc);
-    cudaMalloc((void **) &device_invs, num_bytes_alloc);
-    cudaMalloc((void **) &device_edges, num_nodes * avg_edges * sizeof(uint));
-    cudaMalloc((void **) &device_indices, (num_nodes+1)*sizeof(uint));
+    cudaMalloc(&device_input_array,  (num_nodes) * sizeof(float));
+    cudaMalloc(&device_output_array, (num_nodes) * sizeof(float));
+    cudaMalloc(&device_invs, (num_nodes) * sizeof(float));
+    cudaMalloc(&device_edges, num_nodes * avg_edges * sizeof(uint));
+    cudaMalloc(&device_indices, (num_nodes+1)*sizeof(uint));
     //cudaMemset(device_input_array + num_nodes, 0, num_bytes_alloc - num_nodes);
     
     // TODO: check for allocation failure
