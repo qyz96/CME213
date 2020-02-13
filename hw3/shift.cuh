@@ -88,7 +88,7 @@ double doGPUShiftUInt(const uchar *d_input, uchar *d_output,
     uint new_shift_amount=0;
     new_shift_amount+=(shift_amount);
     for (uint k=0; k<3; k++) {
-        new_shift_amount=(new_shift_amount<<=8);
+        new_shift_amount=(new_shift_amount<<8);
         new_shift_amount+=shift_amount;
     }
     event_pair timer;
