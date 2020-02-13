@@ -22,13 +22,14 @@ __global__ void device_graph_propagate(
 ) {
 
     const uint i = (uint)(blockIdx.x * blockDim.x + threadIdx.x);
-    if (i<num_nodes) {
+    if (i==0) {
         float sum = 0.f;
 
         // for all of its edges
         for (uint j = graph_indices[i]; j < graph_indices[i + 1]; j++)
         {
             sum += graph_nodes_in[graph_edges[j]] * inv_edges_per_node[graph_edges[j]];
+            printf("%d, %d\n", graph_nodes_in[graph_edges[j]], graph_nodes_in[graph_edges[j]]);
         }
 
         graph_nodes_out[i] = 0.5f / (float)num_nodes + 0.5f * sum;
@@ -114,7 +115,6 @@ double device_graph_iterate(
     int numBlocks = (num_nodes + block_size - 1) / block_size;
 
     // TODO: launch your kernels the appropriate number of iterations
-    nr_iterations=0;
     for(int iter = 0; iter < nr_iterations/2; iter++) 
     {
         device_graph_propagate<<<numBlocks, block_size>>>(device_indices, device_edges, device_input_array, device_output_array,
