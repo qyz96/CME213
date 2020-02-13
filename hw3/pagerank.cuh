@@ -23,7 +23,7 @@ __global__ void device_graph_propagate(
 
     const uint i = (uint)(blockIdx.x * blockDim.x + threadIdx.x);
     if (i<num_nodes) {
-        float sum=0;
+        float sum=0.f;
         for (uint k=graph_indices[i]; k<=graph_indices[i+1]; k++) {
             sum+=graph_nodes_in[graph_edges[k]]*inv_edges_per_node[graph_edges[k]];
         }
@@ -35,7 +35,7 @@ __global__ void device_graph_propagate(
 
 /* 
  * This function executes a specified number of iterations of the
- * pagerank algorithm. The variables are:
+ * pagerank algorithm. The variables are:   
  *
  * h_graph_indices, h_graph_edges:
  *     These arrays describe the indices of the neighbors of node i.
@@ -112,7 +112,7 @@ double device_graph_iterate(
 
     // TODO: launch your kernels the appropriate number of iterations
     
-    for(int iter = 0; iter < 5; iter++) 
+    for(int iter = 0; iter < 3; iter++) 
     {
         device_graph_propagate<<<numBlocks, block_size>>>(device_indices, device_edges, device_input_array, device_output_array,
                              device_invs, num_nodes);
@@ -120,8 +120,6 @@ double device_graph_iterate(
                              device_invs, num_nodes);
     }
     
-    device_graph_propagate<<<numBlocks, block_size>>>(device_indices, device_edges, device_input_array, device_output_array,
-                             device_invs, num_nodes);
     check_launch("gpu graph propagate");
     double gpu_elapsed_time = stop_timer(&timer);
 
