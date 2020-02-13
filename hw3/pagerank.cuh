@@ -145,10 +145,10 @@ double device_graph_iterate(
 
     // TODO: copy final data back to the host for correctness checking
     if (nr_iterations % 2) {
-        cudaMemcpy(h_gpu_node_values_output, device_output_array, num_nodes, cudaMemcpyDeviceToHost);
+        cudaMemcpy(h_gpu_node_values_output, device_output_array, num_nodes*sizeof(float), cudaMemcpyDeviceToHost);
     }
     else {
-        cudaMemcpy(h_gpu_node_values_output, device_input_array, num_nodes, cudaMemcpyDeviceToHost);
+        cudaMemcpy(h_gpu_node_values_output, device_input_array, num_nodes*sizeof(float), cudaMemcpyDeviceToHost);
     }
      check_launch("copy from gpu");
     // TODO: free the memory you allocated!
