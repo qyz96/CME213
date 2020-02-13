@@ -24,7 +24,7 @@ __global__ void device_graph_propagate(
     const uint i = (uint)(blockIdx.x * blockDim.x + threadIdx.x);
     float sum=0;
     if (i<num_nodes) {
-        for (uint k=graph_indices[i]; k<graph_indices[k+1]; k++) {
+        for (uint k=graph_indices[i]; k<graph_indices[i+1]; k++) {
             sum+=graph_nodes_in[graph_edges[k]];
         }
         sum*=inv_edges_per_node[i];
