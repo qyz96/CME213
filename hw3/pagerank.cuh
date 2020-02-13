@@ -104,12 +104,12 @@ double device_graph_iterate(
     // TODO: launch your kernels the appropriate number of iterations
     for(int iter = 0; iter < 5; iter++) 
     {
-        device_graph_propagate<<<numBlocks, block_size>>>(h_graph_indices, h_graph_edges, h_node_values_input, h_gpu_node_values_output,
+        device_graph_propagate<<<numBlocks, block_size>>>(h_graph_indices, h_graph_edges, device_input_array, device_output_array,
                              h_inv_edges_per_node, num_nodes);
-        device_graph_propagate<<<numBlocks, block_size>>>(h_graph_indices, h_graph_edges, h_gpu_node_values_output, h_node_values_input,
+        device_graph_propagate<<<numBlocks, block_size>>>(h_graph_indices, h_graph_edges, device_output_array, device_input_array,
                              h_inv_edges_per_node, num_nodes);
     }
-    device_graph_propagate<<<numBlocks, block_size>>>(h_graph_indices, h_graph_edges, h_node_values_input, h_gpu_node_values_output,
+    device_graph_propagate<<<numBlocks, block_size>>>(h_graph_indices, h_graph_edges, device_input_array, device_output_array,
                              h_inv_edges_per_node, num_nodes);
     check_launch("gpu graph propagate");
     double gpu_elapsed_time = stop_timer(&timer);
