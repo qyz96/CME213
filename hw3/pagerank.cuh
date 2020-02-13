@@ -82,9 +82,9 @@ double device_graph_iterate(
     uint *device_indices = nullptr;
 
     // TODO: allocate GPU memory
-    cudaMalloc(&device_input_array,  4*(num_nodes) * sizeof(float));
-    cudaMalloc(&device_output_array, 4*(num_nodes) * sizeof(float));
-    cudaMalloc(&device_invs, 4*(num_nodes) * sizeof(float));
+    cudaMalloc(&device_input_array,  (num_nodes) * sizeof(float));
+    cudaMalloc(&device_output_array, (num_nodes) * sizeof(float));
+    cudaMalloc(&device_invs, (num_nodes) * sizeof(float));
     cudaMalloc(&device_edges, num_nodes * avg_edges * sizeof(uint));
     cudaMalloc(&device_indices, (num_nodes+1)*sizeof(uint));
     //cudaMemset(device_input_array + num_nodes, 0, num_bytes_alloc - num_nodes);
@@ -97,8 +97,8 @@ double device_graph_iterate(
      }
     // TODO: copy data to the GPU
     {
-         cudaMemcpy(device_input_array, h_node_values_input, num_nodes, cudaMemcpyHostToDevice);
-         cudaMemcpy(device_invs, h_inv_edges_per_node, num_nodes, cudaMemcpyHostToDevice);
+         cudaMemcpy(device_input_array, h_node_values_input, 4*num_nodes, cudaMemcpyHostToDevice);
+         cudaMemcpy(device_invs, h_inv_edges_per_node, 4*num_nodes, cudaMemcpyHostToDevice);
          cudaMemcpy(device_edges, h_graph_edges, num_nodes * avg_edges, cudaMemcpyHostToDevice);
          cudaMemcpy(device_indices, h_graph_indices, num_nodes + 1, cudaMemcpyHostToDevice);
          check_launch("copy to gpu");
