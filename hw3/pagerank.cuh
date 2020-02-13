@@ -112,11 +112,16 @@ double device_graph_iterate(
 
     // TODO: launch your kernels the appropriate number of iterations
     
-    for(int iter = 0; iter < 3; iter++) 
+    for(int iter = 0; iter < nr_iterations/2; iter++) 
     {
         device_graph_propagate<<<numBlocks, block_size>>>(device_indices, device_edges, device_input_array, device_output_array,
                              device_invs, num_nodes);
         device_graph_propagate<<<numBlocks, block_size>>>(device_indices, device_edges, device_output_array, device_input_array,
+                             device_invs, num_nodes);
+    }
+
+    if (nr_iterations % 2) {
+        device_graph_propagate<<<numBlocks, block_size>>>(device_indices, device_edges, device_input_array, device_output_array,
                              device_invs, num_nodes);
     }
     
@@ -124,8 +129,12 @@ double device_graph_iterate(
     double gpu_elapsed_time = stop_timer(&timer);
 
     // TODO: copy final data back to the host for correctness checking
-    cudaMemcpy(h_gpu_node_values_output, device_input_array, num_nodes,
-                cudaMemcpyDeviceToHost);
+    if (nr_iterations % 2) {
+        cudaMemcpy(h_gpu_node_values_output, device_output_array, num_nodes, cudaMemcpyDeviceToHost);
+    }
+    else {
+        cudaMemcpy(h_gpu_node_values_output, device_input_array, num_nodes, cudaMemcpyDeviceToHost);
+    }
      check_launch("copy from gpu");
     // TODO: free the memory you allocated!
     cudaFree(device_input_array);
