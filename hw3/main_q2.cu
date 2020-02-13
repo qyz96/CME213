@@ -46,7 +46,7 @@ void host_graph_propagate(
         for (uint j = graph_indices[i]; j < graph_indices[i + 1]; j++)
         {
             sum += graph_nodes_in[graph_edges[j]] * inv_edges_per_node[graph_edges[j]];
-            if (i==0) printf("cpu_index_%d, %d\n", graph_edges[j], j);
+            if (i==0) printf("cpu_index_%d, %d, %d\n", graph_edges[j], j, graph_indices[i+1]);
             if (i==0) printf("cpu_%f, %f\n", graph_nodes_in[graph_edges[j]], inv_edges_per_node[graph_edges[j]]);
         }
 
