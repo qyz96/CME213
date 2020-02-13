@@ -109,7 +109,7 @@ double device_graph_iterate(
     event_pair timer;
     start_timer(&timer);
 
-    const int block_size = 192;
+    const int block_size = 512;
 
     int numBlocks = (num_nodes + block_size - 1) / block_size;
 
