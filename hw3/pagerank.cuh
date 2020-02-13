@@ -97,14 +97,14 @@ double device_graph_iterate(
      }
     // TODO: copy data to the GPU
     {
-         cudaMemcpy(device_input_array, h_node_values_input, 4*num_nodes, cudaMemcpyHostToDevice);
-         cudaMemcpy(device_invs, h_inv_edges_per_node, 4*num_nodes, cudaMemcpyHostToDevice);
+         cudaMemcpy(device_input_array, h_node_values_input, sizeof(float)*num_nodes, cudaMemcpyHostToDevice);
+         cudaMemcpy(device_invs, h_inv_edges_per_node, sizeof(float)*num_nodes, cudaMemcpyHostToDevice);
          cudaMemcpy(device_edges, h_graph_edges, num_nodes * avg_edges, cudaMemcpyHostToDevice);
          cudaMemcpy(device_indices, h_graph_indices, num_nodes + 1, cudaMemcpyHostToDevice);
          check_launch("copy to gpu");
 
      }
-     cudaMemcpy(temp, device_input_array, num_nodes, cudaMemcpyDeviceToHost);
+     cudaMemcpy(temp, device_input_array, num_nodes*sizeof(float), cudaMemcpyDeviceToHost);
      printf("gpu11_%f, %f\n", temp[5], h_inv_edges_per_node[5]);
      printf("gpu12_%f, %f\n", h_node_values_input[5], h_inv_edges_per_node[5]);
      for (uint k=0; k<num_nodes; k++) {
