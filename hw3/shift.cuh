@@ -34,9 +34,9 @@ __global__ void shift_int(const uint *input_array, uint *output_array,
                           uint shift_amount, uint array_length)
 {
     // TODO: fill in
-    const int i = 0;
+    const uint i = (uint)(blockIdx.x * blockDim.x + threadIdx.x);
     if (i<array_length) {
-        output_array[i]=input_array[i];
+        output_array[i]=input_array[i]+shift_amount;
     }
 }
 
@@ -83,12 +83,16 @@ double doGPUShiftUInt(const uchar *d_input, uchar *d_output,
                       uchar shift_amount, uint text_size, uint block_size) 
 {
     // TODO: compute grid dimensions
-
+    int numBlocks = (text_size + block_size - 1) / block_size;
     // TODO: compute 4 byte shift value
-
+    uchar new_shift_amount=0;
+    for (uint k=0; k<3; k++) {
+        new_shift_amount<<4;
+        new_shift_amount+=shift_amount;
+    }
     event_pair timer;
     start_timer(&timer);
-
+    shift_int<<<numBlocks, block_size>>>(d_input, d_output, new_shift_amount, text_size);
     // TODO: launch kernel
     
     check_launch("gpu shift cipher uint");
