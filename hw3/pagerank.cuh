@@ -112,6 +112,7 @@ double device_graph_iterate(
              std::cout<<k<<"\n";
          }
      }
+     std::cout<<num_nodes<<"\n";
 
     event_pair timer;
     start_timer(&timer);
