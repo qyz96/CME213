@@ -89,7 +89,7 @@ double device_graph_iterate(
     cudaMalloc((void **) &device_invs, num_bytes_alloc);
     cudaMalloc((void **) &device_edges, num_nodes * avg_edges * sizeof(uint));
     cudaMalloc((void **) &device_indices, (num_nodes+1)*sizeof(uint));
-    cudaMemset(device_input_array + num_nodes, 0, num_bytes_alloc - num_nodes);
+    //cudaMemset(device_input_array + num_nodes, 0, num_bytes_alloc - num_nodes);
     
     // TODO: check for allocation failure
     if (!device_input_array || !device_output_array || !device_invs || ! device_edges || !device_indices) 
