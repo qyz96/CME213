@@ -107,8 +107,8 @@ double device_graph_iterate(
 
      }
      cudaMemcpy(temp, device_input_array, num_nodes, cudaMemcpyDeviceToHost);
-     printf("gpu11_%f, %f\n", temp[h_graph_edges[h_graph_indices[0]]], h_inv_edges_per_node[h_graph_edges[h_graph_indices[0]]]);
-     printf("gpu12_%f, %f\n", h_node_values_input[h_graph_edges[h_graph_indices[0]]], h_inv_edges_per_node[h_graph_edges[h_graph_indices[0]]]);
+     printf("gpu11_%f, %f\n", temp[0], h_inv_edges_per_node[h_graph_edges[h_graph_indices[0]]]);
+     printf("gpu12_%f, %f\n", h_node_values_input[0], h_inv_edges_per_node[h_graph_edges[h_graph_indices[0]]]);
     event_pair timer;
     start_timer(&timer);
 
