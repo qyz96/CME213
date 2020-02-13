@@ -23,7 +23,6 @@ __global__ void device_graph_propagate(
 
     const uint i = (uint)(blockIdx.x * blockDim.x + threadIdx.x);
     if (i<num_nodes) {
-        {
         float sum = 0.f;
 
         // for all of its edges
@@ -33,7 +32,6 @@ __global__ void device_graph_propagate(
         }
 
         graph_nodes_out[i] = 0.5f / (float)num_nodes + 0.5f * sum;
-    }
     }
 
     // TODO: fill in the kernel code here
