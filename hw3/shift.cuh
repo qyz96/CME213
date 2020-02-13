@@ -87,8 +87,8 @@ double doGPUShiftUInt(const uchar *d_input, uchar *d_output,
     // TODO: compute 4 byte shift value
     uint new_shift_amount=0;
     for (uint k=0; k<3; k++) {
-        new_shift_amount<<4;
         new_shift_amount+=(uint)(shift_amount);
+         new_shift_amount<<4;
     }
     event_pair timer;
     start_timer(&timer);
