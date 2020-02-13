@@ -124,7 +124,7 @@ double device_graph_iterate(
     double gpu_elapsed_time = stop_timer(&timer);
 
     // TODO: copy final data back to the host for correctness checking
-    cudaMemcpy(h_gpu_node_values_output, device_output_array, num_nodes,
+    cudaMemcpy(h_gpu_node_values_output, device_input_array, num_nodes,
                 cudaMemcpyDeviceToHost);
      check_launch("copy from gpu");
     // TODO: free the memory you allocated!
