@@ -105,7 +105,7 @@ double device_graph_iterate(
          check_launch("copy to gpu");
 
      }
-     printf("gpu11_%f, %f\n", h_node_values_input[h_graph_edges[h_graph_indices[0]]], h_inv_edges_per_node[h_graph_indices[0]]);
+     printf("gpu11_%f, %f\n", h_node_values_input[h_graph_edges[h_graph_indices[0]]], h_inv_edges_per_node[h_graph_edges[h_graph_indices[0]]]);
     event_pair timer;
     start_timer(&timer);
 
