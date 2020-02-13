@@ -101,6 +101,7 @@ double device_graph_iterate(
     int numBlocks = (num_nodes + block_size - 1) / block_size;
 
     // TODO: launch your kernels the appropriate number of iterations
+    /*
     for(int iter = 0; iter < 5; iter++) 
     {
         device_graph_propagate<<<numBlocks, block_size>>>(h_graph_indices, h_graph_edges, device_input_array, device_output_array,
@@ -108,6 +109,7 @@ double device_graph_iterate(
         device_graph_propagate<<<numBlocks, block_size>>>(h_graph_indices, h_graph_edges, device_output_array, device_input_array,
                              h_inv_edges_per_node, num_nodes);
     }
+    */
     device_graph_propagate<<<numBlocks, block_size>>>(h_graph_indices, h_graph_edges, device_input_array, device_output_array,
                              h_inv_edges_per_node, num_nodes);
     check_launch("gpu graph propagate");
