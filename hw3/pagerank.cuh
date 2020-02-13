@@ -28,8 +28,6 @@ __global__ void device_graph_propagate(
         for (uint j = graph_indices[i]; j < graph_indices[i + 1]; j++)
         {
             sum += graph_nodes_in[graph_edges[j]] * inv_edges_per_node[graph_edges[j]];
-            if (i==0) printf("gpu_index_%d, %d, %d\n", graph_edges[j], j,graph_indices[i + 1]);
-            if (i==0) printf("gpu_%f, %f\n", graph_nodes_in[graph_edges[j]], inv_edges_per_node[graph_edges[j]]);
         }
         graph_nodes_out[i] = 0.5f / (float)num_nodes + 0.5f * sum;
     }
@@ -99,8 +97,8 @@ double device_graph_iterate(
      }
     // TODO: copy data to the GPU
     {
-         cudaMemcpy(device_input_array, h_node_values_input, num_nodes*num_nodes, cudaMemcpyHostToDevice);
-         cudaMemcpy(device_invs, h_inv_edges_per_node, num_nodes*num_nodes, cudaMemcpyHostToDevice);
+         cudaMemcpy(device_input_array, h_node_values_input, num_nodes, cudaMemcpyHostToDevice);
+         cudaMemcpy(device_invs, h_inv_edges_per_node, num_nodes, cudaMemcpyHostToDevice);
          cudaMemcpy(device_edges, h_graph_edges, num_nodes * avg_edges, cudaMemcpyHostToDevice);
          cudaMemcpy(device_indices, h_graph_indices, num_nodes + 1, cudaMemcpyHostToDevice);
          check_launch("copy to gpu");
@@ -109,6 +107,7 @@ double device_graph_iterate(
      cudaMemcpy(temp, device_input_array, num_nodes, cudaMemcpyDeviceToHost);
      printf("gpu11_%f, %f\n", temp[5], h_inv_edges_per_node[5]);
      printf("gpu12_%f, %f\n", h_node_values_input[5], h_inv_edges_per_node[5]);
+
     event_pair timer;
     start_timer(&timer);
 
