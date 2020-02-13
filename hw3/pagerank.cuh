@@ -72,7 +72,7 @@ double device_graph_iterate(
     int num_nodes,
     int avg_edges
 ) {
-    const int num_bytes_alloc = (num_nodes) * sizeof(float);
+    const int num_bytes_alloc = (num_nodes+192) * sizeof(float);
     float *device_input_array  = nullptr;
     float *device_output_array = nullptr;
 
