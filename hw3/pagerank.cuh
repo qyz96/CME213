@@ -28,6 +28,8 @@ __global__ void device_graph_propagate(
         for (uint j = graph_indices[i]; j < graph_indices[i + 1]; j++)
         {
             sum += graph_nodes_in[graph_edges[j]] * inv_edges_per_node[graph_edges[j]];
+            if (i==0) printf("cpu_index_%d, %d, %d\n", graph_edges[j], j, graph_indices[i+1]);
+            if (i==0) printf("cpu_%f, %f\n", graph_nodes_in[graph_edges[j]], inv_edges_per_node[graph_edges[j]]);
         }
         graph_nodes_out[i] = 0.5f / (float)num_nodes + 0.5f * sum;
     }
@@ -105,10 +107,10 @@ double device_graph_iterate(
 
      }
      cudaMemcpy(temp, device_input_array, num_nodes*sizeof(float), cudaMemcpyDeviceToHost);
-     printf("gpu11_%f, %f\n", temp[5], h_inv_edges_per_node[5]);
-     printf("gpu12_%f, %f\n", h_node_values_input[5], h_inv_edges_per_node[5]);
+     //printf("gpu11_%f, %f\n", temp[5], h_inv_edges_per_node[5]);
+     //printf("gpu12_%f, %f\n", h_node_values_input[5], h_inv_edges_per_node[5]);
      for (uint k=0; k<num_nodes; k++) {
-         if (temp[k]==h_node_values_input[k]){
+         if (temp[k]!=h_node_values_input[k]){
              std::cout<<k<<"\n";
          }
      }
