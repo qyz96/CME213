@@ -23,7 +23,7 @@ __global__ void device_graph_propagate(
 
     const uint i = (uint)(blockIdx.x * blockDim.x + threadIdx.x);
     if (i<num_nodes) {
-        float sum = 0.f;
+        float sum = 0;
 
         for (uint j = graph_indices[i]; j < graph_indices[i + 1]; j++)
         {
@@ -31,7 +31,7 @@ __global__ void device_graph_propagate(
             if (i==0) printf("gpu_index_%d, %d, %d\n", graph_edges[j], j, graph_indices[i+1]);
             if (i==0) printf("gpu_%f, %f\n", graph_nodes_in[graph_edges[j]], inv_edges_per_node[graph_edges[j]]);
         }
-        graph_nodes_out[i] = 0.5f / (float)num_nodes + 0.5f * sum;
+        graph_nodes_out[i] = 0.5 / (float)num_nodes + 0.5 * sum;
         if (i==0) printf("gpu_val_%d\n", graph_nodes_out[i]);
     }
 
