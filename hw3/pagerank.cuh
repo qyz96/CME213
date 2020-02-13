@@ -32,6 +32,7 @@ __global__ void device_graph_propagate(
             if (i==0) printf("gpu_%f, %f\n", graph_nodes_in[graph_edges[j]], inv_edges_per_node[graph_edges[j]]);
         }
         graph_nodes_out[i] = 0.5f / (float)num_nodes + 0.5f * sum;
+        if (i==0) printf("gpu_val_%d\n", graph_nodes_out[i]);
     }
 
     // TODO: fill in the kernel code here
