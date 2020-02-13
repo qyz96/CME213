@@ -92,7 +92,7 @@ double doGPUShiftUInt(const uchar *d_input, uchar *d_output,
     }
     event_pair timer;
     start_timer(&timer);
-    shift_int<<<numBlocks, block_size>>>((uint*)(d_input), (uint*)(d_output), new_shift_amount, text_size);
+    shift_int<<<numBlocks, block_size>>>((uint*)(d_input), (uint*)(d_output), new_shift_amount, text_size/4);
     // TODO: launch kernel
     
     check_launch("gpu shift cipher uint");
