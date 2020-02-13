@@ -83,7 +83,7 @@ double doGPUShiftUInt(const uchar *d_input, uchar *d_output,
                       uchar shift_amount, uint text_size, uint block_size) 
 {
     // TODO: compute grid dimensions
-    int numBlocks = ((text_size+4-1)/4 )+ block_size - 1) / block_size;
+    int numBlocks = (((text_size+4-1)/4 )+ block_size - 1) / block_size;
     // TODO: compute 4 byte shift value
     uint new_shift_amount=0;
     new_shift_amount+=(shift_amount);
