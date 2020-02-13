@@ -73,16 +73,23 @@ double device_graph_iterate(
     int avg_edges
 ) {
     const int num_bytes_alloc = (num_nodes) * sizeof(float);
+    const int num_bytes_alloc_uint = (num_nodes) * sizeof(uint);
     float *device_input_array  = nullptr;
     float *device_output_array = nullptr;
+    float *device_invs = nullptr;
+    uint *device_edges = nullptr;
+    uint *device_indices = nullptr;
 
     // TODO: allocate GPU memory
     cudaMalloc((void **) &device_input_array,  num_bytes_alloc);
     cudaMalloc((void **) &device_output_array, num_bytes_alloc);
+    cudaMalloc((void **) &device_invs, num_bytes_alloc);
+    cudaMalloc((void **) &device_edges, num_nodes * avg_edges * sizeof(uint));
+    cudaMalloc((void **) &device_indices, (num_nodes+1)*sizeof(uint));
     cudaMemset(device_input_array + num_nodes, 0, num_bytes_alloc - num_nodes);
     
     // TODO: check for allocation failure
-    if (!device_input_array || !device_output_array) 
+    if (!device_input_array || !device_output_array || !device_invs || ! device_edges || !device_indices) 
      {
          std::cerr << "Couldn't allocate memory!" << std::endl;
          return 1;
@@ -90,6 +97,9 @@ double device_graph_iterate(
     // TODO: copy data to the GPU
     {
          cudaMemcpy(device_input_array, h_node_values_input, num_nodes, cudaMemcpyHostToDevice);
+         cudaMemcpy(device_invs, h_inv_edges_per_node, num_nodes, cudaMemcpyHostToDevice);
+         cudaMemcpy(device_edges, h_graph_edges, num_nodes * avg_edges, cudaMemcpyHostToDevice);
+         cudaMemcpy(device_indices, h_graph_indices, num_nodes + 1, cudaMemcpyHostToDevice);
          check_launch("copy to gpu");
 
      }
@@ -110,8 +120,8 @@ double device_graph_iterate(
                              h_inv_edges_per_node, num_nodes);
     }
     */
-    device_graph_propagate<<<numBlocks, block_size>>>(h_graph_indices, h_graph_edges, device_input_array, device_output_array,
-                             h_inv_edges_per_node, num_nodes);
+    device_graph_propagate<<<numBlocks, block_size>>>(device_indices, device_edges, device_input_array, device_output_array,
+                             device_invs, num_nodes);
     check_launch("gpu graph propagate");
     double gpu_elapsed_time = stop_timer(&timer);
 
@@ -122,6 +132,9 @@ double device_graph_iterate(
     // TODO: free the memory you allocated!
     cudaFree(device_input_array);
     cudaFree(device_output_array);
+    cudaFree(device_edges);
+    cudaFree(device_invs);
+    cudaFree(device_indices);
     return gpu_elapsed_time;
 }
 
