@@ -47,17 +47,10 @@ __global__ void shift_int2(const uint2 *input_array, uint2 *output_array,
                            uint shift_amount, uint array_length) 
 {
     // TODO: fill in
-    uint i = blockIdx.x * blockDim.x + threadIdx.x;
-    uint j = blockIdx.y * blockDim.y + threadIdx.y;
-    uint n = blockDim.x * gridDim.x;
-    if(i + j*n<array_length) {
-        output_array[i+j*n].x=input_array[i+j*n].x;
-        output_array[i+j*n].y=input_array[i+j*n].y;
-
-        for (uint k=0; k<4; k++) {
-            output_array[i+j*n].x+=(shift_amount<<k);
-            output_array[i+j*n].y+=(shift_amount<<k);
-        }
+    const uint i = (uint)(blockIdx.x * blockDim.x + threadIdx.x);
+    if (i<array_length) {
+        output_array[i].x=input_array[i].x+shift_amount;
+        output_array[i].y=input_array[i].y+shift_amount;
     }
 }
 
@@ -104,12 +97,17 @@ double doGPUShiftUInt2(const uchar* d_input, uchar* d_output,
                        uchar shift_amount, uint text_size, uint block_size) 
 {
     // TODO: compute your grid dimensions
-
-    // TODO: compute 4 byte shift value
-
+    int numBlocks = (((text_size+8-1)/8 )+ block_size - 1) / block_size;
+    // TODO: compute 4 byte shift value 
+    uint new_shift_amount=0;
+    new_shift_amount+=(shift_amount);
+    for (uint k=0; k<3; k++) {
+        new_shift_amount=(new_shift_amount<<8);
+        new_shift_amount+=shift_amount;
+    }
     event_pair timer;
     start_timer(&timer);
-
+    shift_int2<<<numBlocks, block_size>>>((uint2*)(d_input), (uint2*)(d_output), new_shift_amount, (text_size+8-1)/8);
     // TODO: launch kernel
 
     check_launch("gpu shift cipher uint2");
