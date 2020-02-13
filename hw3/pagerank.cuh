@@ -24,7 +24,7 @@ __global__ void device_graph_propagate(
     const uint i = (uint)(blockIdx.x * blockDim.x + threadIdx.x);
     float sum=0;
     if (i<num_nodes) {
-        for (uint k=graph_indices[i], k<graph_indices[k+1]; k++) {
+        for (uint k=graph_indices[i]; k<graph_indices[k+1]; k++) {
             sum+=graph_nodes_in[graph_edges[k]];
         }
         sum*=inv_edges_per_node[i];
@@ -104,10 +104,10 @@ double device_graph_iterate(
     // TODO: launch your kernels the appropriate number of iterations
     for(int iter = 0; iter < 5; iter++) 
     {
-        device_graph_propagate<<<numBlocks, block_size>>>(graph_indices, graph_edges, h_node_values_input, h_gpu_node_values_output,
-                             inv_edges_per_node, num_nodes);
-        device_graph_propagate<<<numBlocks, block_size>>>(graph_indices, graph_edges, h_gpu_node_values_output, h_node_values_input,
-                             inv_edges_per_node, num_nodes);
+        device_graph_propagate<<<numBlocks, block_size>>>(h_graph_indices, h_graph_edges, h_node_values_input, h_gpu_node_values_output,
+                             h_inv_edges_per_node, num_nodes);
+        device_graph_propagate<<<numBlocks, block_size>>>(h_graph_indices, h_graph_edges, h_gpu_node_values_output, h_node_values_input,
+                             h_inv_edges_per_node, num_nodes);
     }
     device_graph_propagate<<<numBlocks, block_size>>>(graph_indices, graph_edges, h_node_values_input, h_gpu_node_values_output,
                              inv_edges_per_node, num_nodes);
