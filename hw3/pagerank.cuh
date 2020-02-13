@@ -102,8 +102,8 @@ double device_graph_iterate(
     {
          cudaMemcpy(device_input_array, h_node_values_input, sizeof(float)*num_nodes, cudaMemcpyHostToDevice);
          cudaMemcpy(device_invs, h_inv_edges_per_node, sizeof(float)*num_nodes, cudaMemcpyHostToDevice);
-         cudaMemcpy(device_edges, h_graph_edges, num_nodes * avg_edges, cudaMemcpyHostToDevice);
-         cudaMemcpy(device_indices, h_graph_indices, num_nodes + 1, cudaMemcpyHostToDevice);
+         cudaMemcpy(device_edges, h_graph_edges, num_nodes * avg_edges  * sizeof(uint), cudaMemcpyHostToDevice);
+         cudaMemcpy(device_indices, h_graph_indices, (num_nodes + 1) * sizeof(uint), cudaMemcpyHostToDevice);
          check_launch("copy to gpu");
 
      }
