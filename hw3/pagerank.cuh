@@ -114,7 +114,7 @@ double device_graph_iterate(
     int numBlocks = (num_nodes + block_size - 1) / block_size;
 
     // TODO: launch your kernels the appropriate number of iterations
-    nr_iterations=100;
+    nr_iterations=1;
     for(int iter = 0; iter < nr_iterations/2; iter++) 
     {
         device_graph_propagate<<<numBlocks, block_size>>>(device_indices, device_edges, device_input_array, device_output_array,
