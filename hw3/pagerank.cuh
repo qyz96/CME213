@@ -79,6 +79,7 @@ double device_graph_iterate(
     float *device_input_array  = nullptr;
     float *device_output_array = nullptr;
     float *device_invs = nullptr;
+    float *temp = new float[num_nodes];
     uint *device_edges = nullptr;
     uint *device_indices = nullptr;
 
@@ -105,7 +106,8 @@ double device_graph_iterate(
          check_launch("copy to gpu");
 
      }
-     printf("gpu11_%f, %f\n", device_input_array[h_graph_edges[h_graph_indices[0]]], h_inv_edges_per_node[h_graph_edges[h_graph_indices[0]]]);
+     cudaMemcpy(temp, device_input_array, num_nodes, cudaMemcpyDeviceToHost);
+     printf("gpu11_%f, %f\n", temp[h_graph_edges[h_graph_indices[0]]], h_inv_edges_per_node[h_graph_edges[h_graph_indices[0]]]);
     event_pair timer;
     start_timer(&timer);
 
