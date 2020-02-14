@@ -167,7 +167,7 @@ uint get_total_bytes(uint nodes, uint edges, uint iterations)
     // TODO
     //return nodes*sizeof(float)*2+sizeof(float)+edges*nodes*sizeof(uint)+(nodes+1)*sizeof(uint); 
     uint temp=(2*edges+1)*sizeof(float)+(edges+3)*sizeof(uint);
-    return temp*iteration*nodess;
+    return temp*iteration*nodes;
 }
 
 #endif
