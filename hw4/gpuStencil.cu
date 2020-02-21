@@ -114,7 +114,15 @@ double gpuComputationGlobal(Grid& curr_grid, const simParams& params) {
         BC.updateBC(next_grid.dGrid_, curr_grid.dGrid_);
 
         // TODO: Apply stencil.
-        gpuStencilGlobal<order>(next_grid, curr_grid, gx, nx, ny, xcfl, ycfl);
+        if (params.order()==2) {
+            gpuStencilGlobal<2>(next_grid, curr_grid, gx, nx, ny, xcfl, ycfl);
+        }
+        else if (params.order()==4) {
+            gpuStencilGlobal<4>(next_grid, curr_grid, gx, nx, ny, xcfl, ycfl);
+        }
+        else if (params.order()==8) {
+            gpuStencilGlobal<8>(next_grid, curr_grid, gx, nx, ny, xcfl, ycfl);
+        }
         Grid::swap(curr_grid, next_grid);
     }
 
