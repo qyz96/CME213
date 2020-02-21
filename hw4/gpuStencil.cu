@@ -103,6 +103,7 @@ double gpuComputationGlobal(Grid& curr_grid, const simParams& params) {
     int ny = params.ny();
 
     int gx = params.gx();
+    const int order = params.order();
     // TODO: Declare variables/Compute parameters.
 
     event_pair timer;
@@ -113,7 +114,7 @@ double gpuComputationGlobal(Grid& curr_grid, const simParams& params) {
         BC.updateBC(next_grid.dGrid_, curr_grid.dGrid_);
 
         // TODO: Apply stencil.
-        gpuStencilGlobal<params.order()>(next_grid, curr_grid, gx, nx, ny, xcfl, ycfl);
+        gpuStencilGlobal<order>(next_grid, curr_grid, gx, nx, ny, xcfl, ycfl);
         Grid::swap(curr_grid, next_grid);
     }
 
