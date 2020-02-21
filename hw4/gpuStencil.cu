@@ -167,8 +167,8 @@ double gpuComputationBlock(Grid& curr_grid, const simParams& params) {
     Grid next_grid(curr_grid);
 
     // TODO: Declare variables/Compute parameters.
-    dim3 threads(0, 0);
-    dim3 blocks(0, 0);
+    //dim3 threads(0, 0);
+    //dim3 blocks(0, 0);
 
     event_pair timer;
     start_timer(&timer);
@@ -222,13 +222,15 @@ void gpuStencilShared(float* next, const float* __restrict__ curr, int gx, int g
 template<int order>
 double gpuComputationShared(Grid& curr_grid, const simParams& params) {
 
+    
     boundary_conditions BC(params);
 
     Grid next_grid(curr_grid);
 
     // TODO: Declare variables/Compute parameters.
-    dim3 threads(0, 0);
-    dim3 blocks(0, 0);
+    //dim3 threads(0, 0);
+    //dim3 blocks(0, 0);
+    
 
     event_pair timer;
     start_timer(&timer);
