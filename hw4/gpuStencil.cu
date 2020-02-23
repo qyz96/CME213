@@ -220,13 +220,13 @@ double gpuComputationBlock(Grid& curr_grid, const simParams& params) {
         // TODO: Apply stencil.
         //gpuStencilBlock<params.order(), numYPerStep><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         if (params.order()==2) {
-            gpuStencilBlock<2, 16><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
+            gpuStencilBlock<2, 32><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         }
         else if (params.order()==4) {
-            gpuStencilBlock<2, 16><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
+            gpuStencilBlock<2, 32><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         }
         else if (params.order()==8) {
-            gpuStencilBlock<2, 16><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
+            gpuStencilBlock<2, 32><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         }
         Grid::swap(curr_grid, next_grid);
     }
