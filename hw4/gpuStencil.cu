@@ -223,10 +223,10 @@ double gpuComputationBlock(Grid& curr_grid, const simParams& params) {
             gpuStencilBlock<2, 4><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         }
         else if (params.order()==4) {
-            gpuStencilBlock<2, 4><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
+            gpuStencilBlock<4, 4><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         }
         else if (params.order()==8) {
-            gpuStencilBlock<2, 4><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
+            gpuStencilBlock<8, 4><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         }
         Grid::swap(curr_grid, next_grid);
     }
