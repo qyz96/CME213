@@ -166,7 +166,7 @@ void gpuStencilBlock(float* next, const float* __restrict__ curr, int gx, int nx
                     float xcfl, float ycfl) {
     // TODO
     int ix = blockIdx.x * blockDim.x + threadIdx.x;
-    int iy = blockIdx.y * blockDim.y + threadIdx.y;
+    int iy = blockIdx.y;
     int bordersize = (gx-nx)/2;
     if ( ix < nx) {
         for (int y=iy; y < iy+numYPerStep; y++) {
@@ -205,7 +205,6 @@ double gpuComputationBlock(Grid& curr_grid, const simParams& params) {
     // TODO: Declare variables/Compute parameters.
     int numYPerStep = 32;
     int block_size_x = 512;
-    int block_size_y = 1;
     int numBlocks_x = (nx + block_size_x - 1) / block_size_x;
     int numBlocks_y = (ny + numYPerStep - 1) / numYPerStep;
     dim3 threads(1, 512);
