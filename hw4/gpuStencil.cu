@@ -169,7 +169,7 @@ void gpuStencilBlock(float* next, const float* __restrict__ curr, int gx, int nx
     int iy = blockIdx.y;
     int bordersize = (gx-nx)/2;
     if ( ix < nx) {
-        for (int y=iy; y < iy+numYPerStep; y++) {
+        for (int y=iy * numYPerStep; y < (iy + 1) * numYPerStep; y++) {
             if (y < ny) {
                 int pos = (ix + bordersize) + (y + bordersize) * (ny + 2 * bordersize);
                 next[pos]=Stencil<order>(curr+pos, gx, xcfl, ycfl);
