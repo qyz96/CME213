@@ -133,7 +133,7 @@ double gpuComputationGlobal(Grid& curr_grid, const simParams& params) {
     }
 
 
-    curr_grid.fromGPU();
+    //curr_grid.fromGPU();
 
     check_launch("gpuStencilGlobal");
     return stop_timer(&timer);
@@ -165,6 +165,18 @@ __global__
 void gpuStencilBlock(float* next, const float* __restrict__ curr, int gx, int nx, int ny,
                     float xcfl, float ycfl) {
     // TODO
+    int ix = blockIdx.x * blockDim.x + threadIdx.x;
+    int iy = blockIdx.y * blockDim.y + threadIdx.y;
+    int bordersize = (gx-nx)/2;
+    if ( ix < nx) {
+        for (int y=iy; y < iy+numYPerStep; y++) {
+            if (y < ny) {
+                int pos = (ix + bordersize) + (y + bordersize) * (ny + 2 * bordersize);
+                next[pos]=Stencil<order>(curr+pos, gx, xcfl, ycfl);
+            }
+        }
+    }
+
 }
 
 /**
@@ -185,8 +197,13 @@ double gpuComputationBlock(Grid& curr_grid, const simParams& params) {
     Grid next_grid(curr_grid);
 
     // TODO: Declare variables/Compute parameters.
-    //dim3 threads(0, 0);
-    //dim3 blocks(0, 0);
+    int numYPerStep = 32;
+    int block_size_x = 512;
+    int block_size_y = 1;
+    int numBlocks_x = (nx + block_size_x - 1) / block_size_x;
+    int numBlocks_y = (ny + numYPerStep - 1) / numYPerStep;
+    dim3 threads(1, 512);
+    dim3 blocks(numBlocks_y, numBlocks_x);
 
     event_pair timer;
     start_timer(&timer);
@@ -196,7 +213,7 @@ double gpuComputationBlock(Grid& curr_grid, const simParams& params) {
         BC.updateBC(next_grid.dGrid_, curr_grid.dGrid_);
 
         // TODO: Apply stencil.
-
+        gpuStencilBlock<param.order(), numYPerStep><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         Grid::swap(curr_grid, next_grid);
     }
 
