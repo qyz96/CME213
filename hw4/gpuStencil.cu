@@ -203,7 +203,7 @@ double gpuComputationBlock(Grid& curr_grid, const simParams& params) {
 
     int gx = params.gx();
     // TODO: Declare variables/Compute parameters.
-    int numYPerStep = 16;
+    int numYPerStep = 32;
     int block_size_x = 512;
     int numBlocks_x = (nx + block_size_x - 1) / block_size_x;
     int numBlocks_y = (ny + numYPerStep - 1) / numYPerStep;
