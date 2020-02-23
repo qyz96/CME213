@@ -73,8 +73,12 @@ void gpuStencilGlobal(float* next, const float* __restrict__ curr, int gx, int n
                 float xcfl, float ycfl) {
     const int i = (blockIdx.x * blockDim.x + threadIdx.x);
     int bordersize = (gx-nx)/2;
-    if(i<nx*ny && ((i % gx >= bordersize) || (i%gx < nx+bordersize))) {
-        next[i]=Stencil<order>(curr+i, gx, xcfl, ycfl);
+    if( i < nx*ny ) {
+        int x = (i % ny) + bordersize;
+        int y = (i / ny) + bordersize;
+        int pos = x + y * (ny + 2 * bordersize);
+
+        next[i]=Stencil<order>(curr+pos, gx, xcfl, ycfl);
     }
     return;
 }
