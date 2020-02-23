@@ -195,7 +195,13 @@ double gpuComputationBlock(Grid& curr_grid, const simParams& params) {
     boundary_conditions BC(params);
 
     Grid next_grid(curr_grid);
+    float xcfl = params.xcfl();
+    float ycfl = params.ycfl();
 
+    int nx = params.nx();
+    int ny = params.ny();
+
+    int gx = params.gx();
     // TODO: Declare variables/Compute parameters.
     int numYPerStep = 32;
     int block_size_x = 512;
@@ -213,7 +219,7 @@ double gpuComputationBlock(Grid& curr_grid, const simParams& params) {
         BC.updateBC(next_grid.dGrid_, curr_grid.dGrid_);
 
         // TODO: Apply stencil.
-        gpuStencilBlock<param.order(), numYPerStep><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
+        gpuStencilBlock<params.order(), numYPerStep><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         Grid::swap(curr_grid, next_grid);
     }
 
