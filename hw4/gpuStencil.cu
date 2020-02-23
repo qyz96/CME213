@@ -76,7 +76,7 @@ void gpuStencilGlobal(float* next, const float* __restrict__ curr, int gx, int n
     if( i < nx*ny ) {
         int x = (i % ny) + bordersize;
         int y = (i / ny) + bordersize;
-        int pos = x + y * (ny + 2 * bordersize);
+        int pos = x + y * gx;
 
         next[pos]=Stencil<order>(curr+pos, gx, xcfl, ycfl);
     }
@@ -171,7 +171,7 @@ void gpuStencilBlock(float* next, const float* __restrict__ curr, int gx, int nx
     if ( ix < nx) {
         for (int y=iy * numYPerStep; y < (iy + 1) * numYPerStep; y++) {
             if (y < ny) {
-                int pos = (ix + bordersize) + (y + bordersize) * (ny + 2 * bordersize);
+                int pos = (ix + bordersize) + (y + bordersize) * gx;
                 next[pos]=Stencil<order>(curr+pos, gx, xcfl, ycfl);
             }
         }
