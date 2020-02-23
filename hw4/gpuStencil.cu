@@ -166,7 +166,7 @@ void gpuStencilBlock(float* next, const float* __restrict__ curr, int gx, int nx
                     float xcfl, float ycfl) {
     // TODO
     int ix = blockIdx.x * blockDim.x + threadIdx.x;
-    int iy = blockIdx.y;
+    int iy = blockIdx.y * blockDim.y + threadIdx.y;
     int bordersize = (gx-nx)/2;
     if ( ix < nx) {
         for (int y=iy * numYPerStep; y < (iy + 1) * numYPerStep; y++) {
