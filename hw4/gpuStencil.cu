@@ -203,7 +203,7 @@ double gpuComputationBlock(Grid& curr_grid, const simParams& params) {
 
     int gx = params.gx();
     // TODO: Declare variables/Compute parameters.
-    int numYPerStep = 32;
+    int numYPerStep = 1;
     int block_size_x = 512;
     int numBlocks_x = (nx + block_size_x - 1) / block_size_x;
     int numBlocks_y = (ny + numYPerStep - 1) / numYPerStep;
@@ -220,13 +220,13 @@ double gpuComputationBlock(Grid& curr_grid, const simParams& params) {
         // TODO: Apply stencil.
         //gpuStencilBlock<params.order(), numYPerStep><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         if (params.order()==2) {
-            gpuStencilBlock<2, 32><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
+            gpuStencilBlock<2, 1><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         }
         else if (params.order()==4) {
-            gpuStencilBlock<2, 32><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
+            gpuStencilBlock<2, 1><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         }
         else if (params.order()==8) {
-            gpuStencilBlock<2, 32><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
+            gpuStencilBlock<2, 1><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         }
         Grid::swap(curr_grid, next_grid);
     }
