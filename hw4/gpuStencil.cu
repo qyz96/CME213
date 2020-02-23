@@ -207,8 +207,8 @@ double gpuComputationBlock(Grid& curr_grid, const simParams& params) {
     int block_size_x = 512;
     int numBlocks_x = (nx + block_size_x - 1) / block_size_x;
     int numBlocks_y = (ny + numYPerStep - 1) / numYPerStep;
-    dim3 threads(1, 512);
-    dim3 blocks(numBlocks_y, numBlocks_x);
+    dim3 threads(512, 1);
+    dim3 blocks(numBlocks_x, numBlocks_y);
 
     event_pair timer;
     start_timer(&timer);
