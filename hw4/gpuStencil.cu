@@ -1,8 +1,8 @@
 #include <math_constants.h>
 
 #include "BC.h"
-constexpr const int SIDE = 8;
-//constexpr const int numYPerStep = 16;
+constexpr const int SIDE = 48;
+constexpr const int numYPerStep = 32;
 /**
  * Calculates the next finite difference step given a
  * grid point and step lengths.
@@ -206,7 +206,7 @@ double gpuComputationBlock(Grid& curr_grid, const simParams& params) {
     // TODO: Declare variables/Compute parameters.
     int numYPerStep = 16;
     int block_size_x = 512;
-    int block_size_y = 2;
+    int block_size_y = 1;
     int numBlocks_x = (nx + block_size_x - 1) / block_size_x;
     int numBlocks_y = (ny + numYPerStep * block_size_y - 1) / (numYPerStep * block_size_y);
     dim3 threads(block_size_x, block_size_y);
@@ -222,13 +222,13 @@ double gpuComputationBlock(Grid& curr_grid, const simParams& params) {
         // TODO: Apply stencil.
         //gpuStencilBlock<params.order(), numYPerStep><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         if (params.order()==2) {
-            gpuStencilBlock<2, 16><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
+            gpuStencilBlock<2, numYPerStep><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         }
         else if (params.order()==4) {
-            gpuStencilBlock<4, 16><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
+            gpuStencilBlock<4, numYPerStep><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         }
         else if (params.order()==8) {
-            gpuStencilBlock<8, 16><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
+            gpuStencilBlock<8, numYPerStep><<<blocks, threads>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         }
         Grid::swap(curr_grid, next_grid);
     }
