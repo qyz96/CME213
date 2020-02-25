@@ -256,6 +256,7 @@ __global__
 void gpuStencilShared(float* next, const float* __restrict__ curr, int gx, int gy,
                float xcfl, float ycfl) {
     // TODO
+    // Inter
     extern __shared__ float block[];
     int s = side;
     int bordersize = order / 2;
