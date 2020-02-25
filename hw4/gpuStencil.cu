@@ -258,42 +258,43 @@ void gpuStencilShared(float* next, const float* __restrict__ curr, int gx, int g
     // TODO
     extern __shared__ float block[];
     int s = side;
-    int nx = gx - 2 * order;
-    int ny = gy - 2 * order;
+    int bordersize = order / 2;
+    int nx = gx - 2 * bordersize;
+    int ny = gy - 2 * bordersize;
     int ix = blockIdx.x * blockDim.x + threadIdx.x;
     int iy = blockIdx.y * blockDim.y + threadIdx.y;
     int dx = threadIdx.x;
     int dy = threadIdx.y;
-    int size = side + 2 * order;
-    int pos_block = dx + order + (dy + order) * size;
-    int pos = (ix + order) + (iy + order) * gx;
+    int size = side + 2 * bordersize;
+    int pos_block = dx + bordersize + (dy + bordersize) * size;
+    int pos = (ix + bordersize) + (iy + bordersize) * gx;
     if ((ix < nx) && (iy < ny)) {
         block[pos_block]=curr[pos];
         if (dx == 0) {
-            for (int j=1; j<=order; j++) {
+            for (int j=1; j<=bordersize; j++) {
                 block[pos_block-j] = curr[pos-j];
             }
         }
         if ((dx == s - 1) || (ix == nx - 1)) {
-            for (int j=1; j<=order; j++) {
+            for (int j=1; j<=bordersize; j++) {
                 block[pos_block+j] = curr[pos+j];
             }
         }
         if (dy == 0) {
-            for (int j=1; j<=order; j++) {
+            for (int j=1; j<=bordersize; j++) {
                 block[pos_block-j*size] = curr[pos-j*gx];
             }
         }
         if ((dy == s - 1) || (iy == ny - 1)) {
-            for (int j=1; j<=order; j++) {
+            for (int j=1; j<=bordersize; j++) {
                 block[pos_block+j*size] = curr[pos+j*gx];
             }
         }
     }
     __syncthreads();
     if ((ix < nx) && (iy < ny)) {
-        //next[pos]=Stencil<order>(block+pos_block, size, xcfl, ycfl);
-        next[pos]=Stencil<order>(curr, gx, xcfl, ycfl);
+        next[pos]=Stencil<order>(block+pos_block, size, xcfl, ycfl);
+        //next[pos]=Stencil<order>(curr+pos, gx, xcfl, ycfl);
     }
 
 
