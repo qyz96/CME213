@@ -1,7 +1,7 @@
 #include <math_constants.h>
 
 #include "BC.h"
-constexpr const int SIDE = 4;
+constexpr const int SIDE = 32;
 constexpr const int numYPerStep = 16;
 /**
  * Calculates the next finite difference step given a
