@@ -2,7 +2,7 @@
 
 #include "BC.h"
 constexpr const int SIDE = 32;
-constexpr const int numYPerStep = 64;
+constexpr const int numYPerStep = 16;
 /**
  * Calculates the next finite difference step given a
  * grid point and step lengths.
