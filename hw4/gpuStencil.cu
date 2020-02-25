@@ -131,19 +131,15 @@ double gpuComputationGlobal(Grid& curr_grid, const simParams& params) {
             gpuStencilGlobal<8><<<numBlocks, block_size>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         }
         Grid::swap(curr_grid, next_grid);
-        curr_grid.fromGPU();
+        curr_grid.fromGPU()
         if (i == 0) {
-            std::cout<<curr_grid;
-            std::cout<<"\n";
+            curr_grid.saveStateToFile("Iteration_0_Global.csv");
         }
         if (i == 1000) {
-            std::cout<<curr_grid;
-            std::cout<<"\n";
+            curr_grid.saveStateToFile("Iteration_1000_Global.csv");
         }
         if (i == 2000) {
-            std::ofstream ofs("OMEGA");
-            ofs <<std::setprecision(4)<< curr_grid << std::endl;
-            ofs.close();
+            curr_grid.saveStateToFile("Iteration_2000_Global.csv");
         }
     }
 
