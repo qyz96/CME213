@@ -133,13 +133,16 @@ double gpuComputationGlobal(Grid& curr_grid, const simParams& params) {
         Grid::swap(curr_grid, next_grid);
         curr_grid.fromGPU();
         if (i == 0) {
-            curr_grid.saveStateToFile("Iteration_0_Global.csv");
+            std::cout<<curr_grid;
+            std::cout<<"\n"
         }
         if (i == 1000) {
-            curr_grid.saveStateToFile("Iteration_1000_Global.csv");
+            std::cout<<curr_grid;
+            std::cout<<"\n"
         }
         if (i == 2000) {
-            curr_grid.saveStateToFile("Iteration_2000_Global.csv");
+            std::cout<<curr_grid;
+            std::cout<<"\n"
         }
     }
 
