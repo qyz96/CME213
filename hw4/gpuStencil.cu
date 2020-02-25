@@ -257,6 +257,7 @@ void gpuStencilShared(float* next, const float* __restrict__ curr, int gx, int g
                float xcfl, float ycfl) {
     // TODO
     extern __shared__ float block[];
+    int s = side;
     int nx = gx - 2 * order;
     int ny = gy - 2 * order;
     int ix = blockIdx.x * blockDim.x + threadIdx.x;
@@ -273,7 +274,7 @@ void gpuStencilShared(float* next, const float* __restrict__ curr, int gx, int g
                 block[pos_block-j] = curr[pos-j];
             }
         }
-        if (dx == side -1 || ix= = nx - 1) {
+        if (dx == s - 1 || ix= = nx - 1) {
             for (int j=0; j<order; j++) {
                 block[pos_block+j] = curr[pos+j];
             }
@@ -283,7 +284,7 @@ void gpuStencilShared(float* next, const float* __restrict__ curr, int gx, int g
                 block[pos_block-j*size] = curr[pos-j*gx];
             }
         }
-        if (dy == side - 1 || iy == ny - 1) {
+        if (dy == s - 1 || iy == ny - 1) {
             for (int j=0; j<order; j++) {
                 block[pos_block+j*size] = curr[pos+j*gx];
             }
