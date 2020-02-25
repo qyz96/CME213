@@ -270,22 +270,22 @@ void gpuStencilShared(float* next, const float* __restrict__ curr, int gx, int g
     block[pos_block]=curr[pos];
     if (ix < nx && iy < ny) {
         if (dx == 0) {
-            for (int j=0; j<order; j++) {
+            for (int j=1; j<=order; j++) {
                 block[pos_block-j] = curr[pos-j];
             }
         }
         if ((dx == s - 1) || (ix == nx - 1)) {
-            for (int j=0; j<order; j++) {
+            for (int j=1; j<=order; j++) {
                 block[pos_block+j] = curr[pos+j];
             }
         }
         if (dy == 0) {
-            for (int j=0; j<order; j++) {
+            for (int j=1; j<=order; j++) {
                 block[pos_block-j*size] = curr[pos-j*gx];
             }
         }
         if ((dy == s - 1) || (iy == ny - 1)) {
-            for (int j=0; j<order; j++) {
+            for (int j=1; j<=order; j++) {
                 block[pos_block+j*size] = curr[pos+j*gx];
             }
         }
