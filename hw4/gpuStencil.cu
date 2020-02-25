@@ -328,7 +328,7 @@ double gpuComputationShared(Grid& curr_grid, const simParams& params) {
     int block_size_x = 32;
     int block_size_y = 32;
     int numBlocks_x = (nx + block_size_x - 1) / block_size_x;
-    int numBlocks_y = (ny + numYPerStep * block_size_y - 1) / (numYPerStep * block_size_y);
+    int numBlocks_y = (ny + block_size_y - 1) / (block_size_y);
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
     
