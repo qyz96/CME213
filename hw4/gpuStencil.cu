@@ -143,6 +143,7 @@ double gpuComputationGlobal(Grid& curr_grid, const simParams& params) {
         if (i == 2000) {
             std::cout<<curr_grid;
             std::cout<<"\n";
+            curr_grid.saveStateToFile("TEST");
         }
     }
 
