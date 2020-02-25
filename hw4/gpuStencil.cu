@@ -141,9 +141,9 @@ double gpuComputationGlobal(Grid& curr_grid, const simParams& params) {
             std::cout<<"\n";
         }
         if (i == 2000) {
-            std::cout<<curr_grid;
-            std::cout<<"\n";
-            curr_grid.saveStateToFile("TEST");
+            std::ofstream ofs("OMEGA");
+            ofs << curr_grid << std::endl;
+            ofs.close();
         }
     }
 
