@@ -131,6 +131,7 @@ double gpuComputationGlobal(Grid& curr_grid, const simParams& params) {
             gpuStencilGlobal<8><<<numBlocks, block_size>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         }
         Grid::swap(curr_grid, next_grid);
+        curr_grid.fromGPU();
         if (i == 0) {
             curr_grid.saveStateToFile("Iteration_0_Global.csv");
         }
@@ -142,8 +143,6 @@ double gpuComputationGlobal(Grid& curr_grid, const simParams& params) {
         }
     }
 
-
-    //curr_grid.fromGPU();
 
     check_launch("gpuStencilGlobal");
     return stop_timer(&timer);
