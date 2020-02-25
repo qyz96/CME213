@@ -131,6 +131,7 @@ double gpuComputationGlobal(Grid& curr_grid, const simParams& params) {
             gpuStencilGlobal<8><<<numBlocks, block_size>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         }
         Grid::swap(curr_grid, next_grid);
+        if ()
     }
 
 
@@ -204,8 +205,8 @@ double gpuComputationBlock(Grid& curr_grid, const simParams& params) {
 
     int gx = params.gx();
     // TODO: Declare variables/Compute parameters.
-    int block_size_x = 1024;
-    int block_size_y = 1;
+    int block_size_x = 256;
+    int block_size_y = 4;
     int numBlocks_x = (nx + block_size_x - 1) / block_size_x;
     int numBlocks_y = (ny + numYPerStep * block_size_y - 1) / (numYPerStep * block_size_y);
     dim3 threads(block_size_x, block_size_y);
