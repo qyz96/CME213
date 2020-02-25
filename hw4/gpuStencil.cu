@@ -265,7 +265,7 @@ void gpuStencilShared(float* next, const float* __restrict__ curr, int gx, int g
     int dy = threadIdx.y;
     int size = side + 2 * order;
     int pos_block = dx + order + (dy + order) * size;
-    int pos = (ix + bordersize) + (iy + bordersize) * gx;
+    int pos = (ix + order) + (iy + order) * gx;
     block[pos_block]=curr[pos];
     if (ix < nx && iy < ny) {
         if (dx == 0) {
