@@ -295,7 +295,8 @@ void gpuStencilShared(float* next, const float* __restrict__ curr, int gx, int g
 
     }
     __syncthreads();
-    if ((dx < side-order+bordersize) && (dy < side-order+bordersize) && (dx >= bordersize) && (dy >= bordersize)) {
+    if ((dx < side-order+bordersize) && (dy < side-order+bordersize) && (dx >= bordersize) && (dy >= bordersize) && (ix < nx+bordersize) &&
+    (iy < ny + bordersize)) {
         //next[pos]=Stencil<order>(block+pos_block, size, xcfl, ycfl);
         next[pos]=Stencil<order>(curr+pos, gx, xcfl, ycfl);
     }
