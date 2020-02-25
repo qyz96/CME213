@@ -265,7 +265,7 @@ void gpuStencilShared(float* next, const float* __restrict__ curr, int gx, int g
     int dy = threadIdx.y;
     int size = side + 2 * order;
     int pos_block = dx + order + (dy + order) * size;
-    int pos = (ix + bordersize) + (y + bordersize) * gx;
+    int pos = (ix + bordersize) + (iy + bordersize) * gx;
     block[pos_block]=curr[pos];
     if (ix < nx && iy < ny) {
         if (dx == 0) {
@@ -273,7 +273,7 @@ void gpuStencilShared(float* next, const float* __restrict__ curr, int gx, int g
                 block[pos_block-j] = curr[pos-j];
             }
         }
-        if (dx == side -1 || ix = nx - 1) {
+        if (dx == side -1 || ix= = nx - 1) {
             for (int j=0; j<order; j++) {
                 block[pos_block+j] = curr[pos+j];
             }
@@ -283,7 +283,7 @@ void gpuStencilShared(float* next, const float* __restrict__ curr, int gx, int g
                 block[pos_block-j*size] = curr[pos-j*gx];
             }
         }
-        if (dy == side - 1 || iy = ny - 1) {
+        if (dy == side - 1 || iy == ny - 1) {
             for (int j=0; j<order; j++) {
                 block[pos_block+j*size] = curr[pos+j*gx];
             }
@@ -323,6 +323,7 @@ double gpuComputationShared(Grid& curr_grid, const simParams& params) {
     int ny = params.ny();
 
     int gx = params.gx();
+    int gy = params.gy();
     // TODO: Declare variables/Compute parameters.
     int numYPerStep = 16;
     int block_size_x = 32;
@@ -342,13 +343,13 @@ double gpuComputationShared(Grid& curr_grid, const simParams& params) {
 
         // TODO: Apply stencil.
         if (params.order()==2) {
-            gpuStencilShared<2, 32><<<blocks, threads, side*side*sizeof(float)>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, gy, xcfl, ycfl);
+            gpuStencilShared<32, 2><<<blocks, threads, side*side*sizeof(float)>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, gy, xcfl, ycfl);
         }
         else if (params.order()==4) {
-            gpuStencilShared<4, 32><<<blocks, threads, side*side*sizeof(float)>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, gy, xcfl, ycfl);
+            gpuStencilShared<32, 4><<<blocks, threads, side*side*sizeof(float)>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, gy, xcfl, ycfl);
         }
         else if (params.order()==8) {
-            gpuStencilShared<8, 32><<<blocks, threads, side*side*sizeof(float)>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, gy, xcfl, ycfl);
+            gpuStencilShared<32, 8><<<blocks, threads, side*side*sizeof(float)>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, gy, xcfl, ycfl);
         }
         Grid::swap(curr_grid, next_grid);
     }
