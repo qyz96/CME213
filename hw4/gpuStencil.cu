@@ -134,15 +134,15 @@ double gpuComputationGlobal(Grid& curr_grid, const simParams& params) {
         curr_grid.fromGPU();
         if (i == 0) {
             std::cout<<curr_grid;
-            std::cout<<"\n"
+            std::cout<<"\n";
         }
         if (i == 1000) {
             std::cout<<curr_grid;
-            std::cout<<"\n"
+            std::cout<<"\n";
         }
         if (i == 2000) {
             std::cout<<curr_grid;
-            std::cout<<"\n"
+            std::cout<<"\n";
         }
     }
 
