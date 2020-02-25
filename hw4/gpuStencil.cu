@@ -142,7 +142,7 @@ double gpuComputationGlobal(Grid& curr_grid, const simParams& params) {
         }
         if (i == 2000) {
             std::ofstream ofs("OMEGA");
-            ofs << curr_grid << std::setprecision(4)<< std::endl;
+            ofs <<std::setprecision(4)<< curr_grid << std::endl;
             ofs.close();
         }
     }
