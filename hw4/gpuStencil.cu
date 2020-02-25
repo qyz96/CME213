@@ -1,8 +1,8 @@
 #include <math_constants.h>
 
 #include "BC.h"
-constexpr const int SIDE = 64;
-constexpr const int numYPerStep = 32;
+constexpr const int SIDE = 32;
+constexpr const int numYPerStep = 64;
 /**
  * Calculates the next finite difference step given a
  * grid point and step lengths.
@@ -204,7 +204,7 @@ double gpuComputationBlock(Grid& curr_grid, const simParams& params) {
 
     int gx = params.gx();
     // TODO: Declare variables/Compute parameters.
-    int block_size_x = 512;
+    int block_size_x = 1024;
     int block_size_y = 1;
     int numBlocks_x = (nx + block_size_x - 1) / block_size_x;
     int numBlocks_y = (ny + numYPerStep * block_size_y - 1) / (numYPerStep * block_size_y);
