@@ -261,15 +261,16 @@ void gpuStencilShared(float* next, const float* __restrict__ curr, int gx, int g
     int bordersize = order / 2;
     int nx = gx - 2 * bordersize;
     int ny = gy - 2 * bordersize;
-    int ix = blockIdx.x * blockDim.x + threadIdx.x;
-    int iy = blockIdx.y * blockDim.y + threadIdx.y;
+    int ix = blockIdx.x * (blockDim.x-order) + threadIdx.x;
+    int iy = blockIdx.y * (blockDim.y-order) + threadIdx.y;
     int dx = threadIdx.x;
     int dy = threadIdx.y;
-    int size = side + 2 * bordersize;
-    int pos_block = dx + bordersize + (dy + bordersize) * size;
-    int pos = (ix + bordersize) + (iy + bordersize) * gx;
-    if ((ix < nx) && (iy < ny)) {
+    int size = side;
+    int pos_block = dx + (dy) * size;
+    int pos = (ix) + (iy) * gx;
+    if ((ix < gx) && (iy < gy)) {
         block[pos_block]=curr[pos];
+        /*
         if (dx == 0) {
             for (int j=1; j<=bordersize; j++) {
                 block[pos_block-j] = curr[pos-j];
@@ -290,11 +291,12 @@ void gpuStencilShared(float* next, const float* __restrict__ curr, int gx, int g
                 block[pos_block+j*size] = curr[pos+j*gx];
             }
         }
+        */
+
     }
     __syncthreads();
-    if ((ix < nx) && (iy < ny)) {
+    if ((ix < nx+bordersize) && (iy < ny+bordersize) && (ix >= bordersize) && (iy >= bordersize)) {
         next[pos]=Stencil<order>(block+pos_block, size, xcfl, ycfl);
-        //next[pos]=Stencil<order>(curr+pos, gx, xcfl, ycfl);
     }
 
 
