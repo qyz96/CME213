@@ -337,7 +337,7 @@ double gpuComputationShared(Grid& curr_grid, const simParams& params) {
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
     
-    int side = (block_size_x + 2 * params.order());
+    int side = (block_size_x);
     event_pair timer;
     start_timer(&timer);
 
