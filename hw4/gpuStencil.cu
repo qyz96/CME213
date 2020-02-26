@@ -1,7 +1,7 @@
 #include <math_constants.h>
 
 #include "BC.h"
-constexpr const int SIDE = 16;
+constexpr const int SIDE = 32;
 constexpr const int numYPerStep = 16;
 /**
  * Calculates the next finite difference step given a
@@ -131,7 +131,6 @@ double gpuComputationGlobal(Grid& curr_grid, const simParams& params) {
             gpuStencilGlobal<8><<<numBlocks, block_size>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         }
         Grid::swap(curr_grid, next_grid);
-        
     }
 
 
@@ -205,8 +204,8 @@ double gpuComputationBlock(Grid& curr_grid, const simParams& params) {
 
     int gx = params.gx();
     // TODO: Declare variables/Compute parameters.
-    int block_size_x = 256;
-    int block_size_y = 4;
+    int block_size_x = 1024;
+    int block_size_y = 1;
     int numBlocks_x = (nx + block_size_x - 1) / block_size_x;
     int numBlocks_y = (ny + numYPerStep * block_size_y - 1) / (numYPerStep * block_size_y);
     dim3 threads(block_size_x, block_size_y);
@@ -257,44 +256,26 @@ __global__
 void gpuStencilShared(float* next, const float* __restrict__ curr, int gx, int gy,
                float xcfl, float ycfl) {
     // TODO
+    // Inter
     extern __shared__ float block[];
-    int s = side;
     int bordersize = order / 2;
     int nx = gx - 2 * bordersize;
     int ny = gy - 2 * bordersize;
-    int ix = blockIdx.x * blockDim.x + threadIdx.x;
-    int iy = blockIdx.y * blockDim.y + threadIdx.y;
+    int ix = blockIdx.x * (blockDim.x-order) + threadIdx.x;
+    int iy = blockIdx.y * (blockDim.y-order) + threadIdx.y;
     int dx = threadIdx.x;
     int dy = threadIdx.y;
-    int size = side + 2 * bordersize;
-    int pos_block = dx + bordersize + (dy + bordersize) * size;
-    int pos = (ix + bordersize) + (iy + bordersize) * gx;
-    if ((ix < nx) && (iy < ny)) {
+    int size = side;
+    int pos_block = dx + (dy) * size;
+    int pos = (ix) + (iy) * gx;
+    if ((ix < gx) && (iy < gy)) {
         block[pos_block]=curr[pos];
-        if (dx == 0) {
-            for (int j=1; j<=bordersize; j++) {
-                block[pos_block-j] = curr[pos-j];
-            }
-        }
-        if ((dx == s - 1) || (ix == nx - 1)) {
-            for (int j=1; j<=bordersize; j++) {
-                block[pos_block+j] = curr[pos+j];
-            }
-        }
-        if (dy == 0) {
-            for (int j=1; j<=bordersize; j++) {
-                block[pos_block-j*size] = curr[pos-j*gx];
-            }
-        }
-        if ((dy == s - 1) || (iy == ny - 1)) {
-            for (int j=1; j<=bordersize; j++) {
-                block[pos_block+j*size] = curr[pos+j*gx];
-            }
-        }
     }
     __syncthreads();
-    if ((ix < nx) && (iy < ny)) {
+    if ((dx < side-order+bordersize) && (dy < side-order+bordersize) && (dx >= bordersize) && (dy >= bordersize) && (ix < nx+bordersize) &&
+    (iy < ny + bordersize)) {
         next[pos]=Stencil<order>(block+pos_block, size, xcfl, ycfl);
+        //next[pos]=Stencil<order>(curr+pos, gx, xcfl, ycfl);
     }
 
 
@@ -330,12 +311,12 @@ double gpuComputationShared(Grid& curr_grid, const simParams& params) {
     // TODO: Declare variables/Compute parameters.
     int block_size_x = SIDE;
     int block_size_y = SIDE;
-    int numBlocks_x = (nx + block_size_x - 1) / block_size_x;
-    int numBlocks_y = (ny + block_size_y - 1) / (block_size_y);
+    int numBlocks_x = (nx + block_size_x - order - 1) / (block_size_x-order);
+    int numBlocks_y = (ny + block_size_y - order - 1) / (block_size_y-order);
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
     
-    int side = (block_size_x + 2 * params.order());
+    int side = (block_size_x);
     event_pair timer;
     start_timer(&timer);
 
@@ -359,4 +340,3 @@ double gpuComputationShared(Grid& curr_grid, const simParams& params) {
     check_launch("gpuStencilShared");
     return stop_timer(&timer);
 }
-
