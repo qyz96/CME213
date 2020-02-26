@@ -105,7 +105,7 @@ double gpuComputationGlobal(Grid& curr_grid, const simParams& params) {
         Grid::swap(curr_grid, next_grid);
     }
 
-    check_launch("gpuStencilGlobal");
+    //check_launch("gpuStencilGlobal");
     return stop_timer(&timer);
 }
 
