@@ -78,7 +78,7 @@ void gpuStencilGlobal(float* next, const float* __restrict__ curr, int gx, int n
         int y = (i / ny) + bordersize;
         int pos = x + y * gx;
 
-        next[pos]=Stencil<order>(curr+pos, gx, xcfl, ycfl);
+        //next[pos]=Stencil<order>(curr+pos, gx, xcfl, ycfl);
     }
     return;
 }
