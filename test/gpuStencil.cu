@@ -138,7 +138,7 @@ double gpuComputationGlobal(Grid& curr_grid, const simParams& params) {
 
     //curr_grid.fromGPU();
 
-    //check_launch("gpuStencilGlobal");
+    check_launch("gpuStencilGlobal");
     return stop_timer(&timer);
 }
 
