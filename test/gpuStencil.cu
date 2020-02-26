@@ -71,7 +71,7 @@ template<int order>
 __global__
 void gpuStencilGlobal(float* next, const float* __restrict__ curr, int gx, int nx, int ny,
                 float xcfl, float ycfl) {
-    
+    /*
     const int i = (blockIdx.x * blockDim.x + threadIdx.x);
     int bordersize = (gx-nx)/2;
     if( i < nx*ny ) {
@@ -81,6 +81,7 @@ void gpuStencilGlobal(float* next, const float* __restrict__ curr, int gx, int n
 
         next[pos]=Stencil<order>(curr+pos, gx, xcfl, ycfl);
     }
+    */
     return;
     
 }
