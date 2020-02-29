@@ -131,6 +131,16 @@ double gpuComputationGlobal(Grid& curr_grid, const simParams& params) {
             gpuStencilGlobal<8><<<numBlocks, block_size>>>(next_grid.dGrid_, curr_grid.dGrid_, gx, nx, ny, xcfl, ycfl);
         }
         Grid::swap(curr_grid, next_grid);
+        curr_grid.fromGPU();
+        if (i==0) {
+            curr_grid.saveStateToFile("0000.csv");
+        }
+        if (i==1000) {
+            curr_grid.saveStateToFile("1000.csv");
+        }
+        if (i==2000) {
+            curr_grid.saveStateToFile("2000.csv");
+        }
     }
 
 
