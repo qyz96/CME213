@@ -268,15 +268,28 @@ void gpuStencilShared(float* next, const float* __restrict__ curr, int gx, int g
     int size = side;
     int pos_block = dx + (dy) * size;
     int pos = (ix) + (iy) * gx;
-    if ((ix < gx) && (iy < gy)) {
-        block[pos_block]=curr[pos];
+
+    for (int i=0; i<side/order; i++)   {
+        if ((ix < gx) && ((iy+i*order) < gy)) {
+            block[pos_block+i*order*size]=curr[pos+i*order*gx];
+        }
     }
     __syncthreads();
-    if ((dx < side-order+bordersize) && (dy < side-order+bordersize) && (dx >= bordersize) && (dy >= bordersize) && (ix < nx+bordersize) &&
-    (iy < ny + bordersize)) {
-        next[pos]=Stencil<order>(block+pos_block, size, xcfl, ycfl);
-        //next[pos]=Stencil<order>(curr+pos, gx, xcfl, ycfl);
+
+    for (int i=0; i<side/order; i++)   {
+        if ((dx < side-order+bordersize)  && (dx >= bordersize) && (ix < nx+bordersize) && (dy+i*order < side-order+bordersize) && (dy+i*order >= bordersize) 
+            && ((iy+i*order) < ny + bordersize)) {
+                next[pos+i*order*gx]=Stencil<order>(block+pos_block+i*order*size, size, xcfl, ycfl);
+                //next[pos]=Stencil<order>(curr+pos, gx, xcfl, ycfl);
+        }
     }
+
+
+    /*
+
+    
+
+    */
 
 
 }
@@ -310,9 +323,9 @@ double gpuComputationShared(Grid& curr_grid, const simParams& params) {
     int gy = params.gy();
     // TODO: Declare variables/Compute parameters.
     int block_size_x = SIDE;
-    int block_size_y = SIDE;
+    int block_size_y = params.order();
     int numBlocks_x = (nx + block_size_x - order - 1) / (block_size_x-order);
-    int numBlocks_y = (ny + block_size_y - order - 1) / (block_size_y-order);
+    int numBlocks_y = (ny + SIDE - order - 1) / (SIDE-order);
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
     
