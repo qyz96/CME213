@@ -262,7 +262,7 @@ void gpuStencilShared(float* next, const float* __restrict__ curr, int gx, int g
     int nx = gx - 2 * bordersize;
     int ny = gy - 2 * bordersize;
     int ix = blockIdx.x * (blockDim.x-order) + threadIdx.x;
-    int iy = blockIdx.y * (blockDim.y-order) + threadIdx.y;
+    int iy = blockIdx.y * (side-order) + threadIdx.y;
     int dx = threadIdx.x;
     int dy = threadIdx.y;
     int size = side;
