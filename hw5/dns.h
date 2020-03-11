@@ -184,7 +184,7 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
   int block_size=mesh_info.blockdim*mesh_info.blockdim;
   float* Aik=new float[block_size];
   float* Bkj=new float[block_size];
-  int coords[3]=mesh_info.mycoords;
+  int* coords=mesh_info.mycoords;
   if (coords[2] == 0)
     {
         MPI_Scatterv(a, counts, displs, blk_type_resized, Aik, block_size, MPI_INT, 0, mesh_info.comm_ij);
