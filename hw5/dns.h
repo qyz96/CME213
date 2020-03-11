@@ -260,15 +260,11 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
 
   // TODO: Broadcast A[i, j, j] along j axis.
 
-  if (coords[1]==coords[2]) {
-    MPI_Bcast(Aik, block_size, MPI_FLOAT, coords[1], mesh_info.comm_j);
-    cout<<"(i,j,k): "<<coords[0]<<" "<<coords[1]<<" "<<coords[2]<<": ";
-    print_mat(Aik, mesh_info.blockdim);
-  }
+  MPI_Bcast(Aik, block_size, MPI_FLOAT, coords[2], mesh_info.comm_j);
+    //cout<<"(i,j,k): "<<coords[0]<<" "<<coords[1]<<" "<<coords[2]<<": ";
+    //print_mat(Aik, mesh_info.blockdim);
 
-  if (coords[0]==coords[2]) {
-    MPI_Bcast(Bkj, block_size, MPI_FLOAT, coords[0], mesh_info.comm_i);
-  }
+  MPI_Bcast(Bkj, block_size, MPI_FLOAT, coords[2], mesh_info.comm_i);
 
   // TODO: Broadcast B[i, j, i] along i axis.
 
