@@ -92,7 +92,7 @@ struct mesh_info initialize_topology(int blockdim, int q)
   mesh.num_procs=num_procs;
   mesh.myrank=my_rank;
   int dims[3]={q,q,q};
-  int periord[3]={1,1,1};
+  int periods[3]={1,1,1};
   MPI_Comm comm_3d;
   MPI_Cart_create(MPI_COMM_WORLD, 3, dims, periods, 0, &comm_3d);
   int my3drank;
@@ -265,7 +265,7 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
 
   // TODO: Multiply local A and B matrices together and place into local C.
 
-  float Cijk=new float[block_size];
+  float* Cijk=new float[block_size];
   omp_matmul(Aik, Bkj, Cijk, mesh_info.blockdim);
 
   // TODO: Reduce results back into the k = 0 plane.
@@ -275,7 +275,7 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
   // TODO: Gatherv results back to the root node
 
   if (coords[2] == 0) {
-        MPI_Gatherv(Cij, block_size, MPI_FLOAT, c, counts, displs, blk_type_resized, 0, comm_ij);
+        MPI_Gatherv(Cij, block_size, MPI_FLOAT, c, counts, displs, blk_type_resized, 0, mesh_info.comm_ij);
   }
 
   // TODO: Release any resources that you may have allocated
