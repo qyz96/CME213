@@ -24,6 +24,8 @@
 
 #include "util.h"
 #include "mpi.h"
+#include<iostream>
+using namespace std;
 
 
 #define MPI_SAFE_CALL( call ) do {                               \
@@ -109,6 +111,10 @@ struct mesh_info initialize_topology(int blockdim, int q)
   return mesh;
 }
 
+
+
+
+
 /**
  * Free all communicators associated with the mesh_info struct.
  * @param[inout] mesh_info  mesh_info struct containing communicators to free
@@ -121,6 +127,18 @@ void mesh_info_free(struct mesh_info& mesh_info)
   MPI_Comm_free(&mesh_info.comm_k);
   MPI_Comm_free(&mesh_info.comm_ij);
   // TODO: free all communicators allocated in initialize_topology
+}
+
+
+
+
+void print_mat(const float* a, int n) {
+  for (int i=0; i<n; i++) {
+    for (int j=0; j<n; j++) {
+      cout<<a[i*n+j]<<" ";
+    }
+    cout<<endl;
+  }
 }
 
 /**
@@ -175,11 +193,16 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
   float* Aik=new float[block_size];
   float* Bkj=new float[block_size];
   const int* coords=mesh_info.mycoords;
+  if (mesh_info.my_rank==0) {
+    print_mat(a, matrix_dim)l;
+  }
   if (coords[2] == 0)
     {
         MPI_Scatterv(a, counts, displs, blk_type_resized, Aik, block_size, MPI_INT, 0, mesh_info.comm_ij);
         MPI_Scatterv(b, counts, displs, blk_type_resized, Bkj, block_size, MPI_INT, 0, mesh_info.comm_ij);
-    }
+        print_mat(Aik, mesh_info.blockdim);
+  }
+
 
 
   
