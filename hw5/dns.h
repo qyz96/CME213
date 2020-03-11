@@ -262,6 +262,8 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
 
   if (coords[1]==coords[2]) {
     MPI_Bcast(Aik, block_size, MPI_FLOAT, coords[1], mesh_info.comm_j);
+    cout<<"(i,j,k): "<<coords[0]<<" "<<coords[1]<<" "<<coords[2]<<": ";
+    print_mat(Aik, mesh_info.blockdim);
   }
 
   if (coords[0]==coords[2]) {
@@ -274,10 +276,12 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
 
   float* Cijk=new float[block_size];
   omp_matmul(Aik, Bkj, Cijk, mesh_info.blockdim);
+  /*
   cout<<"(i,j,k): "<<coords[0]<<" "<<coords[1]<<" "<<coords[2]<<": ";
   print_mat(Aik, mesh_info.blockdim);
   print_mat(Bkj, mesh_info.blockdim);
   print_mat(Cijk, mesh_info.blockdim);
+  */
 
   // TODO: Reduce results back into the k = 0 plane.
   float* Cij=new float[block_size];
