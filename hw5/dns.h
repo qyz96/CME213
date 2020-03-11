@@ -285,8 +285,16 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
   }
 
   // TODO: Release any resources that you may have allocated
+
+
+
   if (mesh_info.myrank==0) {
-  print_mat(c, matrix_dim);
+    cout<<"Matrix A: \n";
+    print_mat(a, matrix_dim);
+    cout<<"Matrix B: \n";
+    print_mat(b, matrix_dim);
+    cout<<"Matrix C: \n";
+    print_mat(c, matrix_dim);
   }
 
   delete[] Aik;
