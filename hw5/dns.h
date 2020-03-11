@@ -97,8 +97,7 @@ struct mesh_info initialize_topology(int blockdim, int q)
   MPI_Cart_create(MPI_COMM_WORLD, 3, dims, periods, 0, &comm_3d);
   int my3drank;
   MPI_Comm_rank(comm_3d, &my3drank);
-  int coords[3];
-  MPI_Cart_coords(comm_3d, my3drank, 3, coords);
+  MPI_Cart_coords(comm_3d, my3drank, 3, mesh.mycoords);
   int keep_dims_i[3] = {1, 0, 0};
   MPI_Comm comm_i;
   MPI_Cart_sub(comm_3d, keep_dims_i, &comm_i);
@@ -117,7 +116,6 @@ struct mesh_info initialize_topology(int blockdim, int q)
   mesh.comm_k=comm_k;
   mesh.comm_ij=comm_ij;
   mesh.my3drank=my3drank;
-  mesh.mycoords=coords;
   return mesh;
 }
 
