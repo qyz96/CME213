@@ -104,7 +104,7 @@ struct mesh_info initialize_topology(int blockdim, int q)
   int keep_dims_j[3] = {0, 1, 0};
   MPI_Comm comm_j;
   MPI_Cart_sub(comm_3d, keep_dims_j, &comm_j);
-  int keep_dims_k[3] = {0, 1, 0};
+  int keep_dims_k[3] = {0, 0, 1};
   MPI_Comm comm_k;
   MPI_Cart_sub(comm_3d, keep_dims_k, &comm_k);
   int keep_dims_ij[3] = {1, 1, 0};
