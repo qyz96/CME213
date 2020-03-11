@@ -252,7 +252,8 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
         int send_coords[3] = {coords[0], coords[1], 0};
         int send_rank;
         MPI_Cart_rank(mesh_info.comm_3d, send_coords, &send_rank);
-
+        cout<<"Rank "<<coords[0]<<" "<<coords[1]<<" "<<coords[2]<<": ";
+        print_mat(Aik, mesh_info.blockdim);
         MPI_Recv(Bkj, block_size, MPI_FLOAT, send_rank, 0, mesh_info.comm_3d, MPI_STATUS_IGNORE);
     }
 
