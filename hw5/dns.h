@@ -200,9 +200,9 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
     {
         MPI_Scatterv(a, counts, displs, blk_type_resized, Aik, block_size, MPI_FLOAT, 0, mesh_info.comm_ij);
         MPI_Scatterv(b, counts, displs, blk_type_resized, Bkj, block_size, MPI_FLOAT, 0, mesh_info.comm_ij);
-        cout<<"(i,j,0): "<<coords[0]<<" "<<coords[1]<<" "<<coords[2]<<": ";
-        print_mat(Aik, mesh_info.blockdim);
-        print_mat(Bkj, mesh_info.blockdim);
+        //cout<<"(i,j,0): "<<coords[0]<<" "<<coords[1]<<" "<<coords[2]<<": ";
+        //print_mat(Aik, mesh_info.blockdim);
+        //print_mat(Bkj, mesh_info.blockdim);
   }
 
 
@@ -231,8 +231,8 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
         MPI_Cart_rank(mesh_info.comm_3d, send_coords, &send_rank);
 
         MPI_Recv(Aik, block_size, MPI_FLOAT, send_rank, 0, mesh_info.comm_3d, MPI_STATUS_IGNORE);
-        cout<<"(i,j,j): "<<coords[0]<<" "<<coords[1]<<" "<<coords[2]<<": ";
-        print_mat(Aik, mesh_info.blockdim);
+        //cout<<"(i,j,j): "<<coords[0]<<" "<<coords[1]<<" "<<coords[2]<<": ";
+        //print_mat(Aik, mesh_info.blockdim);
     }
 
   // TODO: Send B[i, j, 0] --> B[i, j, i]. Use P2P calls.
@@ -254,8 +254,8 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
         int send_rank;
         MPI_Cart_rank(mesh_info.comm_3d, send_coords, &send_rank);
         MPI_Recv(Bkj, block_size, MPI_FLOAT, send_rank, 0, mesh_info.comm_3d, MPI_STATUS_IGNORE);
-        cout<<"(i,j,i): "<<coords[0]<<" "<<coords[1]<<" "<<coords[2]<<": ";
-        print_mat(Bkj, mesh_info.blockdim);
+        //cout<<"(i,j,i): "<<coords[0]<<" "<<coords[1]<<" "<<coords[2]<<": ";
+        //print_mat(Bkj, mesh_info.blockdim);
     }
 
   // TODO: Broadcast A[i, j, j] along j axis.
@@ -274,6 +274,8 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
 
   float* Cijk=new float[block_size];
   omp_matmul(Aik, Bkj, Cijk, mesh_info.blockdim);
+  cout<<"(i,j,k): "<<coords[0]<<" "<<coords[1]<<" "<<coords[2]<<": ";
+  print_mat(Cijk, mesh_info.blockdim);
 
   // TODO: Reduce results back into the k = 0 plane.
   float* Cij=new float[block_size];
