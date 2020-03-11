@@ -193,9 +193,6 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
   float* Aik=new float[block_size];
   float* Bkj=new float[block_size];
   const int* coords=mesh_info.mycoords;
-  if (mesh_info.myrank==0) {
-    print_mat(a, matrix_dim);
-  }
   if (coords[2] == 0)
     {
         MPI_Scatterv(a, counts, displs, blk_type_resized, Aik, block_size, MPI_FLOAT, 0, mesh_info.comm_ij);
@@ -292,7 +289,7 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
   // TODO: Release any resources that you may have allocated
 
 
-
+  /*
   if (mesh_info.myrank==0) {
     cout<<"Matrix A: \n";
     print_mat(a, matrix_dim);
@@ -301,6 +298,7 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
     cout<<"Matrix C: \n";
     print_mat(c, matrix_dim);
   }
+  */
 
   delete[] Aik;
   delete[] Bkj;
