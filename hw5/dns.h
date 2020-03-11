@@ -200,7 +200,7 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
     {
         MPI_Scatterv(a, counts, displs, blk_type_resized, Aik, block_size, MPI_FLOAT, 0, mesh_info.comm_ij);
         MPI_Scatterv(b, counts, displs, blk_type_resized, Bkj, block_size, MPI_FLOAT, 0, mesh_info.comm_ij);
-        cout<<"Rank "<<coords[0]<<" "<<coords[1]<<" "<<coords[2]<<": ";
+        //cout<<"Rank "<<coords[0]<<" "<<coords[1]<<" "<<coords[2]<<": ";
         print_mat(Aik, mesh_info.blockdim);
   }
 
