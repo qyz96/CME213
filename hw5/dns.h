@@ -200,7 +200,7 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
     {
         MPI_Scatterv(a, counts, displs, blk_type_resized, Aik, block_size, MPI_FLOAT, 0, mesh_info.comm_ij);
         MPI_Scatterv(b, counts, displs, blk_type_resized, Bkj, block_size, MPI_FLOAT, 0, mesh_info.comm_ij);
-        cout<<"Rank "<<mesh_info.myrank<<": ";
+        cout<<"Rank "<<coords[0]<<" "<<coords[1]<<" "<<coords[2]<<": ";
         print_mat(Aik, mesh_info.blockdim);
   }
 
@@ -221,7 +221,6 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
         MPI_Cart_rank(mesh_info.comm_3d, recv_coords, &recv_rank);
 
         MPI_Send(Aik, block_size, MPI_FLOAT, recv_rank, 0, mesh_info.comm_3d);
-        
     }
     else if (coords[1] == coords[2] && coords[2] != 0)
     {
@@ -231,6 +230,8 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
         MPI_Cart_rank(mesh_info.comm_3d, send_coords, &send_rank);
 
         MPI_Recv(Aik, block_size, MPI_FLOAT, send_rank, 0, mesh_info.comm_3d, MPI_STATUS_IGNORE);
+        cout<<"Rank "<<coords[0]<<" "<<coords[1]<<" "<<coords[2]<<": ";
+        print_mat(Aik, mesh_info.blockdim);
     }
 
   // TODO: Send B[i, j, 0] --> B[i, j, i]. Use P2P calls.
