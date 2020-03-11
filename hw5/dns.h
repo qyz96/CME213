@@ -83,7 +83,42 @@ struct mesh_info
 struct mesh_info initialize_topology(int blockdim, int q)
 {
   // TODO: initialize every field of the mesh_info struct
-  return mesh_info();
+  mesh_info mesh;
+  mesh.blockdim=blockdim;
+  int num_procs;
+  int my_rank;
+  MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
+  MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+  mesh.num_procs=num_procs;
+  mesh.myrank=my_rank;
+  int dims[3]={q,q,q};
+  int periord[3]={1,1,1};
+  MPI_Comm comm_3d;
+  MPI_Cart_create(MPI_COMM_WORLD, 3, dims, periods, 0, &comm_3d);
+  int my3drank;
+  MPI_Comm_rank(comm_3d, &my3drank);
+  int coords[3];
+  MPI_Cart_coords(comm_3d, my3drank, 3, coords);
+  int keep_dims_i[3] = {1, 0, 0};
+  MPI_Comm comm_i;
+  MPI_Cart_sub(comm_3d, keep_dims_i, &comm_i);
+  int keep_dims_j[3] = {0, 1, 0};
+  MPI_Comm comm_j;
+  MPI_Cart_sub(comm_3d, keep_dims_j, &comm_j);
+  int keep_dims_k[3] = {0, 1, 0};
+  MPI_Comm comm_k;
+  MPI_Cart_sub(comm_3d, keep_dims_k, &comm_k);
+  int keep_dims_ij[3] = {1, 1, 0};
+  MPI_Comm comm_ij;
+  MPI_Cart_sub(comm_3d, keep_dims_ij, &comm_ij);
+  mesh.comm_3d=comm_3d;
+  mesh.comm_i=comm_i;
+  mesh.comm_j=comm_j;
+  mesh.comm_k=comm_k;
+  mesh.comm_ij=comm_ij;
+  mesh.my3drank=my3drank;
+  mesh.mycoords=coords;
+  return mesh;
 }
 
 /**
@@ -92,6 +127,11 @@ struct mesh_info initialize_topology(int blockdim, int q)
  */
 void mesh_info_free(struct mesh_info& mesh_info)
 {
+  MPI_Comm_free(&mesh_info.comm_3d);
+  MPI_Comm_free(&mesh_info.comm_i);
+  MPI_Comm_free(&mesh_info.comm_j);
+  MPI_Comm_free(&mesh_info.comm_k);
+  MPI_Comm_free(&mesh_info.comm_ij);
   // TODO: free all communicators allocated in initialize_topology
 }
 
@@ -143,24 +183,107 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
       counts[i * q + j] = 1;                  // We send only one block to each rank
     }
   }
+  int block_size=mesh_info.blockdim*mesh_info.blockdim;
+  float* Aik=new float[block_size];
+  float* Bkj=new float[block_size];
+  int coords[3]=mesh_info.mycoords;
+  if (coords[2] == 0)
+    {
+        MPI_Scatterv(a, counts, displs, blk_type_resized, Aik, block_size, MPI_INT, 0, mesh_info.comm_ij);
+        MPI_Scatterv(b, counts, displs, blk_type_resized, Bkj, block_size, MPI_INT, 0, mesh_info.comm_ij);
+    }
 
+
+  
   // TODO: Scatterv A and B matrices from root to ranks in the k = 0 plane
 
+
+  
+
+    
   // TODO: Send A[i, j, 0] --> A[i, j, j]. Use P2P calls.
+  if (coords[1] != 0 && coords[2] == 0)
+    {
+        // Sending from (i,j,0) to (i,j,j)
+
+        data = coords[0] * q + coords[1];
+
+        // Coordinates of receiving process
+        int recv_coords[3] = {coords[0], coords[1], coords[1]};
+        int recv_rank;
+        MPI_Cart_rank(mesh_info.comm_3d, recv_coords, &recv_rank);
+
+        MPI_Send(Aik, block_size, MPI_FLOAT, recv_rank, 0, mesh_info.comm_3d);
+        
+    }
+    else if (coords[1] == coords[2] && coords[2] != 0)
+    {
+        // Coordinates of sending process
+        int send_coords[3] = {coords[0], coords[1], 0};
+        int send_rank;
+        MPI_Cart_rank(mesh_info.comm_3d, send_coords, &send_rank);
+
+        MPI_Recv(Aik, block_size, MPI_FLOAT, send_rank, 0, mesh_info.comm_3d, MPI_STATUS_IGNORE);
+    }
 
   // TODO: Send B[i, j, 0] --> B[i, j, i]. Use P2P calls.
+  if (coords[0] != 0 && coords[2] == 0)
+    {
+        // Sending from (i,j,0) to (i,j,j)
+
+        data = coords[0] * q + coords[1];
+
+        // Coordinates of receiving process
+        int recv_coords[3] = {coords[0], coords[1], coords[0]};
+        int recv_rank;
+        MPI_Cart_rank(mesh_info.comm_3d, recv_coords, &recv_rank);
+
+        MPI_Send(Bkj, block_size, MPI_FLOAT, recv_rank, 0, mesh_info.comm_3d);
+        
+    }
+    else if (coords[0] == coords[2] && coords[2] != 0)
+    {
+        // Coordinates of sending process
+        int send_coords[3] = {coords[0], coords[1], 0};
+        int send_rank;
+        MPI_Cart_rank(mesh_info.comm_3d, send_coords, &send_rank);
+
+        MPI_Recv(Bkj, block_size, MPI_FLOAT, send_rank, 0, mesh_info.comm_3d, MPI_STATUS_IGNORE);
+    }
 
   // TODO: Broadcast A[i, j, j] along j axis.
+
+  if (coords[1]==coords[2]) {
+    MPI_Bcast(Aik, block_size, MPI_FLOAT, coords[1], mesh_info.comm_j);
+  }
+
+  if (coords[0]==coords[2]) {
+    MPI_Bcast(Bkj, block_size, MPI_FLOAT, coords[0], mesh_info.comm_i);
+  }
 
   // TODO: Broadcast B[i, j, i] along i axis.
 
   // TODO: Multiply local A and B matrices together and place into local C.
 
+  float Cijk=new float[block_size];
+  omp_matmul(Aik, Bkj, Cijk, mesh_info.blockdim);
+
   // TODO: Reduce results back into the k = 0 plane.
+  float* Cij=new float[block_size]
+  MPI_Reduce(Cijk, Cij, block_size, MPI_FLOAT, MPI_SUM, 0, mesh_info.comm_k);
 
   // TODO: Gatherv results back to the root node
 
+  if (coords[2] == 0) {
+        MPI_Gatherv(Cij, block_size, MPI_FLOAT, c, counts, displs, blk_type_resized, 0, comm_ij);
+  }
+
   // TODO: Release any resources that you may have allocated
+
+  delete[] Aik;
+  delete[] Bkj;
+  delete[] Cijk;
+  delete[] Cij;
   delete[] displs;
   delete[] counts;
   MPI_Type_free(&blk_type_resized);
