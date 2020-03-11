@@ -194,7 +194,7 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
   float* Bkj=new float[block_size];
   const int* coords=mesh_info.mycoords;
   if (mesh_info.myrank==0) {
-    print_mat(a, matrix_dim)l;
+    print_mat(a, matrix_dim);
   }
   if (coords[2] == 0)
     {
