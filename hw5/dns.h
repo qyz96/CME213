@@ -202,6 +202,7 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
         MPI_Scatterv(b, counts, displs, blk_type_resized, Bkj, block_size, MPI_FLOAT, 0, mesh_info.comm_ij);
         cout<<"(i,j,0): "<<coords[0]<<" "<<coords[1]<<" "<<coords[2]<<": ";
         print_mat(Aik, mesh_info.blockdim);
+        print_mat(Bkj, mesh_info.blockdim);
   }
 
 
