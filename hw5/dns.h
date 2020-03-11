@@ -204,11 +204,6 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
   // TODO: Send A[i, j, 0] --> A[i, j, j]. Use P2P calls.
   if (coords[1] != 0 && coords[2] == 0)
     {
-        // Sending from (i,j,0) to (i,j,j)
-
-        data = coords[0] * q + coords[1];
-
-        // Coordinates of receiving process
         int recv_coords[3] = {coords[0], coords[1], coords[1]};
         int recv_rank;
         MPI_Cart_rank(mesh_info.comm_3d, recv_coords, &recv_rank);
@@ -230,9 +225,6 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
   if (coords[0] != 0 && coords[2] == 0)
     {
         // Sending from (i,j,0) to (i,j,j)
-
-        data = coords[0] * q + coords[1];
-
         // Coordinates of receiving process
         int recv_coords[3] = {coords[0], coords[1], coords[0]};
         int recv_rank;
@@ -269,7 +261,7 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
   omp_matmul(Aik, Bkj, Cijk, mesh_info.blockdim);
 
   // TODO: Reduce results back into the k = 0 plane.
-  float* Cij=new float[block_size]
+  float* Cij=new float[block_size];
   MPI_Reduce(Cijk, Cij, block_size, MPI_FLOAT, MPI_SUM, 0, mesh_info.comm_k);
 
   // TODO: Gatherv results back to the root node
