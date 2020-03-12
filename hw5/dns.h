@@ -268,7 +268,8 @@ void dns_multiply(const struct mesh_info& mesh_info, const float *a,
   // TODO: Multiply local A and B matrices together and place into local C.
 
   float* Cijk=new float[block_size];
-  omp_matmul(Aik, Bkj, Cijk, mesh_info.blockdim);
+  //omp_matmul(Aik, Bkj, Cijk, mesh_info.blockdim);
+  naive_matmul(Aik, Bkj, Cijk, mesh_info.blockdim);
   /*
   cout<<"(i,j,k): "<<coords[0]<<" "<<coords[1]<<" "<<coords[2]<<": ";
   print_mat(Aik, mesh_info.blockdim);
