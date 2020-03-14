@@ -40,10 +40,11 @@ void device_gemm(double* __restrict__ A, double* __restrict__ B,
            int M, int N, int K) {
     int ix = blockIdx.x * blockDim.x + threadIdx.x;
     int iy = blockIdx.y * blockDim.y + threadIdx.y;
-    for (int i=0; i<K; i++) {
-        C[ix*N+iy]+=A[ix*K+i]*B[i*N+iy];
+    if (ix*N+iy < M*N) {
+        for (int i=0; i<K; i++) {
+            C[ix*N+iy]+=A[ix*K+i]*B[i*N+iy];
+        }
     }
-
 }
 
 /*
