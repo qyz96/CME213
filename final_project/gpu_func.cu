@@ -43,13 +43,9 @@ void device_gemm(double* __restrict__ A, double* __restrict__ B,
     if ((ix < M) && (iy < N)) {
         double temp=0;
         for (int i=0; i<K; i++) {
-            //printf("A(%d,%d)=%f\n", ix, i, A[ix+i*M]);
-            //printf("B(%d,%d)=%f\n", i, iy, B[i+iy*K]);
             temp+=A[ix+i*M]*B[i+iy*K];
-            
         }
         C[ix+iy*M]=alpha*temp+beta*C[ix+iy*M];
-        printf("C(%d,%d)=%f\n", ix, iy, C[ix+iy*M]);
     }
 }
 
