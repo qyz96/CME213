@@ -54,7 +54,7 @@ void device_gemm(double* __restrict__ A, double* __restrict__ B,
 void printmat(double* __restrict__ mat, int m, int n) {
     for (int i=0; i<m; i++) {
         for (int j=0; j< n; j++) {
-            printf("%f ", mat(i+j*m));
+            printf("%f ", mat[i+j*m]);
         }
         printf("\n");
     }
