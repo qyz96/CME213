@@ -138,9 +138,9 @@ void TestGEMM(int M, int N, int K) {
     double beta = 5.0;
 
     int num_iters = 100;
-    M=100;
-    N=100;
-    K=100;
+    M=1000;
+    N=1000;
+    K=1000;
 
     A = (double*)malloc(M*K*sizeof(double));
     B = (double*)malloc(K*N*sizeof(double));
