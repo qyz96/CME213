@@ -42,7 +42,7 @@ void device_gemm(double* __restrict__ A, double* __restrict__ B,
     int iy = blockIdx.y * blockDim.y + threadIdx.y;
     if (ix*N+iy < M*N) {
         for (int i=0; i<K; i++) {
-            C[ix+iy*M]+=A[ix+i*M]*B[i+iy*K];
+            C[ix+iy*M]=alpha*A[ix+i*M]*B[i+iy*K]+beta*C[ix+iy*M];
         }
     }
 }
