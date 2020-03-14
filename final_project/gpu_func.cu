@@ -92,8 +92,7 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
 
-    device_graph_propagate<<<numBlocks, block_size>>>(device_indices, device_edges, device_input_array, device_output_array,
-                             device_invs, num_nodes);
+    device_gemm<<<blocks, threads>>>(array_a, array_b, array_c, al, be, M, N, k);
 
 
     
