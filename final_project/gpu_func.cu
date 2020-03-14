@@ -38,8 +38,8 @@ __global__
 void device_gemm(double* __restrict__ A, double* __restrict__ B,
            double* __restrict__ C, double alpha, double beta,
            int M, int N, int K) {
-    int ix = blockIdx.x * blockDim.x + threadIdx.x;
-    int iy = blockIdx.y * blockDim.y + threadIdx.y;
+    int iy = blockIdx.x * blockDim.x + threadIdx.x;
+    int ix = blockIdx.y * blockDim.y + threadIdx.y;
     if ((ix < M) && (iy < N)) {
         double temp=0;
         for (int i=0; i<K; i++) {
