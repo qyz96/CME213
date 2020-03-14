@@ -41,12 +41,7 @@ void device_gemm(double* __restrict__ A, double* __restrict__ B,
     int ix = blockIdx.x * blockDim.x + threadIdx.x;
     int iy = blockIdx.y * blockDim.y + threadIdx.y;
     if ((ix < M) && (iy < N)) {
-        printf("A: \n");
-    printmat(A, M, K);
-    printf("B: \n");
-    printmat(B, K, N);
-    printf("C: \n");
-    printmat(C, M, N);
+        
         for (int i=0; i<K; i++) {
             printf("C(%d,%d)=%f\n", ix, iy, C[ix+iy*M]);
             printf("A(%d,%d)=%f\n", ix, i, A[ix+i*M]);
