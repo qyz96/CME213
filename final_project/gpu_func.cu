@@ -33,6 +33,19 @@ int useless_gpu_add_one(int t) {
     return result;
 }
 
+
+__global__
+void device_gemm(double* __restrict__ A, double* __restrict__ B,
+           double* __restrict__ C, double alpha, double beta,
+           int M, int N, int K) {
+    int ix = blockIdx.x * blockDim.x + threadIdx.x;
+    int iy = blockIdx.y * blockDim.y + threadIdx.y;
+    for (int i=0; i<K, i++) {
+        C[ix*N+iy]+=A[ix*K+k]*B[k*N+iy];
+    }
+
+}
+
 /*
 Routine to perform an in-place GEMM operation, i.e., C := alpha*A*B + beta*C
 */
@@ -41,5 +54,57 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
            int M, int N, int K) {
     /* TODO: Write an efficient GEMM implementation on GPU */
 
+
+    float *array_a  = nullptr;
+    float *array_b = nullptr;
+    float *array_c = nullptr;
+    double al=*alpha;
+    double be=*beta;
+
+    // TODO: allocate GPU memory
+    cudaMalloc(&array_a,  M*K*sizeof(float));
+    cudaMalloc(&array_b, K*N*sizeof(float));
+    cudaMalloc(&darray_c, M*N*sizeof(float));
+    //cudaMemset(device_input_array + num_nodes, 0, num_bytes_alloc - num_nodes);
+    
+    // TODO: check for allocation failure
+    if (!array_a || !array_b || !array_c) 
+     {
+         std::cerr << "Couldn't allocate memory!" << std::endl;
+         return 1;
+     }
+    // TODO: copy data to the GPU
+    {
+         cudaMemcpy(array_a, A, sizeof(float)*M*K, cudaMemcpyHostToDevice);
+         cudaMemcpy(array_b, B, sizeof(float)*K*N, cudaMemcpyHostToDevice);
+         cudaMemcpy(array_c, C, sizeof(float)*M*N, cudaMemcpyHostToDevice);
+         check_launch("copy to gpu");
+
+     }
+
+
+    event_pair timer;
+    start_timer(&timer);
+    int block_size_x = 32;
+    int block_size_y = 32;
+    int numBlocks_x = (N + block_size_x - 1) / block_size_x;
+    int numBlocks_y = (M + block_size_y - 1) / (block_size_y);
+    dim3 threads(block_size_x, block_size_y);
+    dim3 blocks(numBlocks_x, numBlocks_y);
+
+    device_graph_propagate<<<numBlocks, block_size>>>(device_indices, device_edges, device_input_array, device_output_array,
+                             device_invs, num_nodes);
+
+
+    
+    check_launch("gpu graph propagate");
+    double gpu_elapsed_time = stop_timer(&timer);
+
+    cudaMemcpy(C, array_c, sizeof(float)*M*N, cudaMemcpyDeviceToHost);
+     check_launch("copy from gpu");
+    // TODO: free the memory you allocated!
+    cudaFree(array_a);
+    cudaFree(array_b);
+    cudaFree(array_c);
     return 1;
 }
