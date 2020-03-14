@@ -41,7 +41,7 @@ void device_gemm(double* __restrict__ A, double* __restrict__ B,
     int ix = blockIdx.x * blockDim.x + threadIdx.x;
     int iy = blockIdx.y * blockDim.y + threadIdx.y;
     for (int i=0; i<K, i++) {
-        C[ix*N+iy]+=A[ix*K+k]*B[k*N+iy];
+        C[ix*N+iy]+=A[ix*K+i]*B[i*N+iy];
     }
 
 }
@@ -64,7 +64,7 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     // TODO: allocate GPU memory
     cudaMalloc(&array_a,  M*K*sizeof(float));
     cudaMalloc(&array_b, K*N*sizeof(float));
-    cudaMalloc(&darray_c, M*N*sizeof(float));
+    cudaMalloc(&array_c, M*N*sizeof(float));
     //cudaMemset(device_input_array + num_nodes, 0, num_bytes_alloc - num_nodes);
     
     // TODO: check for allocation failure
@@ -92,7 +92,7 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
 
-    device_gemm<<<blocks, threads>>>(array_a, array_b, array_c, al, be, M, N, k);
+    device_gemm<<<blocks, threads>>>(array_a, array_b, array_c, al, be, M, N, K);
 
 
     
