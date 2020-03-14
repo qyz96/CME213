@@ -36,11 +36,11 @@ int useless_gpu_add_one(int t) {
 
 __global__
 void device_gemm(double* __restrict__ A, double* __restrict__ B,
-           double* __restrict__ C, double alpha, double beta,
+           double* __restrict__ C, double* alpha, double* beta,
            int M, int N, int K) {
     int ix = blockIdx.x * blockDim.x + threadIdx.x;
     int iy = blockIdx.y * blockDim.y + threadIdx.y;
-    if (ix*N+iy < M*N) {
+    if (ix+iy*M < M*N) {
         for (int i=0; i<K; i++) {
             C[ix+iy*M]=alpha*A[ix+i*M]*B[i+iy*K]+beta*C[ix+iy*M];
         }
