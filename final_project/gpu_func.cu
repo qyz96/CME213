@@ -40,6 +40,9 @@ void device_gemm(double* __restrict__ A, double* __restrict__ B,
            int M, int N, int K) {
     int ix = blockIdx.x * blockDim.x + threadIdx.x;
     int iy = blockIdx.y * blockDim.y + threadIdx.y;
+    if (ix+iy*M == 0) {
+        printf("Alpha is %f\n", alpha);
+    }
     if (ix+iy*M < M*N) {
         for (int i=0; i<K; i++) {
             C[ix+iy*M]=alpha*A[ix+i*M]*B[i+iy*K]+beta*C[ix+iy*M];
@@ -63,5 +66,5 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
     device_gemm<<<blocks, threads>>>(A, B, C, al, be, M, N, K);
-    return 1;
+    return 0;
 }
