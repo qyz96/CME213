@@ -40,11 +40,11 @@ void device_gemm(double* __restrict__ A, double* __restrict__ B,
            int M, int N, int K) {
     int ix = blockIdx.x * blockDim.x + threadIdx.x;
     int iy = blockIdx.y * blockDim.y + threadIdx.y;
-    if (ix+iy*M == 0) {
-        printf("Alpha is %f\n", alpha);
-    }
     if (ix+iy*M < M*N) {
         for (int i=0; i<K; i++) {
+            printf("C(%d,%d)=%f\n", ix, iy, C[ix+iy*M]);
+            printf("A(%d,%d)=%f\n", ix, i, A[ix+i*M]);
+            printf("B(%d,%d)=%f\n", i, iy, B[i+iy*K]);
             C[ix+iy*M]=alpha*A[ix+i*M]*B[i+iy*K]+beta*C[ix+iy*M];
         }
     }
