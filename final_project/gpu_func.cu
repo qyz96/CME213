@@ -51,14 +51,6 @@ void device_gemm(double* __restrict__ A, double* __restrict__ B,
     }
 }
 
-void printmat(double* __restrict__ mat, int m, int n) {
-    for (int i=0; i<m; i++) {
-        for (int j=0; j< n; j++) {
-            printf("%f ", mat[i+j*m]);
-        }
-        printf("\n");
-    }
-}
 
 /*
 Routine to perform an in-place GEMM operation, i.e., C := alpha*A*B + beta*C
@@ -69,12 +61,6 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     /* TODO: Write an efficient GEMM implementation on GPU */
     double al=*alpha;
     double be=*beta;
-    printf("A: \n");
-    printmat(A, M, K);
-    printf("B: \n");
-    printmat(B, K, N);
-    printf("C: \n");
-    printmat(C, M, N);
     int block_size_x = 32;
     int block_size_y = 32;
     int numBlocks_x = (N + block_size_x - 1) / block_size_x;
@@ -82,7 +68,5 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
     device_gemm<<<blocks, threads>>>(A, B, C, al, be, M, N, K);
-    printf("C: \n");
-    printmat(C, M, N);
     return 0;
 }
