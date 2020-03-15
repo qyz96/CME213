@@ -110,7 +110,7 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
     for (int m=0; m<nb; m++)   {
         if (i<M) {
             for (int ii=0; ii<BLOCK_SIZE_Y;ii++) {
-                if ((BLOCK_SIZE_Y*m+ii=K) {
+                if ((BLOCK_SIZE_Y*m+ii)>=K) {
                     break;
                 }
                 As[ii]=A[i+M*(BLOCK_SIZE_Y*m+ii)];
