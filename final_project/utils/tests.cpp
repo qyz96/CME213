@@ -141,7 +141,7 @@ void TestGEMM(int M, int N, int K) {
 
     int m=4;
     N=2;
-    K=2;
+    K=16;
     M=2;
 
     A = (double*)malloc(M*K*sizeof(double));
