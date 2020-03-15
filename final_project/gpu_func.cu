@@ -114,6 +114,7 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
                     break;
                 }
                 As[ii]=A[i+M*(BLOCK_SIZE_Y*m+ii)];
+                printf("A(%d,%d)=%f\n", i, BLOCK_SIZE_Y*m+ii, As[ii]);
             }
         }
         if ((j<N) && ((BLOCK_SIZE_Y*m+ri)<K)) {
