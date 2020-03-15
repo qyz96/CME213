@@ -5,7 +5,7 @@
 #include <iostream>
 #include "cublas_v2.h"
 #define BLOCK_SIZE 32
-#define BLOCK_SIZE_X 32
+#define BLOCK_SIZE_X 8
 #define BLOCK_SIZE_Y 32
 __global__
 void device_add_one(int* d_result, int t) {
