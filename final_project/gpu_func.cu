@@ -116,6 +116,6 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     int numBlocks_y = (M + block_size_y - 1) / (block_size_y);
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
-    device_gemm_shared<<<blocks, threads>>>(A, B, C, al, be, M, N, K);
+    device_gemm<<<blocks, threads>>>(A, B, C, al, be, M, N, K);
     return 0;
 }
