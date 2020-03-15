@@ -140,7 +140,7 @@ void TestGEMM(int M, int N, int K) {
     int num_iters = 100;
     
     int m=4;
-    K=m;
+    K=m+1;
     M=m;
     N=m;
     
