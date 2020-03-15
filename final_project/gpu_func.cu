@@ -210,11 +210,11 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
 
         if ((j<N)) {
             for (int ii=0; ii<BLOCK_SIZE_Y; ii++) {
-                if ((blockIdx.y * blockDim.y+ii) >=N) {
+                if ((blockIdx.y * blockDim.y+ii) >=M) {
                     break;
                 }
                 for (int k=0; k < BLOCK_SIZE_X; k++) {
-                    if ((BLOCK_SIZE_Y*m+k) >= K)  {
+                    if ((BLOCK_SIZE_X*m+k) >= K)  {
                         break;
                     }
                     temp[ii]+=As[ii+BLOCK_SIZE_Y*k]*Bs[k];
@@ -234,7 +234,7 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
             }
         }
     */
-    if ((j<M)) {
+    if ((j<N)) {
         for (int ii=0; ii<BLOCK_SIZE_Y; ii++) {
             if ((blockIdx.y * blockDim.y+ii) >=M) {
                 break;
