@@ -61,7 +61,7 @@ void device_gemm_shared(double* __restrict__ A, double* __restrict__ B,
     double temp=0;
     __shared__ float As[BLOCK_SIZE*BLOCK_SIZE];
     __shared__ float Bs[BLOCK_SIZE*BLOCK_SIZE];
-    int nb = (K+BLOCK_SIZE)/BLOCK_SIZE;
+    int nb = (K)/BLOCK_SIZE;
     for (int m=0; m<nb; m++)   {
         As[ri+BLOCK_SIZE*rj]=A[i+M*(BLOCK_SIZE*m+rj)];
         Bs[ri+BLOCK_SIZE*rj]=B[BLOCK_SIZE*m+ri+K*j];
