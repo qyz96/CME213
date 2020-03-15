@@ -169,7 +169,7 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
                     break;
                 }
                 Bs[ii]=B[ii+BLOCK_SIZE_X*m+N*j];
-                //printf("B(%d, %d)=%f\n", ii+BLOCK_SIZE_X*m, j, B[ii+BLOCK_SIZE_X*m+N*j]);
+                printf("Bs[%d]=B(%d, %d)=%f\n", ii, ii+BLOCK_SIZE_X*m, j, B[ii+BLOCK_SIZE_X*m+N*j]);
             }
         }
 
