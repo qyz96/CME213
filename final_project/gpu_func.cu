@@ -69,7 +69,6 @@ void device_gemm_shared(double* __restrict__ A, double* __restrict__ B,
     for (int m=0; m<nb; m++)   {
         if ((i<M) && ((BLOCK_SIZE*m+rj)<K)){
             As[ri+BLOCK_SIZE*rj]=A[i+M*(BLOCK_SIZE*m+rj)];
-            //printf("Copying data A(%d,%d)\n", i, (BLOCK_SIZE*m+rj));
         }
         if ((j<N) && ((BLOCK_SIZE*m+ri)<K)) {
             Bs[ri+BLOCK_SIZE*rj]=B[BLOCK_SIZE*m+ri+K*j];
@@ -114,12 +113,10 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
                     break;
                 }
                 As[ii]=A[i+M*(BLOCK_SIZE_Y*m+ii)];
-                //printf("A(%d,%d)=%f\n", i, BLOCK_SIZE_Y*m+ii, As[ii]);
             }
         }
         if ((j<N) && ((BLOCK_SIZE_Y*m+ri)<K)) {
             Bs[ri+BLOCK_SIZE_Y*rj]=B[BLOCK_SIZE_Y*m+ri+K*j];
-            //printf("B(%d,%d)=%f\n", BLOCK_SIZE_Y*m+ri, j, B[BLOCK_SIZE_Y*m+ri+K*j]);
         }
         __syncthreads();
         if ((i<M)) {
@@ -169,6 +166,6 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     */
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
-    device_gemm<<<blocks, threads>>>(A, B, C, al, be, M, N, K);
+    device_gemm_shared<<<blocks, threads>>>(A, B, C, al, be, M, N, K);
     return 0;
 }
