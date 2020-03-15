@@ -4,7 +4,7 @@
 #include <helper_functions.h>
 #include <iostream>
 #include "cublas_v2.h"
-#define BLOCK_SIZE 32
+#define BLOCK_SIZE 16
 #define BLOCK_SIZE_X 16
 #define BLOCK_SIZE_Y 4
 __global__
@@ -154,8 +154,8 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     /* TODO: Write an efficient GEMM implementation on GPU */
     double al=*alpha;
     double be=*beta;
-    int block_size_x = 16;
-    int block_size_y = 16;
+    int block_size_x = BLOCK_SIZE;
+    int block_size_y = BLOCK_SIZE;
     int numBlocks_x = (N + block_size_x - 1) / block_size_x;
     int numBlocks_y = (M + block_size_y - 1) / (block_size_y);
     /*
