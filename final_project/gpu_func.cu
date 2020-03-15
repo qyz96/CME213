@@ -149,7 +149,7 @@ __global__
 void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
            double* __restrict__ C, double alpha, double beta,
            int M, int N, int K) {
-    int i = blockIdx.y * blockDim.y + threadIdx.y
+    int i = blockIdx.y * blockDim.y + threadIdx.y;
     int rj = threadIdx.x;
     int ri = threadIdx.y;
     int col = rj + BLOCK_SIZE_X * ri;
@@ -185,7 +185,7 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
         }
         */
 
-        if ((i<M)) && ((BLOCK_SIZE_X*m+rj)<K)) {
+        if ((i<M) && ((BLOCK_SIZE_X*m+rj)<K)) {
             As[ri+BLOCK_SIZE_Y*rj]=A[i+K*(rj+BLOCK_SIZE_X*m)];
         }
 
