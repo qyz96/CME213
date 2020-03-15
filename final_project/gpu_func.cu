@@ -87,7 +87,7 @@ void device_gemm_shared(double* __restrict__ A, double* __restrict__ B,
     }
     if ((i<M) && (j<N)) {
             C[i+j*M]=alpha*temp+beta*C[i+j*M];
-            printf("Ctrue(%d,%d)=%f\n", i, j, C[i+j*M]);
+            //printf("Ctrue(%d,%d)=%f\n", i, j, C[i+j*M]);
         }
     
 }
