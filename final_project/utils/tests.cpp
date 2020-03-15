@@ -150,7 +150,7 @@ void TestGEMM(int M, int N, int K) {
     cudaMalloc((void**)&dC2, sizeof(double) * M * N);
     cudaMalloc((void**)&dummy, sizeof(double) * M * N);
     int n =32;
-    K=35;
+    K=32;
     M=4;
     N=4;
 
