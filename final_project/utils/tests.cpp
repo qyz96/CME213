@@ -139,6 +139,11 @@ void TestGEMM(int M, int N, int K) {
 
     int num_iters = 100;
 
+    int m=4;
+    N=4;
+    K=4;
+    M=4;
+
     A = (double*)malloc(M*K*sizeof(double));
     B = (double*)malloc(K*N*sizeof(double));
     C1 = (double*)malloc(M*N*sizeof(double));
@@ -149,6 +154,7 @@ void TestGEMM(int M, int N, int K) {
     cudaMalloc((void**)&dC1, sizeof(double) * M * N);
     cudaMalloc((void**)&dC2, sizeof(double) * M * N);
     cudaMalloc((void**)&dummy, sizeof(double) * M * N);
+
 
     // C1 and C2 are same. We just have two copies to compare results
     createMATS(A, B, C1, C2, M, N, K);
