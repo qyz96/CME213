@@ -141,8 +141,8 @@ void TestGEMM(int M, int N, int K) {
 
     int m=4;
     N=m;
-    K=12*m;
-    M=12*m;
+    K=120*m;
+    M=120*m;
 
     A = (double*)malloc(M*K*sizeof(double));
     B = (double*)malloc(K*N*sizeof(double));
