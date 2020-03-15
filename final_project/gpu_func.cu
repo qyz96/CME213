@@ -104,7 +104,7 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
     __shared__ double Bs[BLOCK_SIZE_X*BLOCK_SIZE_Y];
 
     double As[BLOCK_SIZE_Y];
-    double temp[BLOCK_SIZE_Y]={0};
+    double temp[BLOCK_SIZE_X]={0};
 
     int nb = (K+BLOCK_SIZE_Y-1)/BLOCK_SIZE_Y;
     for (int m=0; m<nb; m++)   {
