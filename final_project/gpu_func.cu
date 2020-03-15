@@ -5,6 +5,8 @@
 #include <iostream>
 #include "cublas_v2.h"
 #define BLOCK_SIZE 32
+#define BLOCK_SIZE_X 16
+#define BLOCK_SIZE_Y 4
 __global__
 void device_add_one(int* d_result, int t) {
     *d_result = t + 1;
@@ -61,19 +63,7 @@ void device_gemm_shared(double* __restrict__ A, double* __restrict__ B,
     double temp=0;
     __shared__ double As[BLOCK_SIZE*BLOCK_SIZE];
     __shared__ double Bs[BLOCK_SIZE*BLOCK_SIZE];
-    /*
-    int nb = (K)/BLOCK_SIZE;
-    for (int m=0; m<nb; m++)   {
-        As[ri+BLOCK_SIZE*rj]=A[i+M*(BLOCK_SIZE*m+rj)];
-        Bs[ri+BLOCK_SIZE*rj]=B[BLOCK_SIZE*m+ri+K*j];
-        __syncthreads();
-        for (int k=0; k < BLOCK_SIZE; k++) {
-            temp+=As[ri+BLOCK_SIZE*k]*Bs[k+BLOCK_SIZE*rj];
-        }
-        __syncthreads();
-    }
-        C[i+j*M]=alpha*temp+beta*C[i+j*M];
-    */
+
     
     int nb = (K+BLOCK_SIZE-1)/BLOCK_SIZE;
     for (int m=0; m<nb; m++)   {
@@ -100,6 +90,60 @@ void device_gemm_shared(double* __restrict__ A, double* __restrict__ B,
             C[i+j*M]=alpha*temp+beta*C[i+j*M];
         }
     
+}
+
+__global__
+void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
+           double* __restrict__ C, double alpha, double beta,
+           int M, int N, int K) {
+    int j = blockIdx.x * blockDim.x + threadIdx.x;
+    int rj = threadIdx.x;
+    int ri = threadIdx.y;
+    int row = ri + BLOCK_SIZE_Y * rj;
+    int i = blockIdx.y * BLOCK_SIZE_Y * BLOCK_SIZE_X + row;
+    __shared__ double Bs[BLOCK_SIZE_X*BLOCK_SIZE_Y];
+
+    double As[BLOCK_SIZE_Y];
+    double temp[BLOCK_SIZE_Y];
+
+    int nb = (K+BLOCK_SIZE_Y-1)/BLOCK_SIZE_Y;
+    for (int m=0; m<nb; m++)   {
+        if (i<M) {
+            for (int ii=0; ii<BLOCK_SIZE_Y;ii++) {
+                if ((BLOCK_SIZE_Y*m+ii=K) {
+                    break;
+                }
+                As[ii]=A[i+M*(BLOCK_SIZE_Y*m+ii)];
+            }
+        }
+        if ((j<N) && ((BLOCK_SIZE_Y*m+ri)<K)) {
+            Bs[ri+BLOCK_SIZE_Y*rj]=B[BLOCK_SIZE_Y*m+ri+K*j];
+        }
+        __syncthreads();
+        if ((i<M)) {
+            for (int ii=0; ii<BLOCK_SIZE_X; ii++) {
+                if ((BLOCK_SIZE_Y*m+ii) >=K) {
+                    break;
+                }
+                for (int k=0; k < BLOCK_SIZE_Y; k++) {
+                    if ((BLOCK_SIZE_Y*m+k) >= K)  {
+                        break;
+                    }
+                    temp[ii]+=As[k]*Bs[k+BLOCK_SIZE*ii];
+                    
+            }
+            }
+        }
+        __syncthreads();
+    }
+     if ((i<M)) {
+            for (int ii=0; ii<BLOCK_SIZE_X; ii++) {
+                if ((blockIdx.x * blockDim.x+ii) >=N) {
+                    break;
+                }
+                C[i+M*(blockIdx.x * blockDim.x+ii)]=alpha*temp[ii]+beta*C[i+M*(blockIdx.x * blockDim.x+ii)];
+            }
+        }
 }
 
 /*
