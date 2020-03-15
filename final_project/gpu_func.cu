@@ -176,7 +176,7 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
                 if ((ii+BLOCK_SIZE_X*m)>=K) {
                     break;
                 }
-                Bs[ii]=B[ii+BLOCK_SIZE_X*m+K*j];
+                Bs[ii]=B[ii+BLOCK_SIZE_X*m+N*j];
             }
         }
         /*
