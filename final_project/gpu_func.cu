@@ -5,8 +5,8 @@
 #include <iostream>
 #include "cublas_v2.h"
 #define BLOCK_SIZE 32
-#define BLOCK_SIZE_X 16
-#define BLOCK_SIZE_Y 4
+#define BLOCK_SIZE_X 4
+#define BLOCK_SIZE_Y 16
 __global__
 void device_add_one(int* d_result, int t) {
     *d_result = t + 1;
@@ -145,6 +145,105 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
         }
 }
 
+__global__
+void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
+           double* __restrict__ C, double alpha, double beta,
+           int M, int N, int K) {
+    int i = blockIdx.y * blockDim.y + threadIdx.y
+    int rj = threadIdx.x;
+    int ri = threadIdx.y;
+    int col = rj + BLOCK_SIZE_X * ri;
+    int j = blockIdx.x * BLOCK_SIZE_X * BLOCK_SIZE_Y + col;
+    __shared__ double As[BLOCK_SIZE_X*BLOCK_SIZE_Y];
+
+    double Bs[BLOCK_SIZE_X];
+    double temp[BLOCK_SIZE_Y]={0};
+
+    int nb = (K+BLOCK_SIZE_X-1)/BLOCK_SIZE_X;
+    for (int m=0; m<nb; m++)   {
+        /*
+        if (i<M) {
+            for (int ii=0; ii<BLOCK_SIZE_Y;ii++) {
+                if ((BLOCK_SIZE_Y*m+ii)>=K) {
+                    break;
+                }
+                As[ii]=A[i+M*(BLOCK_SIZE_Y*m+ii)];
+            }
+        }
+        */
+        if (j<N) {
+            for (int ii=0; ii<BLOCK_SIZE_X;ii++) {
+                if ((ii+BLOCK_SIZE_X*m)>=K) {
+                    break;
+                }
+                Bs[ii]=B[ii+BLOCK_SIZE_X*m+M*j];
+            }
+        }
+        /*
+        if ((j<N) && ((BLOCK_SIZE_Y*m+ri)<K)) {
+            Bs[ri+BLOCK_SIZE_Y*rj]=B[BLOCK_SIZE_Y*m+ri+K*j];
+        }
+        */
+
+        if ((i<M)) && ((BLOCK_SIZE_X*m+rj)<K)) {
+            As[ri+BLOCK_SIZE_Y*rj]=A[i+K*(rj+BLOCK_SIZE_X*m)];
+        }
+
+
+        __syncthreads();
+        /*
+        if ((i<M)) {
+            for (int ii=0; ii<BLOCK_SIZE_X; ii++) {
+                if ((blockIdx.x * blockDim.x+ii) >=N) {
+                    break;
+                }
+                for (int k=0; k < BLOCK_SIZE_Y; k++) {
+                    if ((BLOCK_SIZE_Y*m+k) >= K)  {
+                        break;
+                    }
+                    temp[ii]+=As[k]*Bs[k+BLOCK_SIZE_Y*ii];
+                    
+            }
+            }
+        }
+        */
+
+        if ((j<N)) {
+            for (int ii=0; ii<BLOCK_SIZE_Y; ii++) {
+                if ((blockIdx.y * blockDim.y+ii) >=N) {
+                    break;
+                }
+                for (int k=0; k < BLOCK_SIZE_X; k++) {
+                    if ((BLOCK_SIZE_Y*m+k) >= K)  {
+                        break;
+                    }
+                    temp[ii]+=As[ii+BLOCK_SIZE_Y*k]*Bs[k];
+                    
+            }
+            }
+        }
+        __syncthreads();
+    }
+    /*
+     if ((i<M)) {
+            for (int ii=0; ii<BLOCK_SIZE_X; ii++) {
+                if ((blockIdx.x * blockDim.x+ii) >=N) {
+                    break;
+                }
+                C[i+M*(blockIdx.x * blockDim.x+ii)]=alpha*temp[ii]+beta*C[i+M*(blockIdx.x * blockDim.x+ii)];
+            }
+        }
+    */
+    if ((j<M)) {
+        for (int ii=0; ii<BLOCK_SIZE_Y; ii++) {
+            if ((blockIdx.y * blockDim.y+ii) >=M) {
+                break;
+            }
+            C[blockIdx.y * blockDim.y+ii+M*j]=alpha*temp[ii]+beta*C[blockIdx.y * blockDim.y+ii+M*j];
+        }
+    }
+}
+
 /*
 Routine to perform an in-place GEMM operation, i.e., C := alpha*A*B + beta*C
 */
@@ -154,16 +253,17 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     /* TODO: Write an efficient GEMM implementation on GPU */
     double al=*alpha;
     double be=*beta;
+    /*
     int block_size_x = BLOCK_SIZE;
     int block_size_y = BLOCK_SIZE;
     int numBlocks_x = (N + block_size_x - 1) / block_size_x;
     int numBlocks_y = (M + block_size_y - 1) / (block_size_y);
-    /*
+    */
     int block_size_x = BLOCK_SIZE_X;
     int block_size_y = BLOCK_SIZE_Y;
-    int numBlocks_x = (N + block_size_x - 1) / block_size_x;
-    int numBlocks_y = (M + block_size_y * block_size_x - 1) / (block_size_y * block_size_x);
-    */
+    int numBlocks_x = (N + block_size_x * block_size_y  - 1) / (block_size_y * block_size_x);
+    int numBlocks_y = (M + block_size_y - 1) / (block_size_y);
+    
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
     device_gemm_shared<<<blocks, threads>>>(A, B, C, al, be, M, N, K);
