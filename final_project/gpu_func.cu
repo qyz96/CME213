@@ -5,8 +5,8 @@
 #include <iostream>
 #include "cublas_v2.h"
 #define BLOCK_SIZE 32
-#define BLOCK_SIZE_X 8
-#define BLOCK_SIZE_Y 32
+#define BLOCK_SIZE_X 4
+#define BLOCK_SIZE_Y 16
 __global__
 void device_add_one(int* d_result, int t) {
     *d_result = t + 1;
@@ -234,7 +234,7 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
     //device_gemm_shared3<<<blocks, threads>>>(A, B, C, al, be, M, N, K);
-    
+    /*
     block_size_x = BLOCK_SIZE;
     block_size_y = BLOCK_SIZE;
     numBlocks_x = (N + block_size_x - 1) / block_size_x;
@@ -242,7 +242,7 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     dim3 threads1(block_size_x, block_size_y);
     dim3 blocks1(numBlocks_x, numBlocks_y);
     device_gemm_shared<<<blocks1, threads1>>>(A, B, C, al, be, M, N, K);
-
+    */
     
     return 0;
 }
