@@ -59,8 +59,8 @@ void device_gemm_shared(double* __restrict__ A, double* __restrict__ B,
     int rj = threadIdx.x;
     int ri = threadIdx.y;
     double temp=0;
-    __shared__ float As[BLOCK_SIZE*BLOCK_SIZE];
-    __shared__ float Bs[BLOCK_SIZE*BLOCK_SIZE];
+    __shared__ double As[BLOCK_SIZE*BLOCK_SIZE];
+    __shared__ double Bs[BLOCK_SIZE*BLOCK_SIZE];
     int nb = (K)/BLOCK_SIZE;
     for (int m=0; m<nb; m++)   {
         As[ri+BLOCK_SIZE*rj]=A[i+M*(BLOCK_SIZE*m+rj)];
