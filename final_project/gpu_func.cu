@@ -122,7 +122,7 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
         __syncthreads();
         if ((i<M)) {
             for (int ii=0; ii<BLOCK_SIZE_X; ii++) {
-                if ((BLOCK_SIZE_Y*m+ii) >=K) {
+                if ((blockIdx.x * blockDim.x+ii) >=K) {
                     break;
                 }
                 for (int k=0; k < BLOCK_SIZE_Y; k++) {
