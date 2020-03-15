@@ -192,7 +192,7 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
                         break;
                     }
                     temp[ii]+=As[ii+BLOCK_SIZE_Y*k]*Bs[k];
-                    printf("C(%d, %d, %d)+= %f * %f\n", blockIdx.y * blockDim.y+ii, BLOCK_SIZE_X*m+k, j);
+                    printf("C(%d, %d, %d)+= %f * %f\n", blockIdx.y * blockDim.y+ii, BLOCK_SIZE_X*m+k, j, As[ii+BLOCK_SIZE_Y*k],Bs[k]);
             }
             }
         }
