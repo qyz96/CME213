@@ -87,7 +87,7 @@ void device_gemm_shared(double* __restrict__ A, double* __restrict__ B,
     }
     if ((i<M) && (j<N)) {
             C[i+j*M]=alpha*temp+beta*C[i+j*M];
-            printf("C(%d,%d)=%f\n", i, j, C[i+j*M]);
+            printf("Ctrue(%d,%d)=%f\n", i, j, C[i+j*M]);
         }
     
 }
@@ -168,14 +168,14 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
                     break;
                 }
                 Bs[ii]=B[ii+BLOCK_SIZE_X*m+N*j];
-                printf("B(%d, %d)=%f\n", ii+BLOCK_SIZE_X*m, j, B[ii+BLOCK_SIZE_X*m+N*j]);
+                //printf("B(%d, %d)=%f\n", ii+BLOCK_SIZE_X*m, j, B[ii+BLOCK_SIZE_X*m+N*j]);
             }
         }
 
 
         if ((i<M) && ((BLOCK_SIZE_X*m+rj)<K)) {
             As[ri+BLOCK_SIZE_Y*rj]=A[i+M*(rj+BLOCK_SIZE_X*m)];
-            printf("A(%d, %d)=%f\n", i, rj+BLOCK_SIZE_X*m, A[i+M*(rj+BLOCK_SIZE_X*m)]);
+            //printf("A(%d, %d)=%f\n", i, rj+BLOCK_SIZE_X*m, A[i+M*(rj+BLOCK_SIZE_X*m)]);
         }
 
 
