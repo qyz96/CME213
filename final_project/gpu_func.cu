@@ -114,12 +114,12 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
                     break;
                 }
                 As[ii]=A[i+M*(BLOCK_SIZE_Y*m+ii)];
-                printf("A(%d,%d)=%f\n", i, BLOCK_SIZE_Y*m+ii, As[ii]);
+                //printf("A(%d,%d)=%f\n", i, BLOCK_SIZE_Y*m+ii, As[ii]);
             }
         }
         if ((j<N) && ((BLOCK_SIZE_Y*m+ri)<K)) {
             Bs[ri+BLOCK_SIZE_Y*rj]=B[BLOCK_SIZE_Y*m+ri+K*j];
-            printf("B(%d,%d)=%f\n", BLOCK_SIZE_Y*m+ri, j, B[BLOCK_SIZE_Y*m+ri+K*j]);
+            //printf("B(%d,%d)=%f\n", BLOCK_SIZE_Y*m+ri, j, B[BLOCK_SIZE_Y*m+ri+K*j]);
         }
         __syncthreads();
         if ((i<M)) {
