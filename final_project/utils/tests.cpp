@@ -7,7 +7,7 @@
 using namespace std;
 
 #define SCALE 1         // Factor to SCALE the GEMM problem size by
-#define NUM_ITERS 1    // Number of GEMMs run for timing purposes
+#define NUM_ITERS 10    // Number of GEMMs run for timing purposes
 #define GEMM_TOL 1e-12  // Tolerance for GEMM comparison
 
 // check whether the matrix from Seq is the same as from Par.
@@ -138,12 +138,12 @@ void TestGEMM(int M, int N, int K) {
     double beta = 0.0;
 
     int num_iters = 100;
-    
+    /*
     int m=4;
     K=m+1;
     M=m;
     N=m;
-    
+    */
 
     A = (double*)malloc(M*K*sizeof(double));
     B = (double*)malloc(K*N*sizeof(double));
