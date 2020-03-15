@@ -241,6 +241,7 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
                 break;
             }
             C[blockIdx.y * blockDim.y+ii+M*j]=alpha*temp[ii]+beta*C[blockIdx.y * blockDim.y+ii+M*j];
+            printf("C(%d,%d)=%f, blockIdx.y * blockDim.y+ii, j, C[blockIdx.y * blockDim.y+ii+M*j]);
         }
     }
 }
