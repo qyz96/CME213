@@ -80,7 +80,7 @@ void device_gemm_shared(double* __restrict__ A, double* __restrict__ B,
                     break;
                 }
                 temp+=As[ri+BLOCK_SIZE*k]*Bs[k+BLOCK_SIZE*rj];
-                printf("Ctrue(%d,%d, %d)+= %f * %f\n", i, k, j, As[ri+BLOCK_SIZE*k], Bs[k+BLOCK_SIZE*rj]);
+                //printf("Ctrue(%d,%d, %d)+= %f * %f\n", i, k, j, As[ri+BLOCK_SIZE*k], Bs[k+BLOCK_SIZE*rj]);
                 
             }
         }
@@ -88,7 +88,7 @@ void device_gemm_shared(double* __restrict__ A, double* __restrict__ B,
     }
     if ((i<M) && (j<N)) {
             C[i+j*M]=alpha*temp+beta*C[i+j*M];
-            printf("Ctrue(%d,%d)=%f\n", i, j, C[i+j*M]);
+            //printf("Ctrue(%d,%d)=%f\n", i, j, C[i+j*M]);
         }
     
 }
@@ -169,7 +169,7 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
                     break;
                 }
                 Bs[ii]=B[ii+BLOCK_SIZE_X*m+K*j];
-                printf("Bs[%d]=B(%d, %d)=%f\n", ii, ii+BLOCK_SIZE_X*m, j, B[ii+BLOCK_SIZE_X*m+N*j]);
+                //printf("Bs[%d]=B(%d, %d)=%f\n", ii, ii+BLOCK_SIZE_X*m, j, B[ii+BLOCK_SIZE_X*m+N*j]);
             }
         }
 
@@ -205,7 +205,7 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
                 break;
             }
             C[blockIdx.y * blockDim.y+ii+M*j]=alpha*temp[ii]+beta*C[blockIdx.y * blockDim.y+ii+M*j];
-            printf("C(%d,%d)=%f\n", blockIdx.y * blockDim.y+ii, j, C[blockIdx.y * blockDim.y+ii+M*j]);
+            //printf("C(%d,%d)=%f\n", blockIdx.y * blockDim.y+ii, j, C[blockIdx.y * blockDim.y+ii+M*j]);
         }
     }
 }
