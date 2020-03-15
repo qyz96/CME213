@@ -158,7 +158,6 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
 
     double Bs[BLOCK_SIZE_X];
     double temp[BLOCK_SIZE_Y]={0};
-    printf("tt\n");
     int nb = (K+BLOCK_SIZE_X-1)/BLOCK_SIZE_X;
     for (int m=0; m<nb; m++)   {
         /*
