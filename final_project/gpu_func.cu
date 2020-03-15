@@ -141,7 +141,7 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
                 if ((blockIdx.x * blockDim.x+ii) >=N) {
                     break;
                 }
-                if (i+M*(blockIdx.x * blockDim.x+ii)) {
+                if (i+M*(blockIdx.x * blockDim.x+ii)>=M*N) {
                     printf("error\n");
                 }
                 C[i+M*(blockIdx.x * blockDim.x+ii)]=alpha*temp[ii]+beta*C[i+M*(blockIdx.x * blockDim.x+ii)];
