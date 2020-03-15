@@ -61,6 +61,18 @@ void device_gemm_shared(double* __restrict__ A, double* __restrict__ B,
     double temp=0;
     __shared__ float As[BLOCK_SIZE*BLOCK_SIZE];
     __shared__ float Bs[BLOCK_SIZE*BLOCK_SIZE];
+    int nb = (K+BLOCK_SIZE)/BLOCK_SIZE;
+    for (int m=0; m<nb; m++)   {
+        As[ri+BLOCK_SIZE*rj]=A[i+M*(BLOCK_SIZE*m+rj)];
+        Bs[ri+BLOCK_SIZE*rj]=B[BLOCK_SIZE*m+ri+K*j];
+        __syncthreads();
+        for (int k=0; k < BLOCK_SIZE; k++) {
+            temp+=As[ri+BLOCK_SIZE*k]*Bs[k+BLOCK_SIZE*rj];
+        }
+        __syncthreads();
+    }
+        C[i+j*M]=alpha*temp+beta*C[i+j*M];
+    /*
     int nb = (K+BLOCK_SIZE-1)/BLOCK_SIZE;
     for (int m=0; m<nb; m++)   {
         if ((i<M) && ((BLOCK_SIZE*m+rj)<N)){
@@ -84,6 +96,7 @@ void device_gemm_shared(double* __restrict__ A, double* __restrict__ B,
     if ((i<M) && (j<N)) {
             C[i+j*M]=alpha*temp+beta*C[i+j*M];
         }
+    */
 }
 
 /*
