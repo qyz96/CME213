@@ -80,7 +80,7 @@ void device_gemm_shared(double* __restrict__ A, double* __restrict__ B,
                     break;
                 }
                 temp+=As[ri+BLOCK_SIZE*k]*Bs[k+BLOCK_SIZE*rj];
-                print("Ctrue(%d,%d, %d)+= %f * %f\n", i, k, j, As[ri+BLOCK_SIZE*k], Bs[k+BLOCK_SIZE*rj]);
+                printf("Ctrue(%d,%d, %d)+= %f * %f\n", i, k, j, As[ri+BLOCK_SIZE*k], Bs[k+BLOCK_SIZE*rj]);
                 
             }
         }
