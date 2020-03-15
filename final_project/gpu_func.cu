@@ -80,7 +80,7 @@ void device_gemm_shared(double* __restrict__ A, double* __restrict__ B,
     for (int m=0; m<nb; m++)   {
         if ((i<M) && ((BLOCK_SIZE*m+rj)<N)){
             As[ri+BLOCK_SIZE*rj]=A[i+M*(BLOCK_SIZE*m+rj)];
-            printf("Copying data A(%d,%d)\n", i, M*(BLOCK_SIZE*m+rj));
+            printf("Copying data A(%d,%d)\n", i, (BLOCK_SIZE*m+rj));
         }
         if ((j<N) && ((BLOCK_SIZE*m+ri)<M)) {
             Bs[ri+BLOCK_SIZE*rj]=B[BLOCK_SIZE*m+ri+K*j];
