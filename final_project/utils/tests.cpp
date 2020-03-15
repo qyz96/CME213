@@ -7,7 +7,7 @@
 using namespace std;
 
 #define SCALE 1         // Factor to SCALE the GEMM problem size by
-#define NUM_ITERS 1    // Number of GEMMs run for timing purposes
+#define NUM_ITERS 10    // Number of GEMMs run for timing purposes
 #define GEMM_TOL 1e-12  // Tolerance for GEMM comparison
 
 // check whether the matrix from Seq is the same as from Par.
@@ -137,12 +137,7 @@ void TestGEMM(int M, int N, int K) {
     double alpha = 2.0;
     double beta = 5.0;
 
-    int num_iters = 10;
-
-    int m=4;
-    N=20*m;
-    K=120*m;
-    M=120*m;
+    int num_iters = 100;
 
     A = (double*)malloc(M*K*sizeof(double));
     B = (double*)malloc(K*N*sizeof(double));
@@ -154,7 +149,6 @@ void TestGEMM(int M, int N, int K) {
     cudaMalloc((void**)&dC1, sizeof(double) * M * N);
     cudaMalloc((void**)&dC2, sizeof(double) * M * N);
     cudaMalloc((void**)&dummy, sizeof(double) * M * N);
-
 
     // C1 and C2 are same. We just have two copies to compare results
     createMATS(A, B, C1, C2, M, N, K);
