@@ -4,7 +4,7 @@
 #include <helper_functions.h>
 #include <iostream>
 #include "cublas_v2.h"
-#define BLOCK_SIZE 8
+#define BLOCK_SIZE 1
 #define BLOCK_SIZE_X 16
 #define BLOCK_SIZE_Y 4
 __global__
