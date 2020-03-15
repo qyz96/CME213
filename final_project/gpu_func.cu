@@ -160,16 +160,7 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
     double temp[BLOCK_SIZE_Y]={0};
     int nb = (K+BLOCK_SIZE_X-1)/BLOCK_SIZE_X;
     for (int m=0; m<nb; m++)   {
-        /*
-        if (i<M) {
-            for (int ii=0; ii<BLOCK_SIZE_Y;ii++) {
-                if ((BLOCK_SIZE_Y*m+ii)>=K) {
-                    break;
-                }
-                As[ii]=A[i+M*(BLOCK_SIZE_Y*m+ii)];
-            }
-        }
-        */
+
         if (j<N) {
             for (int ii=0; ii<BLOCK_SIZE_X;ii++) {
                 if ((ii+BLOCK_SIZE_X*m)>=K) {
@@ -179,11 +170,7 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
                 printf("B(%d, %d)=%f\n", ii+BLOCK_SIZE_X*m, j, B[ii+BLOCK_SIZE_X*m+N*j]);
             }
         }
-        /*
-        if ((j<N) && ((BLOCK_SIZE_Y*m+ri)<K)) {
-            Bs[ri+BLOCK_SIZE_Y*rj]=B[BLOCK_SIZE_Y*m+ri+K*j];
-        }
-        */
+
 
         if ((i<M) && ((BLOCK_SIZE_X*m+rj)<K)) {
             As[ri+BLOCK_SIZE_Y*rj]=A[i+M*(rj+BLOCK_SIZE_X*m)];
@@ -192,22 +179,6 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
 
 
         __syncthreads();
-        /*
-        if ((i<M)) {
-            for (int ii=0; ii<BLOCK_SIZE_X; ii++) {
-                if ((blockIdx.x * blockDim.x+ii) >=N) {
-                    break;
-                }
-                for (int k=0; k < BLOCK_SIZE_Y; k++) {
-                    if ((BLOCK_SIZE_Y*m+k) >= K)  {
-                        break;
-                    }
-                    temp[ii]+=As[k]*Bs[k+BLOCK_SIZE_Y*ii];
-                    
-            }
-            }
-        }
-        */
 
         if ((j<N)) {
             for (int ii=0; ii<BLOCK_SIZE_Y; ii++) {
@@ -225,16 +196,7 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
         }
         __syncthreads();
     }
-    /*
-     if ((i<M)) {
-            for (int ii=0; ii<BLOCK_SIZE_X; ii++) {
-                if ((blockIdx.x * blockDim.x+ii) >=N) {
-                    break;
-                }
-                C[i+M*(blockIdx.x * blockDim.x+ii)]=alpha*temp[ii]+beta*C[i+M*(blockIdx.x * blockDim.x+ii)];
-            }
-        }
-    */
+
     if ((j<N)) {
         for (int ii=0; ii<BLOCK_SIZE_Y; ii++) {
             if ((blockIdx.y * blockDim.y+ii) >=M) {

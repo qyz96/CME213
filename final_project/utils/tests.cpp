@@ -134,8 +134,8 @@ void TestGEMM(int M, int N, int K) {
     double* dC2;
     double* dummy;
 
-    double alpha = 2.0;
-    double beta = 5.0;
+    double alpha = 1.0;
+    double beta = 0.0;
 
     int num_iters = 100;
     
