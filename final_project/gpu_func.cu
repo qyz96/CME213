@@ -76,7 +76,6 @@ void device_gemm_shared(double* __restrict__ A, double* __restrict__ B,
     */
     
     int nb = (K+BLOCK_SIZE-1)/BLOCK_SIZE;
-    printf("number of blocks=%d\n", nb);
     for (int m=0; m<nb; m++)   {
         if ((i<M) && ((BLOCK_SIZE*m+rj)<N)){
             As[ri+BLOCK_SIZE*rj]=A[i+M*(BLOCK_SIZE*m+rj)];
