@@ -51,13 +51,13 @@ void device_gemm(double* __restrict__ A, double* __restrict__ B,
 
 
 __global__
-void device_gemm_shareds(double* __restrict__ A, double* __restrict__ B,
+void device_gemm_shared(double* __restrict__ A, double* __restrict__ B,
            double* __restrict__ C, double alpha, double beta,
            int M, int N, int K) {
     int j = blockIdx.x * blockDim.x + threadIdx.x;
     int i = blockIdx.y * blockDim.y + threadIdx.y;
-    int rj = blockIdx.x;
-    int ri = blockIdx.y;
+    int rj = threadIdx.x;
+    int ri = threadIdx.y;
     double temp=0;
     __shared__ float As[BLOCK_SIZE*BLOCK_SIZE];
     __shared__ float Bs[BLOCK_SIZE*BLOCK_SIZE];
@@ -99,6 +99,6 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     int numBlocks_y = (M + block_size_y - 1) / (block_size_y);
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
-    device_gemm_shareds<<<blocks, threads>>>(A, B, C, al, be, M, N, K);
+    device_gemm_shared<<<blocks, threads>>>(A, B, C, al, be, M, N, K);
     return 0;
 }
