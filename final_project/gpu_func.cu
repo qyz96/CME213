@@ -4,7 +4,7 @@
 #include <helper_functions.h>
 #include <iostream>
 #include "cublas_v2.h"
-
+#define BLOCK_SIZE 32
 __global__
 void device_add_one(int* d_result, int t) {
     *d_result = t + 1;
@@ -38,17 +38,47 @@ __global__
 void device_gemm(double* __restrict__ A, double* __restrict__ B,
            double* __restrict__ C, double alpha, double beta,
            int M, int N, int K) {
-    int iy = blockIdx.x * blockDim.x + threadIdx.x;
-    int ix = blockIdx.y * blockDim.y + threadIdx.y;
-    if ((ix < M) && (iy < N)) {
+    int j = blockIdx.x * blockDim.x + threadIdx.x;
+    int i = blockIdx.y * blockDim.y + threadIdx.y;
+    if ((i < M) && (j < N)) {
         double temp=0;
-        for (int i=0; i<K; i++) {
-            temp+=A[ix+i*M]*B[i+iy*K];
+        for (int k=0; k<K; k++) {
+            temp+=A[i+k*M]*B[k+j*K];
         }
-        C[ix+iy*M]=alpha*temp+beta*C[ix+iy*M];
+        C[i+j*M]=alpha*temp+beta*C[i+j*M];
     }
 }
 
+
+__global__
+void device_gemm_shareds(double* __restrict__ A, double* __restrict__ B,
+           double* __restrict__ C, double alpha, double beta,
+           int M, int N, int K) {
+    int j = blockIdx.x * blockDim.x + threadIdx.x;
+    int i = blockIdx.y * blockDim.y + threadIdx.y;
+    int rj = blockIdx.x;
+    int ri = blockIdx.y;
+    double temp=0;
+    __shared__ float As[BLOCK_SIZE*BLOCK_SIZE];
+    __shared__ float Bs[BLOCK_SIZE*BLOCK_SIZE];
+    int nb = K/BLOCK_SIZE;
+    for (m=0; m<nb; m++)   {
+        if ((i<M) && (j<N)) {
+            As[ri+BLOCK_SIZE*rj]=A[i+M*(BLOCK_SIZE*m+rj)];
+            Bs[ri+BLOCK_SIZE*rj]=B[BLOCK_SIZE*m+ri+K*j];
+        }
+        __syncthreads();
+        if ((i<M) && (j<N)) {
+            for (int k=0; k < BLOCK_SIZE; k++) {
+                temp+=As[ri+BLOCK_SIZE*k]*Bs[k+BLOCK_SIZE*rj];
+            }
+        }
+        __syncthreads();
+    }
+    if ((i<M) && (J<N)) {
+            C[i+j*M]=alpha*temp+beta*C[i+j*M];
+        }
+}
 
 /*
 Routine to perform an in-place GEMM operation, i.e., C := alpha*A*B + beta*C
