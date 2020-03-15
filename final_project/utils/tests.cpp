@@ -151,7 +151,7 @@ void TestGEMM(int M, int N, int K) {
     cudaMalloc((void**)&dummy, sizeof(double) * M * N);
     int n =32;
     K=n;
-    M=n;
+    M=n-1;
     N=n+5;
 
     // C1 and C2 are same. We just have two copies to compare results
