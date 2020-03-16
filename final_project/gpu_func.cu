@@ -154,7 +154,8 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int rj = threadIdx.x;
     int ri = threadIdx.y;
-    int col = ri + BLOCK_SIZE_Y * rj;
+    //int col = ri + BLOCK_SIZE_Y * rj;
+    int col = ri * BLOCK_SIZE_X + rj;
     int j = blockIdx.x * BLOCK_SIZE_X * BLOCK_SIZE_Y + col;
     __shared__ double As[BLOCK_SIZE_X*BLOCK_SIZE_Y];
 
