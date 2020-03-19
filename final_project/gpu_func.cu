@@ -247,3 +247,20 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     
     return 0;
 }
+
+
+
+
+
+
+void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcache);
+
+
+
+double gpu_loss(NeuralNetwork& nn, const arma::mat& yc, const arma::mat& y,
+            double reg);
+
+
+
+void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg,
+              const struct cache& bpcache, struct grads& bpgrads);

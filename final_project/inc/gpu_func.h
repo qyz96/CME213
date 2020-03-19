@@ -44,4 +44,11 @@ int useless_gpu_add_one(int t);
 int myGEMM(double* A, double* B, double* C, double* alpha, double* beta, int M,
            int N, int K);
 
+void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcache);
+double gpu_loss(NeuralNetwork& nn, const arma::mat& yc, const arma::mat& y,
+            double reg);
+void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg,
+              const struct cache& bpcache, struct grads& bpgrads);
+
+
 #endif
