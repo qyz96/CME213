@@ -253,7 +253,32 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
 
 
 
-void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcache);
+void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcache) {
+    cache.z.resize(2);
+    cache.a.resize(2);
+
+    // std::cout << W[0].n_rows << "\n";tw
+    assert(X.n_rows == nn.W[0].n_cols);
+    cache.X = X;
+    int N = X.n_cols;
+
+    arma::mat z1 = nn.W[0] * X + arma::repmat(nn.b[0], 1, N);
+    cache.z[0] = z1;
+
+    arma::mat a1;
+    sigmoid(z1, a1);
+    cache.a[0] = a1;
+
+    assert(a1.n_rows == nn.W[1].n_cols);
+    arma::mat z2 = nn.W[1] * a1 + arma::repmat(nn.b[1], 1, N);
+    cache.z[1] = z2;
+
+    arma::mat a2;
+    softmax(z2, a2);
+    cache.a[1] = cache.yc = a2;
+
+
+}
 
 
 
