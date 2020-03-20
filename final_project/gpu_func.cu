@@ -4,6 +4,7 @@
 #include <helper_functions.h>
 #include <iostream>
 #include <cassert>
+#include <math.h>
 #include "cublas_v2.h"
 #define BLOCK_SIZE 32
 #define BLOCK_SIZE_X 4
@@ -266,6 +267,17 @@ void gpu_add(double* A, double* B, double* C, double alpha, double beta, int M, 
 }
 
 
+__global__
+void gpu_exp(double* z, double* a, int m, int n) {
+    int i = blockIdx.y * blockDim.y + threadIdx.y;
+    int j = blockIdx.x * blockDim.x + threadIdx.x;
+    if ((i < M) && (j < N)) {
+        a[i + j * m] = 1 / (double)(1-std::exp(-z[i + j * m]));
+    }
+    return;
+}
+
+
 
 void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcache) {
 
@@ -285,17 +297,18 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
     double* dW1;
     double* db0;
     double* db1;
+    double* dX;
 
     cache.z.resize(2);
     cache.a.resize(2);
     int num_sample = X.n_cols;
-    int M = nn.W[0].n_rows;
-    int K = nn.W[0].n_cols;
+    int K = nn.W[0].n_rows;
+    int M = nn.W[0].n_cols;
     std::assert(K == nn.W[1].n_rows);
     int N = nn.W[1].n_rows;
     std::assert(N == nn.b[1].n_elem);
     std::assert(K == nn.b[0].n_elem);
-
+    std::assert(M == X.n_rows);
 
     //z0 = (double*)malloc(K*num_sample*sizeof(double));
     //z1 = (double*)malloc(N*num_sample*sizeof(double));
@@ -314,6 +327,7 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
     cudaMalloc((void**)&dW1, sizeof(double) * K * N);
     cudaMalloc((void**)&db0, sizeof(double) * K * num_sample);
     cudaMalloc((void**)&db1, sizeof(double) * N * num_sample);
+    cudaMalloc((void**)&dX, sizeof(double) * K * num_sample);
 
 
     cudaMemcpy(dz0, b0r.memptr(), sizeof(double) * K * num_sample , cudaMemcpyHostToDevice);
@@ -335,25 +349,40 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
         return;
     }
 
+
+    double alpha = 1;
+    double beta = 1;
     stat = cublasDgemm(handle,
         CUBLAS_OP_N, CUBLAS_OP_N,
-        M, N, K,
+        K, num_sample, M,
         &alpha,
-        dA, M,
-        dB, K,
+        dW0, K,
+        dX, M,
         &beta,
-        dz0, M);
+        dz0, K);
 
 
 
     int block_size_x = 32;
     int block_size_y = 32;
-    numBlocks_x = (N + block_size_x - 1) / block_size_x;
-    numBlocks_y = (M + block_size_y - 1) / (block_size_y);
+    numBlocks_x = (num_sample + block_size_x - 1) / block_size_x;
+    numBlocks_y = (K + block_size_y - 1) / (block_size_y);
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
-    device_gemm_shared<<<blocks, threads>>>(dA, B, C, al, be, M, N, K);
+    gpu<<<blocks, threads>>>(z0, a0, K, num_sample);
 
+    stat = cublasDgemm(handle,
+        CUBLAS_OP_N, CUBLAS_OP_N,
+        N, num_sample, K,
+        &alpha,
+        dW1, N,
+        da0, K,
+        &beta,
+        dz1, N);
+
+    double sumofexp;
+    cublasDasum(handle, int ,
+        const double          *x, int incx, double *result)
 
     // std::cout << W[0].n_rows << "\n";tw
     assert(X.n_rows == nn.W[0].n_cols);
