@@ -3,6 +3,7 @@
 #include <helper_cuda.h>
 #include <helper_functions.h>
 #include <iostream>
+#include <cassert>
 #include "cublas_v2.h"
 #define BLOCK_SIZE 32
 #define BLOCK_SIZE_X 4
@@ -249,13 +250,110 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
 }
 
 
+/*
+Compute C = alpha * A + beta * B
+*/
 
+__global__
+void gpu_add(double* A, double* B, double* C, double alpha, double beta, int M, int N) {
+    int i = blockIdx.y * blockDim.y + threadIdx.y;
+    int j = blockIdx.x * blockDim.x + threadIdx.x;
+    if ((i < M) && (j < N)) {
+        C[i + j * M] = alpha * A[i + j * M] + beta * B[i + j * M];
+    }
+    return;
+
+}
 
 
 
 void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcache) {
+
+
+    double* z0;
+    double* z1;
+    double* a0;
+    double* a1;
+
+    
+
+    double* dz0;
+    double* dz1;
+    double* da0;
+    double* da1;
+    double* dW0;
+    double* dW1;
+    double* db0;
+    double* db1;
+
     cache.z.resize(2);
     cache.a.resize(2);
+    int num_sample = X.n_cols;
+    int M = nn.W[0].n_rows;
+    int K = nn.W[0].n_cols;
+    std::assert(K == nn.W[1].n_rows);
+    int N = nn.W[1].n_rows;
+    std::assert(N == nn.b[1].n_elem);
+    std::assert(K == nn.b[0].n_elem);
+
+
+    //z0 = (double*)malloc(K*num_sample*sizeof(double));
+    //z1 = (double*)malloc(N*num_sample*sizeof(double));
+    a0 = (double*)malloc(K*num_sample*sizeof(double));
+    a1 = (double*)malloc(N*num_sample*sizeof(double));
+
+    arma::mat b0r = arma::repmat(nn.b[0], 1, N);
+    arma::mat b1r = arma::repmat(nn.b[1], 1, N);
+
+
+    cudaMalloc((void**)&dz0, sizeof(double) * K * num_sample);
+    cudaMalloc((void**)&dz1, sizeof(double) * N * num_sample);
+    cudaMalloc((void**)&da0, sizeof(double) * K * num_sample);
+    cudaMalloc((void**)&da1, sizeof(double) * N * num_sample);
+    cudaMalloc((void**)&dW0, sizeof(double) * M * K);
+    cudaMalloc((void**)&dW1, sizeof(double) * K * N);
+    cudaMalloc((void**)&db0, sizeof(double) * K * num_sample);
+    cudaMalloc((void**)&db1, sizeof(double) * N * num_sample);
+
+
+    cudaMemcpy(dz0, b0r.memptr(), sizeof(double) * K * num_sample , cudaMemcpyHostToDevice);
+    cudaMemcpy(dz1, b1r.memptr(), sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
+    cudaMemcpy(da0, a0, sizeof(double) * K * num_sample, cudaMemcpyHostToDevice);
+    cudaMemcpy(da1, a1, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
+    cudaMemcpy(dW0, nn.W[0].memptr(), sizeof(double) * M * K, cudaMemcpyHostToDevice);
+    cudaMemcpy(dW1, nn.W[1].memptr(), sizeof(double) * K * N, cudaMemcpyHostToDevice);
+    //cudaMemcpy(db0, b0r.memptr(), sizeof(double) * K * num_sample, cudaMemcpyHostToDevice);
+    //cudaMemcpy(db1, b1r.memptr(), sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
+
+    cudaError_t cudaStat;
+    cublasStatus_t stat;
+    cublasHandle_t handle;
+    stat = cublasCreate(&handle);
+
+    if(stat != CUBLAS_STATUS_SUCCESS) {
+        std::cerr << "CUBLAS initialization failed!" << std::endl;
+        return;
+    }
+
+    stat = cublasDgemm(handle,
+        CUBLAS_OP_N, CUBLAS_OP_N,
+        M, N, K,
+        &alpha,
+        dA, M,
+        dB, K,
+        &beta,
+        dz0, M);
+
+
+
+    int block_size_x = 32;
+    int block_size_y = 32;
+    numBlocks_x = (N + block_size_x - 1) / block_size_x;
+    numBlocks_y = (M + block_size_y - 1) / (block_size_y);
+    dim3 threads(block_size_x, block_size_y);
+    dim3 blocks(numBlocks_x, numBlocks_y);
+    device_gemm_shared<<<blocks, threads>>>(dA, B, C, al, be, M, N, K);
+
 
     // std::cout << W[0].n_rows << "\n";tw
     assert(X.n_rows == nn.W[0].n_cols);
