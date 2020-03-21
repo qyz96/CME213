@@ -134,7 +134,7 @@ void backprop(NeuralNetwork& nn, const arma::mat& y, double reg,
     arma::mat da1 = nn.W[1].t() * diff;
 
     arma::mat dz1 = da1 % bpcache.a[0] % (1 - bpcache.a[0]);
-    std::cout << "X size " << bpcache.X.t().n_elem << "\n";
+    std::cout << "X size " << bpcache.X.n_elem << "\n";
     bpgrads.dW[0] = dz1 * bpcache.X.t() + reg * nn.W[0];
     bpgrads.db[0] = arma::sum(dz1, 1);
 }
