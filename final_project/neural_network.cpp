@@ -345,6 +345,11 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             double* z0;
             double* z1;
             double* yc;
+            a0 = (double*)malloc(K*num_sample*sizeof(double));
+            a1 = (double*)malloc(N*num_sample*sizeof(double));
+            z0 = (double*)malloc(K*num_sample*sizeof(double));
+            z1 = (double*)malloc(N*num_sample*sizeof(double));
+            yc = (double*)malloc(N*num_sample*sizeof(double));
             gpu_feedforward(nn, X_batch, bpcache, b0r, b1r, T, a0, a1, z0, z1, yc);
             bpcache.z[0]=arma::mat(z0, K, num_sample);
             bpcache.a[0]=arma::mat(a0, K, num_sample);
