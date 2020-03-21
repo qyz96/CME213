@@ -337,11 +337,11 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache)
     //std::assert(M == X.n_rows);
 
 
-    std::cout<<"Resizing"<<cache.z.size()<<"....\n";
-    //cache.z.resize(2);
-    cache.z.push_back(arma::zeros<arma::mat>(K, num_sample));
-    cache.z.push_back(arma::zeros<arma::mat>(N, num_sample));
+    
+    cache.z.resize(2);
     std::cout<<"Resizing....\n";
+    cache.z[0]=arma::zeros<arma::mat>(K, num_sample);
+    cache.z[1]=arma::zeros<arma::mat>(N, num_sample);
     cache.a.resize(2);
     cache.a[0]=arma::zeros<arma::mat>(K, num_sample);
     cache.a[1]=arma::zeros<arma::mat>(N, num_sample);
