@@ -434,6 +434,7 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
         dexp, 1);
     std::cout<<"softmax...\n";
     gpu_softmax<<<blocks, threads>>>(dexp, da1, N, num_sample);
+    std::cout<<"softmax done...\n";
     //cudaMemcpy(cache.a[1].memptr(), da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
     //cudaMemcpy(cache.yc.memptr(), da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
 
