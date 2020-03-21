@@ -423,7 +423,7 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
     gpu_exp<<<blocks, threads>>>(dz1, da1, N, num_sample);
     
     double zeta = 0;
-
+    std::cout<<"exp(a1)...\n";
     stat = cublasDgemm(handle,
         CUBLAS_OP_N, CUBLAS_OP_N,
         1, num_sample, N,
