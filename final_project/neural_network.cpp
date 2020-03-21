@@ -308,83 +308,7 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
     z0 = (double*)malloc(K*num_sample*sizeof(double));
     z1 = (double*)malloc(N*num_sample*sizeof(double));
     yc = (double*)malloc(N*num_sample*sizeof(double));
-    //my_feedforward(nn, X, bpcache, b0r, b1r, T, a0, a1, z0, z1, yc);
-        double* dz0;
-    double* dz1;
-    double* da0;
-    double* da1;
-    double* dW0;
-    double* dW1;
-    double* db0;
-    double* db1;
-    double* dX;
-    double* dT;
-    double* dexp;
-    //std::cout<<"Allocating CUDA memory....\n";
-    cudaMalloc((void**)&dz0, sizeof(double) * K * num_sample);
-    cudaMalloc((void**)&dz1, sizeof(double) * N * num_sample);
-    cudaMalloc((void**)&da0, sizeof(double) * K * num_sample);
-    cudaMalloc((void**)&da1, sizeof(double) * N * num_sample);
-    cudaMalloc((void**)&dW0, sizeof(double) * M * K);
-    cudaMalloc((void**)&dW1, sizeof(double) * K * N);
-    cudaMalloc((void**)&db0, sizeof(double) * K * num_sample);
-    cudaMalloc((void**)&db1, sizeof(double) * N * num_sample);
-    cudaMalloc((void**)&dX, sizeof(double) * K * num_sample);
-    cudaMalloc((void**)&dT, sizeof(double) * N * num_sample);
-    cudaMalloc((void**)&dexp, sizeof(double) * 1 * num_sample);
-
-    
-    //std::cout<<"Copying CUDA memory....\n";
-    cudaMemcpy(dz0, b0r.memptr(), sizeof(double) * K * num_sample , cudaMemcpyHostToDevice);
-    cudaMemcpy(dz1, b1r.memptr(), sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
-    cudaMemcpy(da0, a0, sizeof(double) * K * num_sample, cudaMemcpyHostToDevice);
-    cudaMemcpy(da1, a1, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
-    cudaMemcpy(dW0, nn.W[0].memptr(), sizeof(double) * M * K, cudaMemcpyHostToDevice);
-    cudaMemcpy(dW1, nn.W[1].memptr(), sizeof(double) * K * N, cudaMemcpyHostToDevice);
-    cudaMemcpy(dT, T.memptr(), sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
-    
-
-
-
-    //std::cout<<"nn.W[0] * X + arma::repmat(nn.b[0], 1, N)....\n";
-    double alpha = 1;
-    double beta = 1;
-
-
-
-    myGEMM(dW0, dX, dz0, &alpha, &beta, K, M, num_sample);
-
-
-    int block_size_x = 32;
-    int block_size_y = 32;
-    int numBlocks_x = (num_sample + block_size_x - 1) / block_size_x;
-    int numBlocks_y = (K + block_size_y - 1) / (block_size_y);
-    dim3 threads(block_size_x, block_size_y);
-    dim3 blocks(numBlocks_x, numBlocks_y);
-    gpu_sigmoid<<<blocks, threads>>>(dz0, da0, K, num_sample);
-    cudaMemcpy(z0, dz0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
-    cudaMemcpy(a0, da0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
-    std::cout<<"nn.W[1] * a1 + arma::repmat(nn.b[1], 1, N)\n";
-
-    myGEMM(dW1, da0, dz1, &alpha, &beta, N, K, num_sample);
-    cudaMemcpy(z1, dz1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
-    gpu_exp<<<blocks, threads>>>(dz1, da1, N, num_sample);
-    
-    double zeta = 0;
-    //std::cout<<"exp(a1)...\n";
-
-
-    //std::cout<<"softmax...\n";
-    myGEMM(dT, da1, dexp, &alpha, &zeta, 1, N, num_sample);
-    gpu_softmax<<<blocks, threads>>>(dexp, da1, N, num_sample);
-    //std::cout<<"softmax done...\n";
-    cudaMemcpy(a1, da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
-    cudaMemcpy(yc, da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
-
-
-
-    // std::cout << W[0].n_rows << "\n";
-
+    my_feedforward(nn, X, bpcache, b0r, b1r, T, a0, a1, z0, z1, yc);
     bpcache.z[0]=arma::mat(z0, K, num_sample);
     std::cout<<bpcache.z[0]<<"\n";
     bpcache.a[0]=arma::mat(a0, K, num_sample);
@@ -400,17 +324,6 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
     free(z0);
     free(z1);
     free(yc);
-    cudaFree(dz0);
-    cudaFree(da0);
-    cudaFree(dz1);
-    cudaFree(da1);
-    cudaFree(dW0);
-    cudaFree(dW1);
-    cudaFree(db0);
-    cudaFree(db1);
-    cudaFree(dX);
-    cudaFree(dT);
-    cudaFree(dexp);
 
 }
 
@@ -478,7 +391,6 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
                 std::cout << "Loss at iteration " << iter << " of epoch " << epoch << "/" <<
                           epochs << " = " << loss(nn, bpcache.yc, y_batch, reg) << "\n";
-                return;
             }
             //std::cout<<"Subtracting gradient...\n";
             // Gradient descent step
