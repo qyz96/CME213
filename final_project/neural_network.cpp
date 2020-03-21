@@ -291,10 +291,6 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
     int N = nn.W[1].n_rows;
     bpcache.z.resize(2);
     bpcache.a.resize(2);
-    bpcache.z[0]=arma::zeros<arma::mat>(K, num_sample);
-    bpcache.z[1]=arma::zeros<arma::mat>(N, num_sample);
-    bpcache.a[0]=arma::zeros<arma::mat>(K, num_sample);
-    bpcache.a[1]=arma::zeros<arma::mat>(N, num_sample);
     arma::mat b0r = arma::repmat(nn.b[0], 1, N);
     arma::mat b1r = arma::repmat(nn.b[1], 1, N);
     arma::mat T = arma::ones<arma::mat>(N, num_sample);
