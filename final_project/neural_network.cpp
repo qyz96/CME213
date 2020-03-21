@@ -310,13 +310,13 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
     yc = (double*)malloc(N*num_sample*sizeof(double));
     my_feedforward(nn, X, bpcache, b0r, b1r, T, a0, a1, z0, z1, yc);
     bpcache.z[0]=arma::mat(z0, K, num_sample);
-    //std::cout<<bpcache.z[0].n_elem<<"\n";
+    std::cout<<bpcache.z[0]<<"\n";
     bpcache.a[0]=arma::mat(a0, K, num_sample);
-    //std::cout<<bpcache.a[0].n_elem<<"\n";
+    std::cout<<bpcache.a[0]<<"\n";
     bpcache.z[1]=arma::mat(z1, N, num_sample);
-    //std::cout<<bpcache.z[1].n_elem<<"\n";
+    std::cout<<bpcache.z[1]<<"\n";
     bpcache.a[1]=arma::mat(a1, N, num_sample);
-    //std::cout<<bpcache.a[1].n_elem<<"\n";
+    std::cout<<bpcache.a[1]<<"\n";
     bpcache.yc = arma::mat(yc, N, num_sample);
     bpcache.X = X;
     free(a0);
@@ -391,6 +391,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
                 std::cout << "Loss at iteration " << iter << " of epoch " << epoch << "/" <<
                           epochs << " = " << loss(nn, bpcache.yc, y_batch, reg) << "\n";
+                return;
             }
             //std::cout<<"Subtracting gradient...\n";
             // Gradient descent step
