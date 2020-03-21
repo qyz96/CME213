@@ -281,7 +281,7 @@ void train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 }
 
 
-void gpu_forward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcache) {
+void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcache) {
 
 
     int K = nn.W[0].n_rows;
