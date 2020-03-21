@@ -326,6 +326,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             arma::mat y_batch = y.cols(batch * batch_size, last_col);
 
             struct cache bpcache;
+            bpcache.z.resize(2);
+            bpcache.a.resize(2);
             gpu_feedforward(nn, X_batch, bpcache);
 
             struct grads bpgrads;
