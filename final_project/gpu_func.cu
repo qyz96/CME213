@@ -404,8 +404,8 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache)
 
     int block_size_x = 32;
     int block_size_y = 32;
-    numBlocks_x = (num_sample + block_size_x - 1) / block_size_x;
-    numBlocks_y = (K + block_size_y - 1) / (block_size_y);
+    int numBlocks_x = (num_sample + block_size_x - 1) / block_size_x;
+    int numBlocks_y = (K + block_size_y - 1) / (block_size_y);
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
     gpu_sigmoid<<<blocks, threads>>>(dz0, da0, K, num_sample);
@@ -419,7 +419,7 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache)
         da0, K,
         &beta,
         dz1, N);
-    cudaMemcpy(cache.z[1].memptr(), dz1 sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
+    cudaMemcpy(cache.z[1].memptr(), dz1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
     gpu_exp<<<blocks, threads>>>(dz1, da1, N, num_sample);
     
     double zeta = 0;
@@ -469,14 +469,14 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache)
 
 
 void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct cache& bpcache, struct grads& bpgrads) {
-    int num_sample = X.n_cols;
+    int num_sample = bpcache.X.n_cols;
     int K = nn.W[0].n_rows;
     int M = nn.W[0].n_cols;
-    std::assert(K == nn.W[1].n_rows);
+    //std::assert(K == nn.W[1].n_rows);
     int N = nn.W[1].n_rows;
-    std::assert(N == nn.b[1].n_elem);
-    std::assert(K == nn.b[0].n_elem);
-    std::assert(M == X.n_rows);
+    //std::assert(N == nn.b[1].n_elem);
+    //std::assert(K == nn.b[0].n_elem);
+    //std::assert(M == X.n_rows);
     
     bpgrads.dW.resize(2);
     bpgrads.dW[0].zeros(K, M);
@@ -485,9 +485,10 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
     bpgrads.db[0].zeros(K);
     bpgrads.db[1].zeros(N);
 
-    arma::vec allones = ones<vec>(num_sample);
+    arma::vec allones = arma::ones<arma::vec>(num_sample);
 
     double* dW0;
+    double* da0;
     double* dW1;
     double* db0;
     double* db1;
@@ -507,6 +508,7 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
     cudaMalloc((void**)&dOne, sizeof(double) * num_sample);
     cudaMalloc((void**)&daz, sizeof(double) * K * num_sample);
     cudaMalloc((void**)&dX, sizeof(double) * M * num_sample);
+    cudaMalloc((void**)&da0, sizeof(double) * K * num_sample);
 
     cudaMemcpy(dW0, nn.W[0].memptr(), sizeof(double) * M * K, cudaMemcpyHostToDevice);
     cudaMemcpy(dW1, nn.W[1].memptr(), sizeof(double) * K * N, cudaMemcpyHostToDevice);
@@ -515,10 +517,14 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
     cudaMemcpy(dyc, bpcache.yc.memptr(), sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
     cudaMemcpy(dy, y.memptr(), sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
     cudaMemcpy(dOne, allones.memptr(), sizeof(double) * num_sample, cudaMemcpyHostToDevice);
-    cudaMemcpy(dX, cache.X.memptr(), sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
+    cudaMemcpy(dX, bpcache.X.memptr(), sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
+    cudaMemcpy(da0, bpcache.a[0].memptr(), sizeof(double) * K * num_sample, cudaMemcpyHostToDevice);
 
-    numBlocks_x = (num_sample + block_size_x - 1) / block_size_x;
-    numBlocks_y = (K + block_size_y - 1) / (block_size_y);
+
+    int block_size_x = 32;
+    int block_size_y = 32;
+    int numBlocks_x = (num_sample + block_size_x - 1) / block_size_x;
+    int numBlocks_y = (K + block_size_y - 1) / (block_size_y);
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
     double alpha = 1/(double)(num_sample);
