@@ -362,6 +362,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             std::cout<<bpcache.a[1].n_elem<<"\n";
             bpcache.yc = arma::mat(yc, N, num_sample);
             std::cout<<bpcache.yc.n_elem<<"\n";
+            bpcache.X = X_batch;
             struct grads bpgrads;
             std::cout<<"Backpropagation begins...\n";
             backprop(nn, y_batch, reg, bpcache, bpgrads);
