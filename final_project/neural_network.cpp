@@ -344,7 +344,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
             struct grads bpgrads;
             backprop(nn, y_batch, reg, bpcache, bpgrads);
-
+            std::cout<<"Backpropagation done...\n";
             if(print_every > 0 && iter % print_every == 0) {
                 if(grad_check) {
                     struct grads numgrads;
@@ -355,7 +355,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 std::cout << "Loss at iteration " << iter << " of epoch " << epoch << "/" <<
                           epochs << " = " << loss(nn, bpcache.yc, y_batch, reg) << "\n";
             }
-
+            std::cout<<"Subtracting gradient...\n";
             // Gradient descent step
             for(int i = 0; i < nn.W.size(); ++i) {
                 nn.W[i] -= learning_rate * bpgrads.dW[i];
@@ -364,7 +364,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             for(int i = 0; i < nn.b.size(); ++i) {
                 nn.b[i] -= learning_rate * bpgrads.db[i];
             }
-
+            std::cout<<"Subtracting gradient done...\n";
             if(print_every <= 0) {
                 print_flag = batch == 0;
             } else {
