@@ -343,6 +343,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             gpu_feedforward(nn, X_batch, bpcache, b0r, b1r, T);
 
             struct grads bpgrads;
+            std::cout<<"Backpropagation begins...\n";
             backprop(nn, y_batch, reg, bpcache, bpgrads);
             std::cout<<"Backpropagation done...\n";
             if(print_every > 0 && iter % print_every == 0) {
