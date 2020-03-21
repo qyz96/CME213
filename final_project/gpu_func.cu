@@ -271,7 +271,7 @@ __global__
 void gpu_sigmoid(double* z, double* a, int m, int n) {
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
-    if ((i < M) && (j < N)) {
+    if ((i < m) && (j < n)) {
         a[i + j * m] = 1 / (double)(1-std::exp(-z[i + j * m]));
     }
     return;
@@ -282,7 +282,7 @@ __global__
 void gpu_exp(double* z, double* a, int m, int n) {
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
-    if ((i < M) && (j < N)) {
+    if ((i < m) && (j < n)) {
         a[i + j * m] = (double)(std::exp(z[i + j * m]));
     }
     return;
@@ -293,11 +293,23 @@ __global__
 void gpu_softmax(double* z, double* a, int m, int n) {
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
-    if ((i < M) && (j < N)) {
+    if ((i < m) && (j < n)) {
         a[i + j * m] = (double)((a[i + j * m])/(z[j]));
     }
     return;
 }
+
+
+__global__
+void gpu_hadmard(double* c, double* z, double* a, int m, int n) {
+    int i = blockIdx.y * blockDim.y + threadIdx.y;
+    int j = blockIdx.x * blockDim.x + threadIdx.x;
+    if ((i < m) && (j < n)) {
+        c[i + j * m] = (double)((a[i + j * m]) * (b[i + j * m]));
+    }
+    return;
+}
+
 
 
 
