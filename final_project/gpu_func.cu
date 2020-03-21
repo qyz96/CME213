@@ -272,7 +272,7 @@ void gpu_sigmoid(double* z, double* a, int m, int n) {
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
     if ((i < m) && (j < n)) {
-        a[i + j * m] = 1 / (double)(1-std::exp(-z[i + j * m]));
+        a[i + j * m] = 1 / (double)(1+std::exp(-z[i + j * m]));
     }
     return;
 }
@@ -330,24 +330,7 @@ void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache, 
     int num_sample = X.n_cols;
     int K = nn.W[0].n_rows;
     int M = nn.W[0].n_cols;
-    //std::assert(K == nn.W[1].n_rows);
     int N = nn.W[1].n_rows;
-    //std::assert(N == nn.b[1].n_elem);
-    //std::assert(K == nn.b[0].n_elem);
-    //std::assert(M == X.n_rows);
-
-
-    
-    //cache.z.resize(2);
-    //std::cout<<"Resizing....\n";
-    //cache.z[0]=arma::zeros<arma::mat>(K, num_sample);
-    //cache.z[1]=arma::zeros<arma::mat>(N, num_sample);
-    //cache.a.resize(2);
-    //cache.a[0]=arma::zeros<arma::mat>(K, num_sample);
-    //cache.a[1]=arma::zeros<arma::mat>(N, num_sample);
-
-
-    //std::cout<<"Allocating a0, a1....\n";
 
 
 
