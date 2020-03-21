@@ -349,10 +349,14 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
     double* a0;
     double* a1;
     double* z0;
+    double* z1;
+    double* yc;
     std::cout<<"Allocating a0, a1....\n";
     a0 = (double*)malloc(K*num_sample*sizeof(double));
     a1 = (double*)malloc(N*num_sample*sizeof(double));
     z0 = (double*)malloc(K*num_sample*sizeof(double));
+    z1 = (double*)malloc(N*num_sample*sizeof(double));
+    yc = (double*)malloc(N*num_sample*sizeof(double));
 
 
 
@@ -422,7 +426,7 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
         da0, K,
         &beta,
         dz1, N);
-    cudaMemcpy(cache.z[1].memptr(), dz1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
+    cudaMemcpy(z1, dz1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
     gpu_exp<<<blocks, threads>>>(dz1, da1, N, num_sample);
     
     double zeta = 0;
@@ -438,8 +442,8 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
     std::cout<<"softmax...\n";
     gpu_softmax<<<blocks, threads>>>(dexp, da1, N, num_sample);
     std::cout<<"softmax done...\n";
-    cudaMemcpy(cache.a[1].memptr(), da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
-    cudaMemcpy(cache.yc.memptr(), da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
+    cudaMemcpy(a1, da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
+    cudaMemcpy(yc, da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
 
 
 
