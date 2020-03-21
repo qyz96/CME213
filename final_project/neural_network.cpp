@@ -391,6 +391,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
                 std::cout << "Loss at iteration " << iter << " of epoch " << epoch << "/" <<
                           epochs << " = " << loss(nn, bpcache.yc, y_batch, reg) << "\n";
+                return;
             }
             //std::cout<<"Subtracting gradient...\n";
             // Gradient descent step
