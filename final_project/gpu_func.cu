@@ -375,15 +375,7 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
     cudaMemcpy(dT, T.memptr(), sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
     
 
-    cudaError_t cudaStat;
-    cublasStatus_t stat;
-    cublasHandle_t handle;
-    stat = cublasCreate(&handle);
 
-    if(stat != CUBLAS_STATUS_SUCCESS) {
-        std::cerr << "CUBLAS initialization failed!" << std::endl;
-        return;
-    }
 
     //std::cout<<"nn.W[0] * X + arma::repmat(nn.b[0], 1, N)....\n";
     double alpha = 1;
