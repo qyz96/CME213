@@ -126,14 +126,15 @@ void backprop(NeuralNetwork& nn, const arma::mat& y, double reg,
     bpgrads.db.resize(2);
     int N = y.n_cols;
 
-    // std::cout << "backprop " << bpcache.yc << "\n";
+    std::cout << "a0 size " << bpcache.a[0].n_elem << "\n";
     arma::mat diff = (1.0 / N) * (bpcache.yc - y);
     bpgrads.dW[1] = diff * bpcache.a[0].t() + reg * nn.W[1];
     bpgrads.db[1] = arma::sum(diff, 1);
+    std::cout << "diff size " << diff.n_elem << "\n";
     arma::mat da1 = nn.W[1].t() * diff;
 
     arma::mat dz1 = da1 % bpcache.a[0] % (1 - bpcache.a[0]);
-
+    std::cout << "X size " << bpcache.X.t().n_elem << "\n";
     bpgrads.dW[0] = dz1 * bpcache.X.t() + reg * nn.W[0];
     bpgrads.db[0] = arma::sum(dz1, 1);
 }
