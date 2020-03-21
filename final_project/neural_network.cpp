@@ -126,15 +126,15 @@ void backprop(NeuralNetwork& nn, const arma::mat& y, double reg,
     bpgrads.db.resize(2);
     int N = y.n_cols;
 
-    std::cout << "a0 size " << bpcache.a[0].n_elem << "\n";
+    //std::cout << "a0 size " << bpcache.a[0].n_elem << "\n";
     arma::mat diff = (1.0 / N) * (bpcache.yc - y);
     bpgrads.dW[1] = diff * bpcache.a[0].t() + reg * nn.W[1];
     bpgrads.db[1] = arma::sum(diff, 1);
-    std::cout << "diff size " << diff.n_elem << "\n";
+    //std::cout << "diff size " << diff.n_elem << "\n";
     arma::mat da1 = nn.W[1].t() * diff;
 
     arma::mat dz1 = da1 % bpcache.a[0] % (1 - bpcache.a[0]);
-    std::cout << "X size " << bpcache.X.n_elem << "\n";
+    //std::cout << "X size " << bpcache.X.n_elem << "\n";
     bpgrads.dW[0] = dz1 * bpcache.X.t() + reg * nn.W[0];
     bpgrads.db[0] = arma::sum(dz1, 1);
 }
@@ -364,9 +364,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             std::cout<<bpcache.yc.n_elem<<"\n";
             bpcache.X = X_batch;
             struct grads bpgrads;
-            std::cout<<"Backpropagation begins...\n";
+            //std::cout<<"Backpropagation begins...\n";
             backprop(nn, y_batch, reg, bpcache, bpgrads);
-            std::cout<<"Backpropagation done...\n";
+            //std::cout<<"Backpropagation done...\n";
             if(print_every > 0 && iter % print_every == 0) {
                 if(grad_check) {
                     struct grads numgrads;
@@ -377,7 +377,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 std::cout << "Loss at iteration " << iter << " of epoch " << epoch << "/" <<
                           epochs << " = " << loss(nn, bpcache.yc, y_batch, reg) << "\n";
             }
-            std::cout<<"Subtracting gradient...\n";
+            //std::cout<<"Subtracting gradient...\n";
             // Gradient descent step
             for(int i = 0; i < nn.W.size(); ++i) {
                 nn.W[i] -= learning_rate * bpgrads.dW[i];
@@ -386,7 +386,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             for(int i = 0; i < nn.b.size(); ++i) {
                 nn.b[i] -= learning_rate * bpgrads.db[i];
             }
-            std::cout<<"Subtracting gradient done...\n";
+            //std::cout<<"Subtracting gradient done...\n";
             if(print_every <= 0) {
                 print_flag = batch == 0;
             } else {
