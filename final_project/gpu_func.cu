@@ -343,6 +343,9 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache)
     cache.a[0].zeros(K, num_sample);
     cache.a[1].zeros(N, num_sample);
 
+    double* a0;
+    double* a1;
+
     a0 = (double*)malloc(K*num_sample*sizeof(double));
     a1 = (double*)malloc(N*num_sample*sizeof(double));
 
