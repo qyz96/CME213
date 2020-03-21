@@ -336,7 +336,7 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache)
     //std::assert(K == nn.b[0].n_elem);
     //std::assert(M == X.n_rows);
 
-    bcache.z.resize(2);
+    cache.z.resize(2);
     cache.z[0].zeros(K, num_sample);
     cache.z[1].zeros(N, num_sample);
     cache.a.resize(2);
