@@ -293,8 +293,8 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
     bpcache.a.resize(2);
     arma::mat b0r = arma::repmat(nn.b[0], 1, N);
     arma::mat b1r = arma::repmat(nn.b[1], 1, N);
-    std::cout<<"W0: "<<nn.W[0].submat(0, 0, 5, 5)<<"\n";
-    std::cout<<"X: "<<X.submat(0, 0, 5, 5)<<"\n";
+    //std::cout<<"W0: "<<nn.W[0].submat(0, 0, 5, 5)<<"\n";
+    //std::cout<<"X: "<<X.submat(0, 0, 5, 5)<<"\n";
     arma::mat T = arma::ones<arma::mat>(N, num_sample);
     double* a0;
     double* a1;
@@ -315,7 +315,7 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
     bpcache.a[1]=arma::mat(a1, N, num_sample);
     //std::cout<<bpcache.a[1]<<"\n";
     bpcache.yc = arma::mat(yc, N, num_sample);
-    std::cout<<"y: "<<bpcache.yc.submat(0,0, 5, 5)<<"\n";
+    //std::cout<<"y: "<<bpcache.yc.submat(0,0, 5, 5)<<"\n";
     bpcache.X = X;
     free(a0);
     free(a1);
@@ -375,7 +375,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             struct cache bpcache;
 
 
-            feedforward(nn, X_batch, bpcache);
+            gpu_feedforward(nn, X_batch, bpcache);
             std::cout<<"y: "<<bpcache.yc.submat(0,0, 5, 5)<<"\n";
             struct grads bpgrads;
             //std::cout<<"Backpropagation begins...\n";
