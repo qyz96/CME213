@@ -387,7 +387,7 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
         return;
     }
 
-
+    std::cout<<"nn.W[0] * X + arma::repmat(nn.b[0], 1, N)....\n";
     double alpha = 1;
     double beta = 1;
     stat = cublasDgemm(handle,
@@ -410,6 +410,7 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
     gpu_sigmoid<<<blocks, threads>>>(dz0, da0, K, num_sample);
     //cudaMemcpy(cache.z[0].memptr(), dz0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
     //cudaMemcpy(cache.a[0].memptr(), da0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
+    std::cout<<"nn.W[1] * a1 + arma::repmat(nn.b[1], 1, N)\n";
     stat = cublasDgemm(handle,
         CUBLAS_OP_N, CUBLAS_OP_N,
         N, num_sample, K,
