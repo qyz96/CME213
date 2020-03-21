@@ -348,11 +348,6 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
 
 
     std::cout<<"Allocating a0, a1....\n";
-    a0 = (double*)malloc(K*num_sample*sizeof(double));
-    a1 = (double*)malloc(N*num_sample*sizeof(double));
-    z0 = (double*)malloc(K*num_sample*sizeof(double));
-    z1 = (double*)malloc(N*num_sample*sizeof(double));
-    yc = (double*)malloc(N*num_sample*sizeof(double));
 
 
 
