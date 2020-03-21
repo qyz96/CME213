@@ -408,8 +408,8 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
     gpu_sigmoid<<<blocks, threads>>>(dz0, da0, K, num_sample);
-    //cudaMemcpy(cache.z[0].memptr(), dz0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
-    //cudaMemcpy(cache.a[0].memptr(), da0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
+    cudaMemcpy(cache.z[0].memptr(), dz0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
+    cudaMemcpy(cache.a[0].memptr(), da0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
     std::cout<<"nn.W[1] * a1 + arma::repmat(nn.b[1], 1, N)\n";
     stat = cublasDgemm(handle,
         CUBLAS_OP_N, CUBLAS_OP_N,
@@ -419,7 +419,7 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
         da0, K,
         &beta,
         dz1, N);
-    //cudaMemcpy(cache.z[1].memptr(), dz1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
+    cudaMemcpy(cache.z[1].memptr(), dz1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
     gpu_exp<<<blocks, threads>>>(dz1, da1, N, num_sample);
     
     double zeta = 0;
@@ -435,8 +435,8 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
     std::cout<<"softmax...\n";
     gpu_softmax<<<blocks, threads>>>(dexp, da1, N, num_sample);
     std::cout<<"softmax done...\n";
-    //cudaMemcpy(cache.a[1].memptr(), da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
-    //cudaMemcpy(cache.yc.memptr(), da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
+    cudaMemcpy(cache.a[1].memptr(), da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
+    cudaMemcpy(cache.yc.memptr(), da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
 
 
 
@@ -588,7 +588,7 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
         &beta1,
         db0, K);
     
-    // std::cout << "backprop " << bpcache.yc << "\n";
+    //std::cout << "backprop " << bpcache.yc << "\n";
 
 
     cudaMemcpy(bpgrads.dW[0].memptr(), dW0, sizeof(double) * M * K, cudaMemcpyDeviceToHost);
