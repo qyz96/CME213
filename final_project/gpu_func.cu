@@ -313,7 +313,7 @@ void gpu_hadmard(double* c, double* a, double* b, int m, int n) {
 
 
 
-void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache, const arma::mat& b0r, const arma::mat& b1r, const arma::mat& T) {
+void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache, const arma::mat& b0r, const arma::mat& b1r, const arma::mat& T, double* a0, double* a1, double* z0, double* z1, double* yc) {
 
     double* dz0;
     double* dz1;
@@ -346,11 +346,7 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
     //cache.a[0]=arma::zeros<arma::mat>(K, num_sample);
     //cache.a[1]=arma::zeros<arma::mat>(N, num_sample);
 
-    double* a0;
-    double* a1;
-    double* z0;
-    double* z1;
-    double* yc;
+
     std::cout<<"Allocating a0, a1....\n";
     a0 = (double*)malloc(K*num_sample*sizeof(double));
     a1 = (double*)malloc(N*num_sample*sizeof(double));
