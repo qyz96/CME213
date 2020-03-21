@@ -326,6 +326,10 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             arma::mat y_batch = y.cols(batch * batch_size, last_col);
 
             struct cache bpcache;
+            int K = nn.W[0].n_rows;
+            int M = nn.W[0].n_cols;
+            //std::assert(K == nn.W[1].n_rows);
+            int N = nn.W[1].n_rows;
             bpcache.z.resize(2);
             bpcache.a.resize(2);
             bpcache.z[0]=arma::zeros<arma::mat>(K, num_sample);
