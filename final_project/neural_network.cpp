@@ -329,7 +329,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             gpu_feedforward(nn, X_batch, bpcache);
 
             struct grads bpgrads;
-            gpu_backprop(nn, y_batch, reg, bpcache, bpgrads);
+            backprop(nn, y_batch, reg, bpcache, bpgrads);
 
             if(print_every > 0 && iter % print_every == 0) {
                 if(grad_check) {
