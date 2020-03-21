@@ -280,6 +280,54 @@ void train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     }
 }
 
+
+void gpu_forward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcache) {
+
+
+    int K = nn.W[0].n_rows;
+    int num_sample = X.n_cols;
+    int M = nn.W[0].n_cols;
+    //std::assert(K == nn.W[1].n_rows);
+    int N = nn.W[1].n_rows;
+    bpcache.z.resize(2);
+    bpcache.a.resize(2);
+    bpcache.z[0]=arma::zeros<arma::mat>(K, num_sample);
+    bpcache.z[1]=arma::zeros<arma::mat>(N, num_sample);
+    bpcache.a[0]=arma::zeros<arma::mat>(K, num_sample);
+    bpcache.a[1]=arma::zeros<arma::mat>(N, num_sample);
+    arma::mat b0r = arma::repmat(nn.b[0], 1, N);
+    arma::mat b1r = arma::repmat(nn.b[1], 1, N);
+    arma::mat T = arma::ones<arma::mat>(N, num_sample);
+    double* a0;
+    double* a1;
+    double* z0;
+    double* z1;
+    double* yc;
+    a0 = (double*)malloc(K*num_sample*sizeof(double));
+    a1 = (double*)malloc(N*num_sample*sizeof(double));
+    z0 = (double*)malloc(K*num_sample*sizeof(double));
+    z1 = (double*)malloc(N*num_sample*sizeof(double));
+    yc = (double*)malloc(N*num_sample*sizeof(double));
+    my_feedforward(nn, X_batch, bpcache, b0r, b1r, T, a0, a1, z0, z1, yc);
+    bpcache.z[0]=arma::mat(z0, K, num_sample);
+    //std::cout<<bpcache.z[0].n_elem<<"\n";
+    bpcache.a[0]=arma::mat(a0, K, num_sample);
+    //std::cout<<bpcache.a[0].n_elem<<"\n";
+    bpcache.z[1]=arma::mat(z1, N, num_sample);
+    //std::cout<<bpcache.z[1].n_elem<<"\n";
+    bpcache.a[1]=arma::mat(a1, N, num_sample);
+    //std::cout<<bpcache.a[1].n_elem<<"\n";
+    bpcache.yc = arma::mat(yc, N, num_sample);
+    bpcache.X = X;
+    free(a0);
+    free(a1);
+    free(z0);
+    free(z1);
+    free(yc);
+
+}
+
+
 /*
  * TODO
  * Train the neural network &nn of rank 0 in parallel. Your MPI implementation
@@ -327,42 +375,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             arma::mat y_batch = y.cols(batch * batch_size, last_col);
 
             struct cache bpcache;
-            int K = nn.W[0].n_rows;
-            int num_sample = X_batch.n_cols;
-            int M = nn.W[0].n_cols;
-            //std::assert(K == nn.W[1].n_rows);
-            int N = nn.W[1].n_rows;
-            bpcache.z.resize(2);
-            bpcache.a.resize(2);
-            bpcache.z[0]=arma::zeros<arma::mat>(K, num_sample);
-            bpcache.z[1]=arma::zeros<arma::mat>(N, num_sample);
-            bpcache.a[0]=arma::zeros<arma::mat>(K, num_sample);
-            bpcache.a[1]=arma::zeros<arma::mat>(N, num_sample);
-            arma::mat b0r = arma::repmat(nn.b[0], 1, N);
-            arma::mat b1r = arma::repmat(nn.b[1], 1, N);
-            arma::mat T = arma::ones<arma::mat>(N, num_sample);
-            double* a0;
-            double* a1;
-            double* z0;
-            double* z1;
-            double* yc;
-            a0 = (double*)malloc(K*num_sample*sizeof(double));
-            a1 = (double*)malloc(N*num_sample*sizeof(double));
-            z0 = (double*)malloc(K*num_sample*sizeof(double));
-            z1 = (double*)malloc(N*num_sample*sizeof(double));
-            yc = (double*)malloc(N*num_sample*sizeof(double));
-            gpu_feedforward(nn, X_batch, bpcache, b0r, b1r, T, a0, a1, z0, z1, yc);
-            bpcache.z[0]=arma::mat(z0, K, num_sample);
-            //std::cout<<bpcache.z[0].n_elem<<"\n";
-            bpcache.a[0]=arma::mat(a0, K, num_sample);
-            //std::cout<<bpcache.a[0].n_elem<<"\n";
-            bpcache.z[1]=arma::mat(z1, N, num_sample);
-            //std::cout<<bpcache.z[1].n_elem<<"\n";
-            bpcache.a[1]=arma::mat(a1, N, num_sample);
-            //std::cout<<bpcache.a[1].n_elem<<"\n";
-            bpcache.yc = arma::mat(yc, N, num_sample);
-            //std::cout<<bpcache.yc.n_elem<<"\n";
-            bpcache.X = X_batch;
+
+
+            gpu_feedforward(nn, X_batch, bpcache);
             struct grads bpgrads;
             //std::cout<<"Backpropagation begins...\n";
             backprop(nn, y_batch, reg, bpcache, bpgrads);

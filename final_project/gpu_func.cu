@@ -313,7 +313,7 @@ void gpu_hadmard(double* c, double* a, double* b, int m, int n) {
 
 
 
-void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache, const arma::mat& b0r, const arma::mat& b1r, const arma::mat& T, double* a0, double* a1, double* z0, double* z1, double* yc) {
+void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache, const arma::mat& b0r, const arma::mat& b1r, const arma::mat& T, double* a0, double* a1, double* z0, double* z1, double* yc) {
 
     double* dz0;
     double* dz1;
@@ -405,7 +405,7 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
     gpu_sigmoid<<<blocks, threads>>>(dz0, da0, K, num_sample);
     cudaMemcpy(z0, dz0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
     cudaMemcpy(a0, da0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
-    //std::cout<<"nn.W[1] * a1 + arma::repmat(nn.b[1], 1, N)\n";
+    std::cout<<"nn.W[1] * a1 + arma::repmat(nn.b[1], 1, N)\n";
     /*
     stat = cublasDgemm(handle,
         CUBLAS_OP_N, CUBLAS_OP_N,
@@ -473,7 +473,7 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
 
 
 
-void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct cache& bpcache, struct grads& bpgrads) {
+void my_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct cache& bpcache, struct grads& bpgrads) {
     int num_sample = bpcache.X.n_cols;
     int K = nn.W[0].n_rows;
     int M = nn.W[0].n_cols;

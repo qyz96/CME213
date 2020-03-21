@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
     int run_seq = 0;
     int debug = 0;
     int grade = 0;
-    int print_every = 1;
+    int print_every = 0;
 
     int option = 0;
     char *str_end;
