@@ -336,6 +336,8 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache)
     //std::assert(K == nn.b[0].n_elem);
     //std::assert(M == X.n_rows);
 
+
+    std::cout<<"Resizing....\n";
     cache.z.resize(2);
     cache.z[0].zeros(K, num_sample);
     cache.z[1].zeros(N, num_sample);
@@ -345,7 +347,7 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache)
 
     double* a0;
     double* a1;
-
+    std::cout<<"Allocating a0, a1....\n";
     a0 = (double*)malloc(K*num_sample*sizeof(double));
     a1 = (double*)malloc(N*num_sample*sizeof(double));
 
@@ -354,7 +356,7 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache)
     arma::mat T(N, num_sample);
     T.ones();
 
-
+    std::cout<<"Allocating CUDA memory....\n";
     cudaMalloc((void**)&dz0, sizeof(double) * K * num_sample);
     cudaMalloc((void**)&dz1, sizeof(double) * N * num_sample);
     cudaMalloc((void**)&da0, sizeof(double) * K * num_sample);
@@ -368,7 +370,7 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache)
     cudaMalloc((void**)&dexp, sizeof(double) * 1 * num_sample);
 
     
-
+    std::cout<<"Copying CUDA memory....\n";
     cudaMemcpy(dz0, b0r.memptr(), sizeof(double) * K * num_sample , cudaMemcpyHostToDevice);
     cudaMemcpy(dz1, b1r.memptr(), sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
     cudaMemcpy(da0, a0, sizeof(double) * K * num_sample, cudaMemcpyHostToDevice);
