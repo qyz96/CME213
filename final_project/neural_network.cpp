@@ -353,8 +353,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             gpu_feedforward(nn, X_batch, bpcache, b0r, b1r, T, a0, a1, z0, z1, yc);
             bpcache.z[0]=arma::mat(z0, K, num_sample);
             bpcache.a[0]=arma::mat(a0, K, num_sample);
-            bpcache.z[1]=arma::mat(z1, K, num_sample);
-            bpcache.a[1]=arma::mat(a1, K, num_sample);
+            bpcache.z[1]=arma::mat(z1, N, num_sample);
+            bpcache.a[1]=arma::mat(a1, N, num_sample);
             bpcache.yc = arma::mat(yc, N, num_sample);
             struct grads bpgrads;
             std::cout<<"Backpropagation begins...\n";
