@@ -321,6 +321,36 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
              * 4. update local network coefficient at each node
              */
 
+            int last_col = std::min((batch + 1)*batch_size-1, N-1);
+            arma::mat X_batch = X.cols(batch * batch_size, last_col);
+            arma::mat y_batch = y.cols(batch * batch_size, last_col);
+
+            struct cache bpcache;
+            feedforward(nn, X_batch, bpcache);
+
+            struct grads bpgrads;
+            backprop(nn, y_batch, reg, bpcache, bpgrads);
+
+            if(print_every > 0 && iter % print_every == 0) {
+                if(grad_check) {
+                    struct grads numgrads;
+                    numgrad(nn, X_batch, y_batch, reg, numgrads);
+                    assert(gradcheck(numgrads, bpgrads));
+                }
+
+                std::cout << "Loss at iteration " << iter << " of epoch " << epoch << "/" <<
+                          epochs << " = " << loss(nn, bpcache.yc, y_batch, reg) << "\n";
+            }
+
+            // Gradient descent step
+            for(int i = 0; i < nn.W.size(); ++i) {
+                nn.W[i] -= learning_rate * bpgrads.dW[i];
+            }
+
+            for(int i = 0; i < nn.b.size(); ++i) {
+                nn.b[i] -= learning_rate * bpgrads.db[i];
+            }
+
             if(print_every <= 0) {
                 print_flag = batch == 0;
             } else {
