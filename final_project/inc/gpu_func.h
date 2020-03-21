@@ -5,6 +5,7 @@
 #include <helper_cuda.h>
 #include <helper_functions.h>
 #include "neural_network.h"
+#include <armadillo>
 struct event_pair {
     cudaEvent_t start;
     cudaEvent_t end;
