@@ -348,9 +348,12 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
 
     double* a0;
     double* a1;
+    double* z0;
     std::cout<<"Allocating a0, a1....\n";
     a0 = (double*)malloc(K*num_sample*sizeof(double));
     a1 = (double*)malloc(N*num_sample*sizeof(double));
+    z0 = (double*)malloc(K*num_sample*sizeof(double));
+
 
 
     std::cout<<"Allocating CUDA memory....\n";
@@ -408,8 +411,8 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
     gpu_sigmoid<<<blocks, threads>>>(dz0, da0, K, num_sample);
-    cudaMemcpy(cache.z[0].memptr(), dz0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
-    cudaMemcpy(cache.a[0].memptr(), da0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
+    cudaMemcpy(z0, dz0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
+    cudaMemcpy(a0, da0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
     std::cout<<"nn.W[1] * a1 + arma::repmat(nn.b[1], 1, N)\n";
     stat = cublasDgemm(handle,
         CUBLAS_OP_N, CUBLAS_OP_N,
