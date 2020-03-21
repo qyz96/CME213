@@ -388,6 +388,9 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
     //std::cout<<"nn.W[0] * X + arma::repmat(nn.b[0], 1, N)....\n";
     double alpha = 1;
     double beta = 1;
+
+
+    /*
     stat = cublasDgemm(handle,
         CUBLAS_OP_N, CUBLAS_OP_N,
         K, num_sample, M,
@@ -397,6 +400,8 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
         &beta,
         dz0, K);
 
+    */
+    myGEMM(dW0, dX, dz0, alpha, beta, K, M, num_sample);
 
 
     int block_size_x = 32;
@@ -409,6 +414,7 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
     cudaMemcpy(z0, dz0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
     cudaMemcpy(a0, da0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
     //std::cout<<"nn.W[1] * a1 + arma::repmat(nn.b[1], 1, N)\n";
+    /*
     stat = cublasDgemm(handle,
         CUBLAS_OP_N, CUBLAS_OP_N,
         N, num_sample, K,
@@ -417,11 +423,16 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
         da0, K,
         &beta,
         dz1, N);
+
+    */
+    myGEMM(dW1, da0, dz1, alpha, beta, N, K, num_sample);
     cudaMemcpy(z1, dz1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
     gpu_exp<<<blocks, threads>>>(dz1, da1, N, num_sample);
     
     double zeta = 0;
     //std::cout<<"exp(a1)...\n";
+
+    /*
     stat = cublasDgemm(handle,
         CUBLAS_OP_N, CUBLAS_OP_N,
         1, num_sample, N,
@@ -430,7 +441,10 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
         da1, N,
         &zeta,
         dexp, 1);
+
+    */
     //std::cout<<"softmax...\n";
+    myGEMM(dT, da1, dexp, alpha, zeta, 1, N, num_sample);
     gpu_softmax<<<blocks, threads>>>(dexp, da1, N, num_sample);
     //std::cout<<"softmax done...\n";
     cudaMemcpy(a1, da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
