@@ -375,7 +375,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             struct cache bpcache;
 
 
-            feedforward(nn, X_batch, bpcache);
+            gpu_feedforward(nn, X_batch, bpcache);
             std::cout<<"z0: "<<bpcache.z[0].submat(0,0, 5, 5)<<"\n";
             std::cout<<"y: "<<bpcache.yc.submat(0,0, 5, 5)<<"\n";
             struct grads bpgrads;
