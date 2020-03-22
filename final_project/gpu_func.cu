@@ -374,7 +374,7 @@ void device_exp(double* data, double* result, int M, int N) {
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
     if ((i < M) && (j < N)) {
-        result[i + j * m] = (double)(std::exp(z[i + j * m]));
+        result[i + j * M] = (double)(std::exp(z[i + j * M]));
     }
     return;
 }
@@ -398,7 +398,7 @@ void device_softmax(double* data, double* result, int M, int N) {
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
     if ((i < M) && (j < N)) {
-        result[i + j * m] = (double)((result[i + j * m])/(data[j]));
+        result[i + j * M] = (double)((result[i + j * M])/(data[j]));
     }
     return;
 }
@@ -419,11 +419,11 @@ void gpu_softmax(double* ddata, double* dresult, int M, int N)  {
 
 
 __global__
-void device_hadmard(double* c, double* a, double* b, int m, int n) {
+void device_hadmard(double* c, double* a, double* b, int M, int N) {
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
-    if ((i < m) && (j < n)) {
-        c[i + j * m] = (double)((a[i + j * m]) * (b[i + j * m]) * (1 - b[i + j * m]));
+    if ((i < M) && (j < N)) {
+        c[i + j * M] = (double)((a[i + j * M]) * (b[i + j * M]) * (1 - b[i + j * M]));
     }
     return;
 }
