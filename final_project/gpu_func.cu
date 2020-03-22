@@ -502,7 +502,7 @@ void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
     cudaMemcpy(z0, dz0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
     cudaMemcpy(a0, da0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
     myGEMM(dW1, da0, dz1, &alpha, &beta, N, num_sample, K);
-    cudaMemcpy(W1_test, dW1, sizeof(double) * N * K, cudaMemcpyDeviceToHost);
+    cudaMemcpy(W1_test, dW0, sizeof(double) * N * K, cudaMemcpyDeviceToHost);
     cudaMemcpy(z1, dz1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
     gpu_exp(dz1, da1, N, num_sample);
     gpu_sumcol(da1, dexp, N, num_sample);
