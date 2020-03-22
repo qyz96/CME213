@@ -303,9 +303,6 @@ __global__
 void device_addmat(double* A, double* B, double* C, double alpha, double beta, int M, int N) {
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
-    if ((i==0) && (j==0)) {
-        printf("A=%f\n", alpha);
-    }
     if ((i < M) && (j < N)) {
         C[i + j * M] = alpha * A[i + j * M] + beta * B[i + j * M];
     }

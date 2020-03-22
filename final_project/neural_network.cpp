@@ -480,7 +480,7 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
     double beta = -1/(double)(num_sample);
     double alpha1 = 1;
     double beta1=0;
-    std::cout<<1/(double)(num_sample)<<"\n";
+    //std::cout<<1/(double)(num_sample)<<"\n";
     gpu_addmat(dyc, dy, dDff, 1/(double)(num_sample), -1/(double)(num_sample), N, num_sample);
     check_launch("add mat");
     myGEMM2(dW1, dDff, da1, &alpha1, &beta1, K, num_sample, N, true, false);
@@ -603,7 +603,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
 
             gpu_feedforward(nn, X_batch, bpcache);
-            std::cout<<"nnW0: "<<nn.W[0].submat(0,0, 5, 5)<<"\n";
+/*             std::cout<<"nnW0: "<<nn.W[0].submat(0,0, 5, 5)<<"\n";
             std::cout<<"nnW1: "<<nn.W[1].submat(0,0, 5, 5)<<"\n";
             std::cout<<"z0: "<<bpcache.z[0].submat(0,0, 5, 5)<<"\n";
             std::cout<<bpcache.z[0].is_finite()<<std::endl;
@@ -613,16 +613,16 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             std::cout<<bpcache.z[1].is_finite()<<std::endl;
             std::cout<<"a1: "<<bpcache.a[1].submat(0,0,5,5)<<"\n";
             std::cout<<"y: "<<bpcache.yc.submat(0,0, 5, 5)<<"\n";
-            std::cout<<bpcache.yc.is_finite()<<std::endl;
+            std::cout<<bpcache.yc.is_finite()<<std::endl; */
             struct grads bpgrads;
             //std::cout<<"Backpropagation begins...\n";
             backprop(nn, y_batch, reg, bpcache, bpgrads);
 
             //backprop(nn, y_batch, reg, bpcache, bpgrads);
-            std::cout<<"dW0: "<<bpgrads.dW[0].submat(0, 0, 5, 5)<<"\n";
+/*             std::cout<<"dW0: "<<bpgrads.dW[0].submat(0, 0, 5, 5)<<"\n";
             std::cout<<"dW1: "<<bpgrads.dW[1].submat(0, 0, 5, 5)<<"\n";
             std::cout<<"b0: "<<bpgrads.db[0].subvec(0, 5)<<"\n";
-            std::cout<<"b1: "<<bpgrads.db[1].subvec(0, 5)<<"\n";
+            std::cout<<"b1: "<<bpgrads.db[1].subvec(0, 5)<<"\n"; */
             //std::cout<<"Backpropagation done...\n";
             if(print_every > 0 && iter % print_every == 0) {
                 if(grad_check) {
