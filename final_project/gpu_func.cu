@@ -498,28 +498,21 @@ void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache, 
 
     myGEMM(dW0, dX, dz0, &alpha, &beta, K, M, num_sample);
 
-
-    int block_size_x = 32;
-    int block_size_y = 32;
-    int numBlocks_x = (num_sample + block_size_x - 1) / block_size_x;
-    int numBlocks_y = (K + block_size_y - 1) / (block_size_y);
-    dim3 threads(block_size_x, block_size_y);
-    dim3 blocks(numBlocks_x, numBlocks_y);
-    device_sigmoid<<<blocks, threads>>>(dz0, da0, K, num_sample);
+    gpu_sigmoid(dz0, da0, K, num_sample);
     cudaMemcpy(z0, dz0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
     cudaMemcpy(a0, da0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
     std::cout<<"nn.W[1] * a1 + arma::repmat(nn.b[1], 1, N)\n";
 
     myGEMM(dW1, da0, dz1, &alpha, &beta, N, K, num_sample);
     cudaMemcpy(z1, dz1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
-    device_exp<<<blocks, threads>>>(dz1, da1, N, num_sample);
+    gpu_exp(dz1, da1, N, num_sample);
     
     double zeta = 0;
     //std::cout<<"exp(a1)...\n";
 
 
     //std::cout<<"softmax...\n";
-    myGEMM(dT, da1, dexp, &alpha, &zeta, 1, N, num_sample);
+    gpu_sumcol(da1, dexp, N, num_sample);
     device_softmax<<<blocks, threads>>>(dexp, da1, N, num_sample);
     //std::cout<<"softmax done...\n";
     cudaMemcpy(a1, da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
