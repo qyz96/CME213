@@ -518,10 +518,6 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
     cudaFree(dz1);
     cudaFree(dX);
 
-    //bpgrads.dW[0]=arma::mat(W0, K, M);
-    bpgrads.dW[1]=arma::mat(W1, N, K);
-    bpgrads.db[0]=arma::vec(b0, K);
-    bpgrads.db[1]=arma::vec(b1, N);
     
 /*     arma::mat diff = (1.0 / N) * (bpcache.yc - y);
     bpgrads.dW[1] = diff * bpcache.a[0].t() + reg * nn.W[1];
