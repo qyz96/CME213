@@ -444,7 +444,8 @@ void gpu_hadmard(double* c, double* a, double* b, int M, int N) {
 
 
 
-void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache, const arma::mat& b0r, const arma::mat& b1r, const arma::mat& T, double* a0, double* a1, double* z0, double* z1, double* yc) {
+void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache, 
+    const arma::mat& b0r, const arma::mat& b1r, const arma::mat& T, double* a0, double* a1, double* z0, double* z1, double* yc, double* W1_test) {
 
     double* dz0;
     double* dz1;
@@ -464,8 +465,6 @@ void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache, 
     int M = nn.W[0].n_cols;
     int N = nn.W[1].n_rows;
 
-
-    double* W1_test=(double*)malloc(N*K*sizeof(double));
 
     //std::cout<<"Allocating CUDA memory....\n";
     cudaMalloc((void**)&dz0, sizeof(double) * K * num_sample);
@@ -504,7 +503,6 @@ void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache, 
     cudaMemcpy(a0, da0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
     myGEMM(dW1, da0, dz1, &alpha, &beta, N, num_sample, K);
     cudaMemcpy(W1_test, dW1, sizeof(double) * N * K, cudaMemcpyDeviceToHost);
-    std::cout<<W1_test[0]<<"\n";
     cudaMemcpy(z1, dz1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
     gpu_exp(dz1, da1, N, num_sample);
     gpu_sumcol(da1, dexp, N, num_sample);
