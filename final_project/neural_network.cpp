@@ -583,7 +583,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     int iter = 0;
     print_every=1;
     grad_check=false;
-    batch_size=100
+    batch_size=100;
     for(int epoch = 0; epoch < epochs; ++epoch) {
         int num_batches = (N + batch_size - 1)/batch_size;
 
