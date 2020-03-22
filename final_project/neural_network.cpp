@@ -638,9 +638,6 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
              * 3. reduce the coefficient updates and broadcast to all nodes with `MPI_Allreduce()'
              * 4. update local network coefficient at each node
              */
-            if (batch==0) {
-                std::cout<<"initial nnb0: "<<nn.b[0].subvec(495, 510)<<"\n";
-            }
             int last_col = std::min((batch + 1)*batch_size-1, N-1);
             arma::mat X_batch = X.cols(batch * batch_size, last_col);
             arma::mat y_batch = y.cols(batch * batch_size, last_col);
