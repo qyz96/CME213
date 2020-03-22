@@ -714,7 +714,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             }
             
             iter++;
-            if (iter>5) {
+            if (batch>5) {
                 return;
             }
         }
