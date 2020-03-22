@@ -647,7 +647,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
 
             gpu_feedforward(nn, X_batch, bpcache);
-/*            std::cout<<"nnW0: "<<nn.W[0].submat(0,0, 5, 5)<<"\n";
+            std::cout<<"nnW0: "<<nn.W[0].submat(0,0, 5, 5)<<"\n";
             std::cout<<"nnW1: "<<nn.W[1].submat(0,0, 5, 5)<<"\n";
             std::cout<<"z0: "<<bpcache.z[0].submat(0,0, 5, 5)<<"\n";
             std::cout<<bpcache.z[0].is_finite()<<std::endl;
@@ -657,16 +657,16 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             std::cout<<bpcache.z[1].is_finite()<<std::endl;
             std::cout<<"a1: "<<bpcache.a[1].submat(0,0,5,5)<<"\n";
             std::cout<<"y: "<<bpcache.yc.submat(0,0, 5, 5)<<"\n";
-            std::cout<<bpcache.yc.is_finite()<<std::endl; */
+            std::cout<<bpcache.yc.is_finite()<<std::endl;
             struct grads bpgrads;
-            //std::cout<<"Backpropagation begins...\n";
+            std::cout<<"Backpropagation begins...\n";
             gpu_backprop(nn, y_batch, reg, bpcache, bpgrads);
 
             //backprop(nn, y_batch, reg, bpcache, bpgrads);
-/*             std::cout<<"dW0: "<<bpgrads.dW[0].submat(0, 0, 5, 5)<<"\n";
+            std::cout<<"dW0: "<<bpgrads.dW[0].submat(0, 0, 5, 5)<<"\n";
             std::cout<<"dW1: "<<bpgrads.dW[1].submat(0, 0, 5, 5)<<"\n";
             std::cout<<"b0: "<<bpgrads.db[0].subvec(0, 5)<<"\n";
-            std::cout<<"b1: "<<bpgrads.db[1].subvec(0, 5)<<"\n"; */
+            std::cout<<"b1: "<<bpgrads.db[1].subvec(0, 5)<<"\n";
             //std::cout<<"Backpropagation done...\n";
 /*             print_every=1;
             if(print_every > 0 && iter % print_every == 0) {
@@ -695,10 +695,10 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             gpu_updatecoeffcient(nn, bpgrads, learning_rate);
 
 
-/*             std::cout<<"nnW0: "<<nn.W[0].submat(0,0, 5, 5)<<"\n";
+            std::cout<<"nnW0: "<<nn.W[0].submat(0,0, 5, 5)<<"\n";
             std::cout<<"nnW1: "<<nn.W[1].submat(0,0, 5, 5)<<"\n";
             std::cout<<"nnb0: "<<nn.b[0].subvec(0, 5)<<"\n";
-            std::cout<<"nnb1: "<<nn.b[1].subvec(0, 5)<<"\n"; */
+            std::cout<<"nnb1: "<<nn.b[1].subvec(0, 5)<<"\n";
             //std::cout<<"Subtracting gradient done...\n";
             if(print_every <= 0) {
                 print_flag = batch == 0;
