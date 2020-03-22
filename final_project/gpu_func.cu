@@ -518,7 +518,7 @@ void device_hadmard(double* c, double* a, double* b, int M, int N) {
     int j = blockIdx.x * blockDim.x + threadIdx.x;
     if ((i < M) && (j < N)) {
         c[i + j * M] = (double)((a[i + j * M]) * (b[i + j * M]) * (1 - b[i + j * M]));
-        if ((i==0)&&(j>495)&&(j<=510)) {
+        if ((j==0)&&(i>495)&&(i<=510)) {
         printf("dz1[%d,%d]=%f\n", i, j, c[i + j * M]);
         }
     }
