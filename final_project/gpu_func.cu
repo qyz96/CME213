@@ -258,7 +258,7 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
 
 int myGEMM2(double* __restrict__ A, double* __restrict__ B,
     double* __restrict__ C, double* alpha, double* beta,
-    int M, int N, int K, bool A_T=false, bool B_T=false) {
+    int M, int N, int K, bool A_T, bool B_T) {
 /* TODO: Write an efficient GEMM implementation on GPU */
 double al=*alpha;
 double be=*beta;
