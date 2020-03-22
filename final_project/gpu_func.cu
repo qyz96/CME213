@@ -594,7 +594,7 @@ void my_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct
     double beta = -1/(double)(num_sample);
     double alpha1 = 1;
     double beta1=0;
-    gpu_addmat<<<blocks, threads>>>(dyc, dy, dy, alpha, beta, N, num_sample);
+    device_addmat<<<blocks, threads>>>(dyc, dy, dy, alpha, beta, N, num_sample);
 
     cudaError_t cudaStat;
     cublasStatus_t stat;
