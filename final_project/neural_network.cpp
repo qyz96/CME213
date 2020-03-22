@@ -535,7 +535,7 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
 }
 
 
-void gpu_updatecoeffcient(NeuralNetwork& nn, struct grads& bpcache, double learning_rate) {
+void gpu_updatecoeffcient(NeuralNetwork& nn, struct grads& bpgrads, double learning_rate) {
 
 
     int K = nn.W[0].n_rows;
@@ -563,12 +563,12 @@ void gpu_updatecoeffcient(NeuralNetwork& nn, struct grads& bpcache, double learn
 
     cudaMemcpy(W0, nn.W[0].memptr(), sizeof(double) * M * K, cudaMemcpyHostToDevice);
     cudaMemcpy(W1, nn.W[1].memptr(), sizeof(double) * K * N, cudaMemcpyHostToDevice);
-    cudaMemcpy(dW0, bpcache.dW[0].memptr(), sizeof(double) * M * K, cudaMemcpyHostToDevice);
-    cudaMemcpy(dW1, bpcache.dW[1].memptr(), sizeof(double) * K * N, cudaMemcpyHostToDevice);
+    cudaMemcpy(dW0, bpgrads.dW[0].memptr(), sizeof(double) * M * K, cudaMemcpyHostToDevice);
+    cudaMemcpy(dW1, bpgrads.dW[1].memptr(), sizeof(double) * K * N, cudaMemcpyHostToDevice);
     cudaMemcpy(b0, nn.b[0].memptr(), sizeof(double) * K, cudaMemcpyHostToDevice);
     cudaMemcpy(b1, nn.b[1].memptr(), sizeof(double) * N, cudaMemcpyHostToDevice);
-    cudaMemcpy(db0, bpcache.db[0].memptr(), sizeof(double) * K, cudaMemcpyHostToDevice);
-    cudaMemcpy(db1, bpcache.db[1].memptr(), sizeof(double) * N, cudaMemcpyHostToDevice);
+    cudaMemcpy(db0, bpgrads.db[0].memptr(), sizeof(double) * K, cudaMemcpyHostToDevice);
+    cudaMemcpy(db1, bpgrads.db[1].memptr(), sizeof(double) * N, cudaMemcpyHostToDevice);
 
     gpu_addmat(W0, dW0, W0, 1, -learning_rate, K, M);
     check_launch("addmat 1");
