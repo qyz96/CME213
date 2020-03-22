@@ -694,10 +694,10 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             gpu_updatecoeffcient(nn, bpgrads, learning_rate);
 
 
-/*             std::cout<<"nnW0: "<<nn.W[0].submat(0,0, 5, 5)<<"\n";
-            std::cout<<"nnW1: "<<nn.W[1].submat(0,0, 5, 5)<<"\n";
-            std::cout<<"nnb0: "<<nn.b[0].subvec(0, 5)<<"\n";
-            std::cout<<"nnb1: "<<nn.b[1].subvec(0, 5)<<"\n"; */
+            //std::cout<<"nnW0: "<<nn.W[0].submat(0,0, 5, 5)<<"\n";
+            //std::cout<<"nnW1: "<<nn.W[1].submat(0,0, 5, 5)<<"\n";
+            std::cout<<"nnb0: "<<nn.b[0].subvec(501, 510)<<"\n";
+            //std::cout<<"nnb1: "<<nn.b[1].subvec(0, 5)<<"\n"; 
             //std::cout<<"Subtracting gradient done...\n";
             if(print_every <= 0) {
                 print_flag = batch == 0;
@@ -714,6 +714,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             }
             
             iter++;
+            if (iter>5) {
+                return;
+            }
         }
     }
 
