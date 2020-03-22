@@ -666,10 +666,10 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             gpu_backprop(nn, y_batch, reg, bpcache, bpgrads);
 
             //backprop(nn, y_batch, reg, bpcache, bpgrads);
-            std::cout<<"dW0: "<<bpgrads.dW[0].submat(0, 0, 5, 5)<<"\n";
+/*             std::cout<<"dW0: "<<bpgrads.dW[0].submat(0, 0, 5, 5)<<"\n";
             std::cout<<"dW1: "<<bpgrads.dW[1].submat(0, 0, 5, 5)<<"\n";
             std::cout<<"b0: "<<bpgrads.db[0].subvec(495, 510)<<"\n";
-            std::cout<<"b1: "<<bpgrads.db[1].subvec(0, 5)<<"\n"; 
+            std::cout<<"b1: "<<bpgrads.db[1].subvec(0, 5)<<"\n";  */
             //std::cout<<"Backpropagation done...\n";
             if(print_every > 0 && iter % print_every == 0) {
                 if(grad_check) {
@@ -698,7 +698,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
             //std::cout<<"nnW0: "<<nn.W[0].submat(0,0, 5, 5)<<"\n";
             //std::cout<<"nnW1: "<<nn.W[1].submat(0,0, 5, 5)<<"\n";
-            std::cout<<"nnb0: "<<nn.b[0].subvec(495, 510)<<"\n";
+            //std::cout<<"nnb0: "<<nn.b[0].subvec(495, 510)<<"\n";
             //std::cout<<"nnb1: "<<nn.b[1].subvec(0, 5)<<"\n"; 
             //std::cout<<"Subtracting gradient done...\n";
             if(print_every <= 0) {
@@ -716,9 +716,6 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             }
             
             iter++;
-            if (batch>5) {
-                return;
-            }
         }
     }
 
