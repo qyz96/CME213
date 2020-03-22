@@ -294,26 +294,16 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
     int N = nn.W[1].n_rows;
     bpcache.z.resize(2);
     bpcache.a.resize(2);
+    for (unsigned int k=0; k<bpcache.z.size(); k++) {
+        bpcache.z[k]=arma::mat(nn.W[k].n_rows, num_sample);
+        bpcache.a[k]=arma::mat(nn.W[k].n_rows, num_sample);
+    }
+    bpcache.z[0]=arma::mat(K, num_sample);
+    bpcache.a[0]=arma::mat(K, num_sample);
+    bpcache.z[1]=arma::mat(N, num_sample);
+    bpcache.a[1]=arma::mat(N, num_sample);
     arma::mat b0r = arma::repmat(nn.b[0], 1, num_sample);
     arma::mat b1r = arma::repmat(nn.b[1], 1, num_sample);
-
-    double* a0;
-    double* a1;
-    double* z0;
-    double* z1;
-    double* yc;
-    a0 = (double*)malloc(K*num_sample*sizeof(double));
-    a1 = (double*)malloc(N*num_sample*sizeof(double));
-    z0 = (double*)malloc(K*num_sample*sizeof(double));
-    z1 = (double*)malloc(N*num_sample*sizeof(double));
-    yc = (double*)malloc(N*num_sample*sizeof(double));
-    double* W1_test=nn.W[1].memptr();
-    double* W0_test=nn.W[0].memptr();
-    double* W3_test=(double*)malloc(N*K*sizeof(double));
-
-
-
-
 
 
     //my_feedforward(nn, X, bpcache, b0r, b1r, a0, a1, z0, z1, yc);
@@ -366,23 +356,22 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
 
 
     myGEMM(dW0, dX, dz0, &alpha, &beta, K, num_sample, M);
-    cudaMemcpy(z0, dz0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
+    cudaMemcpy(bpcache.z[0].memptr(), dz0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
     check_launch("myGEMM 1");
     gpu_sigmoid(dz0, da0, K, num_sample);
-    cudaMemcpy(a0, da0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
+    cudaMemcpy(bpcache.a[0].memptr(), da0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
     //std::cout<<"nn.W[0] * X + arma::repmat(nn.b[0], 1, N)....\n";
     myGEMM(dW1, da0, dz1, &alpha, &beta, N, num_sample, K);
     check_launch("myGEMM 2");
-    cudaMemcpy(z1, dz1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
+    cudaMemcpy(bpcache.z[1].memptr(), dz1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
     
     gpu_exp(dz1, da1, N, num_sample);
     check_launch("exp");
-    cudaMemcpy(a1, da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
     gpu_sumcol(da1, dexp, N, num_sample);
     check_launch("sumcol");
     gpu_softmax(dexp, da1, N, num_sample);
-    cudaMemcpy(a1, da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
-    cudaMemcpy(yc, da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
+    cudaMemcpy(bpcache.a[1].memptr(), da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
+    cudaMemcpy(bpcache.yc.memptr(), da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
     
     cudaFree(dz0);
     cudaFree(dz1);
@@ -394,23 +383,6 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
     cudaFree(db1);
     cudaFree(dX);
     cudaFree(dexp);
-
-
-
-
-
-
-
-    bpcache.z[0]=arma::mat(z0, K, num_sample);
-    bpcache.a[0]=arma::mat(a0, K, num_sample);
-    //std::cout<<"z0: "<<bpcache.z[0].submat(0,0,5,5)<<"\n";
-    bpcache.z[1]=arma::mat(z1, N, num_sample);
-    //std::cout<<bpcache.z[1]<<"\n";
-    bpcache.a[1]=arma::mat(a1, N, num_sample);
-    //std::cout<<bpcache.a[1]<<"\n";
-    bpcache.yc = arma::mat(yc, N, num_sample);
-    arma::mat W1t = arma::mat(W3_test, N, K);
-    //std::cout<<"W1t: "<<W1t.submat(0,0, 5, 5)<<"\n";
     bpcache.X = X;
     free(a0);
     free(a1);
