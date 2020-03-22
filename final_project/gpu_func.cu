@@ -445,7 +445,7 @@ void gpu_hadmard(double* c, double* a, double* b, int M, int N) {
 
 
 void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache, 
-    const arma::mat& b0r, const arma::mat& b1r, const arma::mat& T, double* a0, double* a1, double* z0, double* z1, double* yc, double* W1_test) {
+    const arma::mat& b0r, const arma::mat& b1r, const arma::mat& T, double* a0, double* a1, double* z0, double* z1, double* yc, double* W1_test, double* W0_test) {
 
     double* dz0;
     double* dz1;
@@ -508,7 +508,7 @@ void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
     cudaMemcpy(a0, da0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
     myGEMM(dW1, da0, dz1, &alpha, &beta, N, num_sample, K);
 
-    cudaMemcpy(W1_test, dW0, sizeof(double) * M * K, cudaMemcpyDeviceToHost);
+    cudaMemcpy(W0_test, dW0, sizeof(double) * M * K, cudaMemcpyDeviceToHost);
 
 
     cudaMemcpy(z1, dz1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
