@@ -508,6 +508,7 @@ void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
 
     myGEMM(dW0, dX, dz0, &alpha, &beta, K, num_sample, M);
     gpu_sigmoid(dz0, da0, K, num_sample);
+    std::cout<<"nn.W[0] * X + arma::repmat(nn.b[0], 1, N)....\n";
     myGEMM(dW1, da0, dz1, &alpha, &beta, N, num_sample, K);
 
     
