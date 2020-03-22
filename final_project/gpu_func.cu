@@ -241,7 +241,7 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     //printf("myGEMM is called!\n");
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
-    device_gemm<<<blocks, threads>>>(A, B, C, al, be, M, N, K, false, false);
+    device_gemm<<<blocks, threads>>>(A, B, C, al, be, M, N, K);
     /*
     block_size_x = BLOCK_SIZE;
     block_size_y = BLOCK_SIZE;
@@ -256,7 +256,7 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
 }
 
 
-int myGEMM(double* __restrict__ A, double* __restrict__ B,
+int myGEMM2(double* __restrict__ A, double* __restrict__ B,
     double* __restrict__ C, double* alpha, double* beta,
     int M, int N, int K, bool A_T=false, bool B_T=false) {
 /* TODO: Write an efficient GEMM implementation on GPU */
