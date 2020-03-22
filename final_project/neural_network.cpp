@@ -684,13 +684,13 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
             //std::cout<<"Subtracting gradient...\n";
             // Gradient descent step
-/*             /* for(int i = 0; i < nn.W.size(); ++i) {
+            for(int i = 0; i < nn.W.size(); ++i) {
                 nn.W[i] -= learning_rate * bpgrads.dW[i];
             }
 
             for(int i = 0; i < nn.b.size(); ++i) {
                 nn.b[i] -= learning_rate * bpgrads.db[i];
-            } */ 
+            } 
 
             //gpu_updatecoeffcient(nn, bpgrads, learning_rate);
 
