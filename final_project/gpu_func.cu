@@ -309,6 +309,7 @@ void device_sumcol(double* data, double* result, int M, int N) {
 
 
         result[j]=sdata[0];
+        printf("result[%d]=%f\n", j, result[j]);
     }
 }
 
@@ -406,7 +407,7 @@ void device_softmax(double* data, double* result, int M, int N) {
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
     if ((i < M) && (j < N)) {
-        result[i + j * M] = (double)((result[i + j * M])/(data[j]));
+        result[i + j * M] = ((double)(result[i + j * M])/(double)(data[j]));
     }
     return;
 }
