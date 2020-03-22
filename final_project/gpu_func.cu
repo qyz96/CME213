@@ -397,7 +397,7 @@ void gpu_exp(double* ddata, double* dresult, int M, int N) {
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
 
-    device_sigmoid<<<blocks, threads>>>(ddata, dresult, M, N);
+    device_exp<<<blocks, threads>>>(ddata, dresult, M, N);
 }
 
 
