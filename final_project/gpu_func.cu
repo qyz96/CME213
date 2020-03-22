@@ -391,7 +391,7 @@ void device_sumrow(double* data, double* result, int M, int N) {
     }
         
 
-    if ((j==0) && (i<N)) {
+    if ((j==0) && (i<M)) {
         result[i]=sdata[0];
         //printf("result[%d]=%f\n", j, result[j]);
     }
@@ -517,10 +517,10 @@ void device_hadmard(double* c, double* a, double* b, int M, int N) {
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
     if ((i < M) && (j < N)) {
-        c[i + j * M] = (double)((a[i + j * M]) * (b[i + j * M]) * (1 - b[i + j * M]));
-        if ((j==0)&&(i>495)&&(i<=510)) {
+/*         if ((j==0)&&(i>495)&&(i<=510)) {
         printf("dz1[%d,%d]=%f\n", i, j, c[i + j * M]);
-        }
+        } */
+        c[i + j * M] = (double)((a[i + j * M]) * (b[i + j * M]) * (1 - b[i + j * M]));
     }
     return;
 }
