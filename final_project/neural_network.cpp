@@ -384,11 +384,6 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
     cudaFree(dX);
     cudaFree(dexp);
     bpcache.X = X;
-    free(a0);
-    free(a1);
-    free(z0);
-    free(z1);
-    free(yc);
 
 }
 
