@@ -490,8 +490,8 @@ void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
     //cudaMemcpy(dW0, nn.W[0].memptr(), sizeof(double) * M * K, cudaMemcpyHostToDevice);
 
 
-    cudaMemcpy(dW0, W1_test, sizeof(double) * M * K, cudaMemcpyHostToDevice);
-    cudaMemcpy(dW1, nn.W[1].memptr(), sizeof(double) * K * N, cudaMemcpyHostToDevice);
+    cudaMemcpy(dW0, W0_test, sizeof(double) * M * K, cudaMemcpyHostToDevice);
+    cudaMemcpy(dW1, W1_test, sizeof(double) * K * N, cudaMemcpyHostToDevice);
     cudaMemcpy(dT, T.memptr(), sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
     cudaMemcpy(dX, X.memptr(), sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
 
