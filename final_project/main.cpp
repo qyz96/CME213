@@ -294,6 +294,16 @@ int main(int argc, char* argv[]) {
     if((grade || debug) && rank == 0) {
         std::cout << std::endl << "Grading mode on. Checking for correctness" <<
                   std::endl;
+
+        std::cout<<arma::norm(seq_nn.b[0]-nn.b[0],"inf")/arma::norm(seq_nn.b[0],"inf")<<std::endl;
+        for(int i = 0; i < seq_nn.b[0].n_rows; ++i) {
+        for(int j = 0; j < seq_nn.b[0].n_cols; ++j) {
+            if(abs(seq_nn.b[0](i,j) - nn.b[0](i,j)) > 1e-7) {
+                std::cout << "Mismatch at pos (" << i << ", " << j << " )seq: "
+                    << seq_nn.b[0](i,j) << " par: " << nn.b[0](i,j) << std::endl;
+            }
+        }
+    }
         checkNNErrors(seq_nn, nn, "Outputs/NNErrors.txt");
     }
 
