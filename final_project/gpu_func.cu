@@ -41,13 +41,15 @@ int useless_gpu_add_one(int t) {
 __global__
 void device_gemm(double* __restrict__ A, double* __restrict__ B,
            double* __restrict__ C, double alpha, double beta,
-           int M, int N, int K) {
+           int M, int N, int K, bool A_T=false, bool B_T=false) {
     int j = blockIdx.x * blockDim.x + threadIdx.x;
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     if ((i < M) && (j < N)) {
         double temp=0;
         for (int k=0; k<K; k++) {
-            temp+=A[i+k*M]*B[k+j*K];
+            double left = A_T ? A[k + i * K] : A[i+k*M];
+            double right = B_T ? B[j+k*N] : B[k+j*K];
+            temp+=left*right;
         }
         C[i+j*M]=alpha*temp+beta*C[i+j*M];
     }
@@ -218,7 +220,7 @@ Routine to perform an in-place GEMM operation, i.e., C := alpha*A*B + beta*C
 */
 int myGEMM(double* __restrict__ A, double* __restrict__ B,
            double* __restrict__ C, double* alpha, double* beta,
-           int M, int N, int K) {
+           int M, int N, int K, bool A_T=false, bool B_T=false) {
     /* TODO: Write an efficient GEMM implementation on GPU */
     double al=*alpha;
     double be=*beta;
@@ -236,7 +238,7 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     //printf("myGEMM is called!\n");
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
-    device_gemm<<<blocks, threads>>>(A, B, C, al, be, M, N, K);
+    device_gemm<<<blocks, threads>>>(A, B, C, al, be, M, N, K, A_T, B_T);
     /*
     block_size_x = BLOCK_SIZE;
     block_size_y = BLOCK_SIZE;
