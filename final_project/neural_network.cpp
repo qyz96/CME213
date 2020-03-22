@@ -668,7 +668,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             std::cout<<"b0: "<<bpgrads.db[0].subvec(0, 5)<<"\n";
             std::cout<<"b1: "<<bpgrads.db[1].subvec(0, 5)<<"\n";
             //std::cout<<"Backpropagation done...\n";
-            print_every=1;
+/*             print_every=1;
             if(print_every > 0 && iter % print_every == 0) {
                 if(grad_check) {
                     struct grads numgrads;
@@ -679,7 +679,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 std::cout << "Loss at iteration " << iter << " of epoch " << epoch << "/" <<
                           epochs << " = " << loss(nn, bpcache.yc, y_batch, reg) << "\n";
                 return;
-            }
+            } */
 
 
             //std::cout<<"Subtracting gradient...\n";
@@ -702,10 +702,12 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
             /* Following debug routine assumes that you have already updated the arma
                matrices in the NeuralNetwork nn.  */
+
+            debug=1;
             if(debug && rank == 0 && print_flag) {
                 write_diff_gpu_cpu(nn, iter, error_file);
             }
-
+            return
             iter++;
         }
     }
