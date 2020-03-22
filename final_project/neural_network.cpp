@@ -518,10 +518,10 @@ void my_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct
     cudaFree(dz1);
     cudaFree(dX);
 
-    bpgrads.W[0]=arma::mat(W0, K, M);
-    bpgrads.W[1]=arma::mat(W1, N, K);
-    bpgrads.b[0]=arma::vec(b0, K);
-    bpgrads.b[1]=arma::vec(b1, N);
+    bpgrads.dW[0]=arma::mat(W0, K, M);
+    bpgrads.dW[1]=arma::mat(W1, N, K);
+    bpgrads.db[0]=arma::vec(b0, K);
+    bpgrads.db[1]=arma::vec(b1, N);
     
 /*     arma::mat diff = (1.0 / N) * (bpcache.yc - y);
     bpgrads.dW[1] = diff * bpcache.a[0].t() + reg * nn.W[1];
