@@ -424,7 +424,7 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
 
 
 void my_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct cache& bpcache, struct grads& bpgrads) {
-    int num_sample = bpcache.X.n_cols;
+/*     int num_sample = bpcache.X.n_cols;
     int K = nn.W[0].n_rows;
     int M = nn.W[0].n_cols;
     int N = nn.W[1].n_rows;
@@ -483,7 +483,6 @@ void my_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct
 
     
     myGEMM(dDff, dOne, db1, &alpha1, &beta1, N, 1, num_sample);
-    device_hadmard<<<blocks, threads>>>(daz, daz, da0, K, num_sample);
 
 
 
@@ -494,7 +493,7 @@ void my_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct
     cudaMemcpy(bpgrads.dW[0].memptr(), dW0, sizeof(double) * M * K, cudaMemcpyDeviceToHost);
     cudaMemcpy(bpgrads.db[0].memptr(), db0, sizeof(double) * K, cudaMemcpyDeviceToHost);
     cudaMemcpy(bpgrads.dW[1].memptr(), dW1, sizeof(double) * N * K, cudaMemcpyDeviceToHost);
-    cudaMemcpy(bpgrads.db[1].memptr(), db1, sizeof(double) * N, cudaMemcpyDeviceToHost);
+    cudaMemcpy(bpgrads.db[1].memptr(), db1, sizeof(double) * N, cudaMemcpyDeviceToHost); */
 
     /*
     arma::mat diff = (1.0 / N) * (bpcache.yc - y);

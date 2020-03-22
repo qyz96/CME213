@@ -50,7 +50,6 @@ void gpu_transpose(double* ddata, double* dresult, int M, int N);
 void gpu_sigmoid(double* ddata, double* dresult, int M, int N);
 void gpu_exp(double* ddata, double* dresult, int M, int N);
 void gpu_softmax(double* ddata, double* dresult, int M, int N);
-void my_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct cache& bpcache, struct grads& bpgrads);
 void gpu_sumrow(double* ddata, double* dresult, int M, int N)
 
 #endif
