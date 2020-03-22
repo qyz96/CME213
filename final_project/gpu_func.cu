@@ -291,23 +291,25 @@ void device_sumcol(double* data, double* result, int M, int N) {
     extern __shared__ double sdata[];
     int i = threadIdx.y;
     int j = blockIdx.x;
-    if (j < N) {
-        if (i < M) {
-            sdata[i] = data[i + j * M];
-        }
-        else {
-            sdata[i] = 0;
-        }
-        __syncthreads();
-        for (unsigned int s=0; s < blockDim.y; s *= 2) {
-            int index = 2 * s * i;
-            if ((index + s) < blockDim.y) {
-                sdata[index] += sdata[index+s];
-            }
-        }
-        __syncthreads();
 
 
+    if ((i < M) && (j < N)) {
+        sdata[i] = data[i + j * M];
+    }
+    else {
+        sdata[i] = 0;
+    }
+    __syncthreads();
+    for (unsigned int s=0; s < blockDim.y; s *= 2) {
+        int index = 2 * s * i;
+        if ((index + s) < blockDim.y) {
+            sdata[index] += sdata[index+s];
+        }
+        __syncthreads();
+    }
+        
+
+    if ((i==0) && (j<N)) {
         result[j]=sdata[0];
         printf("result[%d]=%f\n", j, result[j]);
     }
