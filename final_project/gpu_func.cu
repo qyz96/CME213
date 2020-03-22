@@ -256,7 +256,7 @@ Compute C = alpha * A + beta * B
 */
 
 __global__
-void gpu_add(double* A, double* B, double* C, double alpha, double beta, int M, int N) {
+void device_addmat(double* A, double* B, double* C, double alpha, double beta, int M, int N) {
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
     if ((i < M) && (j < N)) {
@@ -267,47 +267,178 @@ void gpu_add(double* A, double* B, double* C, double alpha, double beta, int M, 
 }
 
 
+void gpu_addmat(double* dA, double* dB, double* dC, double alpha, double beta, int M, int N)  {
+
+    int block_size_x = BLOCK_SIZE;
+    int block_size_y = BLOCK_SIZE;
+    int numBlocks_x = (N + block_size_x - 1) / block_size_x;
+    int numBlocks_y = (M + block_size_y - 1) / (block_size_y);
+    dim3 threads(block_size_x, block_size_y);
+    dim3 blocks(numBlocks_x, numBlocks_y);
+    device_addmat<<<blocks, threads>>>(dA, dB, dC, alpha, beta, M, N);
+}
+
+
 __global__
-void gpu_sigmoid(double* z, double* a, int m, int n) {
+void device_sumcol(double* data, double* result, int M, int N) {
+
+
+    extern __shared__ double sdata[];
+    int i = threadIdx.y;
+    int j = blockIdx.x;
+    if (j < N) {
+        if (i < M) {
+            sdata[i] = data[i + j * M];
+        }
+        else {
+            sdata[i] = 0;
+        }
+        __syncthreads();
+        for (unsigned int s=0; s < blockDim.y; s *= 2) {
+            int index = 2 * s * i;
+            if (index < blockDim.y) {
+                sdata[index] += sdata[index+s];
+            }
+        }
+        __syncthreads();
+
+
+        result[j]=sdata[0];
+    }
+}
+
+void gpu_sumcol(double* ddata, double* dresult, int M, int N) {
+
+    int block_size_x = 1;
+    int block_size_y = 16;
+    int numBlocks_x = (N + block_size_x - 1) / block_size_x;
+    int numBlocks_y = (M + block_size_y - 1) / (block_size_y);
+    dim3 threads(block_size_x, block_size_y);
+    dim3 blocks(numBlocks_x, numBlocks_y);
+    device_sumcol<<<blocks, threads>>>(ddata, dresult, M, N);
+}
+
+__global__
+void device_transpose(double* data, double* result, int M，int N)  {
+
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
-    if ((i < m) && (j < n)) {
-        a[i + j * m] = 1 / (double)(1+std::exp(-z[i + j * m]));
+    if ((i < M) && (j < N)) {
+        result[j + i * N] = data[i + j * M];
+    }
+    return; 
+}
+
+void gpu_transpose(double* ddata, double* dresult, int M，int N)  {
+
+    int block_size_x = 32;
+    int block_size_y = 32;
+    int numBlocks_x = (N + block_size_x - 1) / block_size_x;
+    int numBlocks_y = (M + block_size_y - 1) / (block_size_y);
+    dim3 threads(block_size_x, block_size_y);
+    dim3 blocks(numBlocks_x, numBlocks_y);
+
+    device_transpose<<<blocks, threads>>>(ddata, ddresult, M, N);
+}
+
+
+__global__
+void device_sigmoid(double* data, double* result, int M, int N) {
+    int i = blockIdx.y * blockDim.y + threadIdx.y;
+    int j = blockIdx.x * blockDim.x + threadIdx.x;
+    if ((i < M) && (j < N)) {
+        result[i + j * m] = 1 / (double)(1+std::exp(-data[i + j * m]));
     }
     return;
 }
 
 
+void gpu_sigmoid(double* ddata, double* dresult, int M，int N)  {
+
+    int block_size_x = BLOCK_SIZE;
+    int block_size_y = BLOCK_SIZE;
+    int numBlocks_x = (N + block_size_x - 1) / block_size_x;
+    int numBlocks_y = (M + block_size_y - 1) / (block_size_y);
+    dim3 threads(block_size_x, block_size_y);
+    dim3 blocks(numBlocks_x, numBlocks_y);
+
+    device_sigmoid<<<blocks, threads>>>(ddata, ddresult, M, N);
+}
+
+
+
+
+
 __global__
-void gpu_exp(double* z, double* a, int m, int n) {
+void device_exp(double* data, double* result, int M, int N) {
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
-    if ((i < m) && (j < n)) {
-        a[i + j * m] = (double)(std::exp(z[i + j * m]));
+    if ((i < M) && (j < N)) {
+        result[i + j * m] = (double)(std::exp(z[i + j * m]));
     }
     return;
 }
 
 
+void gpu_exp(double* data, double* result, int M, int N) {
+
+    int block_size_x = BLOCK_SIZE;
+    int block_size_y = BLOCK_SIZE;
+    int numBlocks_x = (N + block_size_x - 1) / block_size_x;
+    int numBlocks_y = (M + block_size_y - 1) / (block_size_y);
+    dim3 threads(block_size_x, block_size_y);
+    dim3 blocks(numBlocks_x, numBlocks_y);
+
+    device_sigmoid<<<blocks, threads>>>(ddata, ddresult, M, N);
+}
+
+
 __global__
-void gpu_softmax(double* z, double* a, int m, int n) {
+void device_softmax(double* data, double* result, int M, int N) {
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
-    if ((i < m) && (j < n)) {
-        a[i + j * m] = (double)((a[i + j * m])/(z[j]));
+    if ((i < M) && (j < N)) {
+        result[i + j * m] = (double)((result[i + j * m])/(data[j]));
     }
     return;
 }
 
 
+void gpu_softmax(double* ddata, double* dresult, int M, int N)  {
+    int block_size_x = BLOCK_SIZE;
+    int block_size_y = BLOCK_SIZE;
+    int numBlocks_x = (N + block_size_x - 1) / block_size_x;
+    int numBlocks_y = (M + block_size_y - 1) / (block_size_y);
+    dim3 threads(block_size_x, block_size_y);
+    dim3 blocks(numBlocks_x, numBlocks_y);
+
+    device_softmax<<<blocks, threads>>>(ddata, ddresult, M, N);
+
+
+}
+
+
 __global__
-void gpu_hadmard(double* c, double* a, double* b, int m, int n) {
+void device_hadmard(double* c, double* a, double* b, int m, int n) {
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
     if ((i < m) && (j < n)) {
-        c[i + j * m] = (double)((a[i + j * m]) * (b[i + j * m]) * (1-b[i + j * m]));
+        c[i + j * m] = (double)((a[i + j * m]) * (b[i + j * m]) * (1 - b[i + j * m]));
     }
     return;
+}
+
+
+void gpu_hadmard(double* c, double* a, double* b, int M, int N) {
+
+    int block_size_x = BLOCK_SIZE;
+    int block_size_y = BLOCK_SIZE;
+    int numBlocks_x = (N + block_size_x - 1) / block_size_x;
+    int numBlocks_y = (M + block_size_y - 1) / (block_size_y);
+    dim3 threads(block_size_x, block_size_y);
+    dim3 blocks(numBlocks_x, numBlocks_y);
+
+    device_hadmard<<<blocks, threads>>>(c, a, b, M, N);
 }
 
 
@@ -327,10 +458,10 @@ void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache, 
     double* dT;
     double* dexp;
 
-    int num_sample = X.n_cols;
+/*     int num_sample = X.n_cols;
     int K = nn.W[0].n_rows;
     int M = nn.W[0].n_cols;
-    int N = nn.W[1].n_rows;
+    int N = nn.W[1].n_rows; */
 
 
 
@@ -365,17 +496,6 @@ void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache, 
     double beta = 1;
 
 
-    /*
-    stat = cublasDgemm(handle,
-        CUBLAS_OP_N, CUBLAS_OP_N,
-        K, num_sample, M,
-        &alpha,
-        dW0, K,
-        dX, M,
-        &beta,
-        dz0, K);
-
-    */
     myGEMM(dW0, dX, dz0, &alpha, &beta, K, M, num_sample);
 
 
@@ -385,70 +505,29 @@ void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache, 
     int numBlocks_y = (K + block_size_y - 1) / (block_size_y);
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
-    gpu_sigmoid<<<blocks, threads>>>(dz0, da0, K, num_sample);
+    device_sigmoid<<<blocks, threads>>>(dz0, da0, K, num_sample);
     cudaMemcpy(z0, dz0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
     cudaMemcpy(a0, da0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
     std::cout<<"nn.W[1] * a1 + arma::repmat(nn.b[1], 1, N)\n";
-    /*
-    stat = cublasDgemm(handle,
-        CUBLAS_OP_N, CUBLAS_OP_N,
-        N, num_sample, K,
-        &alpha,
-        dW1, N,
-        da0, K,
-        &beta,
-        dz1, N);
 
-    */
     myGEMM(dW1, da0, dz1, &alpha, &beta, N, K, num_sample);
     cudaMemcpy(z1, dz1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
-    gpu_exp<<<blocks, threads>>>(dz1, da1, N, num_sample);
+    device_exp<<<blocks, threads>>>(dz1, da1, N, num_sample);
     
     double zeta = 0;
     //std::cout<<"exp(a1)...\n";
 
-    /*
-    stat = cublasDgemm(handle,
-        CUBLAS_OP_N, CUBLAS_OP_N,
-        1, num_sample, N,
-        &alpha,
-        dT, 1,
-        da1, N,
-        &zeta,
-        dexp, 1);
 
-    */
     //std::cout<<"softmax...\n";
     myGEMM(dT, da1, dexp, &alpha, &zeta, 1, N, num_sample);
-    gpu_softmax<<<blocks, threads>>>(dexp, da1, N, num_sample);
+    device_softmax<<<blocks, threads>>>(dexp, da1, N, num_sample);
     //std::cout<<"softmax done...\n";
     cudaMemcpy(a1, da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
     cudaMemcpy(yc, da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
 
 
 
-    // std::cout << W[0].n_rows << "\n";tw
 
-    /*
-    assert(X.n_rows == nn.W[0].n_cols);
-    cache.X = X;
-    int N = X.n_cols;
-
-    arma::mat z1 = nn.W[0] * X + arma::repmat(nn.b[0], 1, N);
-    cache.z[0] = z1;
-
-    arma::mat a1;
-    sigmoid(z1, a1);
-    cache.a[0] = a1;
-
-    assert(a1.n_rows == nn.W[1].n_cols);
-    arma::mat z2 = nn.W[1] * a1 + arma::repmat(nn.b[1], 1, N);
-    cache.z[1] = z2;
-
-    arma::mat a2;
-    softmax(z2, a2);
-    cache.a[1] = cache.yc = a2;
-    */
 
 }
 
@@ -460,11 +539,7 @@ void my_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct
     int num_sample = bpcache.X.n_cols;
     int K = nn.W[0].n_rows;
     int M = nn.W[0].n_cols;
-    //std::assert(K == nn.W[1].n_rows);
     int N = nn.W[1].n_rows;
-    //std::assert(N == nn.b[1].n_elem);
-    //std::assert(K == nn.b[0].n_elem);
-    //std::assert(M == X.n_rows);
     
     bpgrads.dW.resize(2);
     bpgrads.dW[0].zeros(K, M);
@@ -525,7 +600,7 @@ void my_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct
     cublasStatus_t stat;
     cublasHandle_t handle;
     stat = cublasCreate(&handle);
-
+    /*
     stat = cublasDgemm(handle,
         CUBLAS_OP_T, CUBLAS_OP_N,
         K, num_sample, N,
@@ -535,6 +610,11 @@ void my_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct
         &beta1,
         daz, K);
 
+    */
+    myGEMM(dW1, dDff, daz, &alpha1, &beta1, K, N, num_sample);
+
+
+    /*
     stat = cublasDgemm(handle,
         CUBLAS_OP_N, CUBLAS_OP_T,
         N, K, num_sample,
@@ -544,6 +624,13 @@ void my_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct
         &reg,
         dW1, N);
 
+    */
+
+    myGEMM(dy, da0, dW1, &alpha1, &reg, N, num_sample, K);
+
+
+    /*
+
     stat = cublasDgemm(handle,
         CUBLAS_OP_N, CUBLAS_OP_N,
         N, 1, num_sample,
@@ -552,9 +639,9 @@ void my_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct
         dOne, num_sample,
         &beta1,
         db1, N);
-
+    */
     
-
+    myGEMM(dDff, dOne, db1, &alpha1, &beta1, N, 1, num_sample);
     gpu_hadmard<<<blocks, threads>>>(daz, daz, da0, K, num_sample);
 
     stat = cublasDgemm(handle,
@@ -566,14 +653,19 @@ void my_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct
         &reg,
         dW0, N);
 
+
+
+    myGEMM(daz, dX, dW0, &alpha1, &beta1, N, 1, num_sample);
     stat = cublasDgemm(handle,
         CUBLAS_OP_N, CUBLAS_OP_N,
-        K, 1, num_sample,
+        K, num_sample, 1,
         &alpha1,
         daz, K,
         dOne, num_sample,
         &beta1,
         db0, K);
+
+    myGEMM(daz, dOne, db0, &alpha1, &beta1, )
     
     //std::cout << "backprop " << bpcache.yc << "\n";
 

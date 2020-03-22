@@ -326,6 +326,28 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
 }
 
 
+void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct cache& bpcache, struct grads& bpgrads)  {
+    int num_sample = bpcache.X.n_cols;
+    int K = nn.W[0].n_rows;
+    int M = nn.W[0].n_cols;
+    int N = nn.W[1].n_rows;
+
+
+    double* dW0;
+    double* da0;
+    double* dW1;
+    double* db0;
+    double* db1;
+    double* dyc;
+    double* dy;
+    double* dDff;
+    double* dOne;
+    double* daz;
+    double* dX;
+
+}
+
+
 /*
  * TODO
  * Train the neural network &nn of rank 0 in parallel. Your MPI implementation
