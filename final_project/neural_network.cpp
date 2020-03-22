@@ -480,7 +480,7 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
     double beta = -1/(double)(num_sample);
     double alpha1 = 1;
     double beta1=0;
-    
+    std::cout<<1/(double)(num_sample)<<"\n";
     gpu_addmat(dyc, dy, dDff, 1/(double)(num_sample), -1/(double)(num_sample), N, num_sample);
     check_launch("add mat");
     myGEMM2(dW1, dDff, da1, &alpha1, &beta1, K, num_sample, N, true, false);
@@ -583,7 +583,6 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     int iter = 0;
     print_every=1;
     grad_check=false;
-    //batch_size=100;
     for(int epoch = 0; epoch < epochs; ++epoch) {
         int num_batches = (N + batch_size - 1)/batch_size;
 
