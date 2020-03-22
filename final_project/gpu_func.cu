@@ -299,7 +299,7 @@ void device_sumcol(double* data, double* result, int M, int N) {
     else {
         sdata[i] = 0;
     }
-    __syncthreads();
+    //__syncthreads();
     for (unsigned int s=0; s < blockDim.y; s *= 2) {
         int index = 2 * s * i;
         if ((index + s) < blockDim.y) {
