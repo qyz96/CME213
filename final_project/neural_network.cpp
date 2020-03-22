@@ -414,10 +414,6 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
     double* dexp;
 
     
-    int num_sample = X.n_cols;
-    int K = nn.W[0].n_rows;
-    int M = nn.W[0].n_cols;
-    int N = nn.W[1].n_rows;
 
 
     //std::cout<<"Allocating CUDA memory....\n";
