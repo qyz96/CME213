@@ -50,7 +50,7 @@ void device_gemm(double* __restrict__ A, double* __restrict__ B,
             temp+=A[i+k*M]*B[k+j*K];
             if ((i==0) && (j==0)) {
 
-                printf("w[%d,%d]=%f\n", i, k, A[i+k*M]);
+                if (k<=5) {printf("w[%d,%d]=%f\n", i, k, A[i+k*M]);}
             }
         }
         C[i+j*M]=alpha*temp+beta*C[i+j*M];
