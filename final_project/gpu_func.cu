@@ -497,25 +497,15 @@ void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache, 
 
 
     myGEMM(dW0, dX, dz0, &alpha, &beta, K, num_sample, M);
-
     gpu_sigmoid(dz0, da0, K, num_sample);
     cudaMemcpy(z0, dz0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
     cudaMemcpy(a0, da0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
-    std::cout<<"nn.W[1] * a1 + arma::repmat(nn.b[1], 1, N)\n";
-
     myGEMM(dW1, da0, dz1, &alpha, &beta, N, num_sample, K);
+    std::cout<<dW1[0]<<"\n";
     cudaMemcpy(z1, dz1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
-
     gpu_exp(dz1, da1, N, num_sample);
-    
-    double zeta = 0;
-    //std::cout<<"exp(a1)...\n";
-
-
-    //std::cout<<"softmax...\n";
     gpu_sumcol(da1, dexp, N, num_sample);
     gpu_softmax(dexp, da1, N, num_sample);
-    //std::cout<<"softmax done...\n";
     cudaMemcpy(a1, da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
     cudaMemcpy(yc, da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
 
