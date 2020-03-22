@@ -353,7 +353,7 @@ void device_sigmoid(double* data, double* result, int M, int N) {
 }
 
 
-void gpu_sigmoid(double* ddata, double* dresult, int M，int N)  {
+void gpu_sigmoid(double* ddata, double* dresult, int M, int N)  {
 
     int block_size_x = BLOCK_SIZE;
     int block_size_y = BLOCK_SIZE;
