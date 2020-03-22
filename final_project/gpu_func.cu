@@ -384,7 +384,7 @@ void device_sumrow(double* data, double* result, int M, int N) {
     __syncthreads();
     for (unsigned int s=1; s < blockDim.x; s *= 2) {
         int index = 2 * s * j;
-        if ((index + s) < blockDim.x) {
+        if ((index) < blockDim.x) {
             sdata[index] += sdata[index+s];
         }
         __syncthreads();
