@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
     double reg = 1e-4;
     double learning_rate = 0.001;
     int num_epochs = 20;
-    int batch_size = 800;
+    int batch_size = 100;
     int num_neuron = 1000;
     int run_seq = 0;
     int debug = 0;
