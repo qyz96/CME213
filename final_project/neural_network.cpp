@@ -303,8 +303,8 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
     bpcache.a[0]=arma::mat(K, num_sample);
     bpcache.z[1]=arma::mat(N, num_sample);
     bpcache.a[1]=arma::mat(N, num_sample);
-    arma::mat b0r = arma::repmat(nn.b[0], 1, num_sample);
-    arma::mat b1r = arma::repmat(nn.b[1], 1, num_sample);
+    //arma::mat b0r = arma::repmat(nn.b[0], 1, num_sample);
+    //arma::mat b1r = arma::repmat(nn.b[1], 1, num_sample);
 
 
     //my_feedforward(nn, X, bpcache, b0r, b1r, a0, a1, z0, z1, yc);
@@ -336,12 +336,17 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
 
     
     //std::cout<<"Copying CUDA memory....\n";
-    cudaMemcpy(dz0, b0r.memptr(), sizeof(double) * K * num_sample , cudaMemcpyHostToDevice);
-    cudaMemcpy(dz1, b1r.memptr(), sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
+    cudaMemcpy(dz0, nn.b[0].memptr(), sizeof(double) * K , cudaMemcpyHostToDevice);
+    cudaMemcpy(dz1, nn.b[1].memptr(), sizeof(double) * N, cudaMemcpyHostToDevice);
     cudaMemcpy(dW0, nn.W[0].memptr(), sizeof(double) * M * K, cudaMemcpyHostToDevice);
     cudaMemcpy(dW1, nn.W[1].memptr(), sizeof(double) * K * N, cudaMemcpyHostToDevice);
     cudaMemcpy(dX, X.memptr(), sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
 
+
+    gpu_repmat(dz0, dz0, K, num_sample);
+    check_launch("repmat b0");
+    gpu_repmat(dz1, dz1, N, num_sample);
+    check_launch("repmat b1");
 
 
     //std::cout<<"nn.W[0] * X + arma::repmat(nn.b[0], 1, N)....\n";

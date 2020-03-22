@@ -46,6 +46,7 @@ int useless_gpu_add_one(int t);
 int  myGEMM2(double* __restrict__ A, double* __restrict__ B, double* __restrict__ C, double* alpha, double* beta, int M, int N, int K, bool A_T=false, bool B_T=false);
 int  myGEMM(double* __restrict__ A, double* __restrict__ B, double* __restrict__ C, double* alpha, double* beta, int M, int N, int K);
 void gpu_addmat(double* dA, double* dB, double* dC, double alpha, double beta, int M, int N);
+void gpu_repmat(double* vec, double* result, int M, int N);
 void gpu_sumcol(double* ddata, double* dresult, int M, int N) ;
 void gpu_transpose(double* ddata, double* dresult, int M, int N);
 void gpu_sigmoid(double* ddata, double* dresult, int M, int N);
