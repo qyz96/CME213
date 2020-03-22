@@ -665,7 +665,7 @@ void my_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct
         &beta1,
         db0, K);
 
-    myGEMM(daz, dOne, db0, &alpha1, &beta1, )
+    myGEMM(daz, dOne, db0, &alpha1, &beta1, K, num_sample, 1);
     
     //std::cout << "backprop " << bpcache.yc << "\n";
 
