@@ -294,7 +294,6 @@ int main(int argc, char* argv[]) {
     if((grade || debug) && rank == 0) {
         std::cout << std::endl << "Grading mode on. Checking for correctness" <<
                   std::endl;
-    }
         checkNNErrors(seq_nn, nn, "Outputs/NNErrors.txt");
     }
 
