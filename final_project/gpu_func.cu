@@ -44,6 +44,7 @@ void device_gemm(double* __restrict__ A, double* __restrict__ B,
            int M, int N, int K) {
     int j = blockIdx.x * blockDim.x + threadIdx.x;
     int i = blockIdx.y * blockDim.y + threadIdx.y;
+    printf("device_gemm is called!\n");
     if ((i < M) && (j < N)) {
         double temp=0;
         for (int k=0; k<K; k++) {
