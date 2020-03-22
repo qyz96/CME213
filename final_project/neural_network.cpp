@@ -535,6 +535,63 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
 }
 
 
+void gpu_updatecoeffcient(NeuralNetwork& nn, struct cache& bpcache, double learning_rate) {
+
+
+    double* dW0;
+    double* dW1;
+    double* db0;
+    double* db1;
+    double* W0;
+    double* W1;
+    double* b0;
+    double* b1;
+
+
+    cudaMalloc((void**)&dW0, sizeof(double) * M * K);
+    cudaMalloc((void**)&dW1, sizeof(double) * K * N);
+    cudaMalloc((void**)&W0, sizeof(double) * M * K);
+    cudaMalloc((void**)&W1, sizeof(double) * K * N);
+    cudaMalloc((void**)&db0, sizeof(double) * K);
+    cudaMalloc((void**)&db1, sizeof(double) * N);
+    cudaMalloc((void**)&b0, sizeof(double) * K);
+    cudaMalloc((void**)&b1, sizeof(double) * N);
+
+
+    cudaMemcpy(W0, nn.W[0].memptr(), sizeof(double) * M * K, cudaMemcpyHostToDevice);
+    cudaMemcpy(W1, nn.W[1].memptr(), sizeof(double) * K * N, cudaMemcpyHostToDevice);
+    cudaMemcpy(dW0, bpcache.dW[0].memptr(), sizeof(double) * M * K, cudaMemcpyHostToDevice);
+    cudaMemcpy(dW1, bpcache.dW[1].memptr(), sizeof(double) * K * N, cudaMemcpyHostToDevice);
+    cudaMemcpy(b0, nn.b[0].memptr(), sizeof(double) * K, cudaMemcpyHostToDevice);
+    cudaMemcpy(b1, nn.b[1].memptr(), sizeof(double) * N, cudaMemcpyHostToDevice);
+    cudaMemcpy(db0, bpcache.db[0].memptr(), sizeof(double) * K, cudaMemcpyHostToDevice);
+    cudaMemcpy(db1, bpcache.db[1].memptr(), sizeof(double) * N, cudaMemcpyHostToDevice);
+
+    gpu_addmat(W0, dW0, W0, 1, -learning_rate, K, M);
+    check_launch("addmat 1");
+    gpu_addmat(W1, dW1, W1, 1, -learning_rate, N, K);
+    check_launch("addmat 2");
+    gpu_addmat(b0, db0, b0, 1, -learning_rate, K, 1);
+    check_launch("addmat 3");
+    gpu_addmat(b1, db1, b1, 1, -learning_rate, N, 1);
+    check_launch("addmat 4");
+
+    cudaMemcpy(nn.W[0].memptr(), W0, sizeof(double) * M * K, cudaMemcpyDeviceToHost);
+    cudaMemcpy(nn.b[0].memptr(), b0, sizeof(double) * K, cudaMemcpyDeviceToHost);
+    cudaMemcpy(nn.W[1].memptr(), W1, sizeof(double) * N * K, cudaMemcpyDeviceToHost);
+    cudaMemcpy(nn.b[1].memptr(), b1, sizeof(double) * N, cudaMemcpyDeviceToHost);
+
+    cudaFree(dW0);
+    cudaFree(dW1);
+    cudaFree(db0);
+    cudaFree(db1);
+    cudaFree(W0);
+    cudaFree(W1);
+    cudaFree(b0);
+    cudaFree(b1);
+    
+}
+
 
 
 
@@ -624,13 +681,15 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
             //std::cout<<"Subtracting gradient...\n";
             // Gradient descent step
-            for(int i = 0; i < nn.W.size(); ++i) {
+            /* for(int i = 0; i < nn.W.size(); ++i) {
                 nn.W[i] -= learning_rate * bpgrads.dW[i];
             }
 
             for(int i = 0; i < nn.b.size(); ++i) {
                 nn.b[i] -= learning_rate * bpgrads.db[i];
-            }
+            } */
+
+            gpu_updatecoeffcient(nn, bpcache, learning_rate);
             //std::cout<<"Subtracting gradient done...\n";
             if(print_every <= 0) {
                 print_flag = batch == 0;
