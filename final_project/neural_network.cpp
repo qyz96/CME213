@@ -488,9 +488,6 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
 
     gpu_hadmard(dz1, da1, da0, K, num_sample);
 
-    myGEMM2(dy, da0, dW1, &alpha1, &reg, N, num_sample, K, false, false);
-
-
 
     gpu_sumrow(dDff, db1, N, num_sample);
     myGEMM2(dz1, dX, dW0, &alpha1, &reg, K, M, num_sample, false, true);
