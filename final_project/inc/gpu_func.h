@@ -51,5 +51,5 @@ void gpu_sigmoid(double* ddata, double* dresult, int M, int N);
 void gpu_exp(double* ddata, double* dresult, int M, int N);
 void gpu_softmax(double* ddata, double* dresult, int M, int N);
 void gpu_sumrow(double* ddata, double* dresult, int M, int N);
-
+void gpu_hadmard(double* c, double* a, double* b, int M, int N);
 #endif

@@ -47,11 +47,11 @@ void device_gemm(double* __restrict__ A, double* __restrict__ B,
     if ((i < M) && (j < N)) {
         double temp=0;
         for (int k=0; k<K; k++) {
-            double left = A_T ? A[k + i * K] : A[i+k*M];
-            double right = B_T ? B[j+k*N] : B[k+j*K];
+            double left = A_T ? A[k + i * M] : A[i + k * M];
+            double right = B_T ? B[j + k * K] : B[k + j * K];
             temp+=left*right;
         }
-        C[i+j*M]=alpha*temp+beta*C[i+j*M];
+        C[i + j * M]=alpha*temp+beta*C[i+j*M];
     }
 }
 
