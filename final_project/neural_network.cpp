@@ -668,13 +668,13 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
 
             feedforward(nn, X_batch, bpcache);
-/*             std::cout<<"nnW0: "<<nn.W[0].submat(0,0, 5, 5)<<"\n";
+            std::cout<<"nnW0: "<<nn.W[0].submat(0,0, 5, 5)<<"\n";
             std::cout<<"nnW1: "<<nn.W[1].submat(0,0, 5, 5)<<"\n";
             std::cout<<"z0: "<<bpcache.z[0].submat(0,0, 5, 5)<<"\n";
             std::cout<<"a0: "<<bpcache.a[0].submat(0,0,5,5)<<"\n";
             std::cout<<"z1: "<<bpcache.z[1].submat(0,0,5,5)<<"\n";
             std::cout<<"a1: "<<bpcache.a[1].submat(0,0,5,5)<<"\n";
-            std::cout<<"y: "<<bpcache.yc.submat(0,0, 5, 5)<<"\n"; */
+            std::cout<<"y: "<<bpcache.yc.submat(0,0, 5, 5)<<"\n";
             struct grads bpgrads;
             //std::cout<<"Backpropagation begins...\n";
             backprop(nn, y_batch, reg, bpcache, bpgrads);
