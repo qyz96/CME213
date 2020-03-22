@@ -620,11 +620,24 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             backprop(nn, y_batch, reg, bpcache, bpgrads);
 
             //backprop(nn, y_batch, reg, bpcache, bpgrads);
-/*             std::cout<<"dW0: "<<bpgrads.dW[0].submat(0, 0, 5, 5)<<"\n";
+            std::cout<<"dW0: "<<bpgrads.dW[0].submat(0, 0, 5, 5)<<"\n";
             std::cout<<"dW1: "<<bpgrads.dW[1].submat(0, 0, 5, 5)<<"\n";
             std::cout<<"b0: "<<bpgrads.db[0].subvec(0, 5)<<"\n";
-            std::cout<<"b1: "<<bpgrads.db[1].subvec(0, 5)<<"\n"; */
+            std::cout<<"b1: "<<bpgrads.db[1].subvec(0, 5)<<"\n";
             //std::cout<<"Backpropagation done...\n";
+            print_every=1;
+            if(print_every > 0 && iter % print_every == 0) {
+                if(grad_check) {
+                    struct grads numgrads;
+                    numgrad(nn, X_batch, y_batch, reg, numgrads);
+                    assert(gradcheck(numgrads, bpgrads));
+                }
+
+                std::cout << "Loss at iteration " << iter << " of epoch " << epoch << "/" <<
+                          epochs << " = " << loss(nn, bpcache.yc, y_batch, reg) << "\n";
+                return;
+            }
+
 
             //std::cout<<"Subtracting gradient...\n";
             // Gradient descent step
