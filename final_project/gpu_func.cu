@@ -338,7 +338,7 @@ void gpu_transpose(double* ddata, double* dresult, int M, int N)  {
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
 
-    device_transpose<<<blocks, threads>>>(ddata, ddresult, M, N);
+    device_transpose<<<blocks, threads>>>(ddata, dresult, M, N);
 }
 
 
@@ -362,7 +362,7 @@ void gpu_sigmoid(double* ddata, double* dresult, int M, int N)  {
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
 
-    device_sigmoid<<<blocks, threads>>>(ddata, ddresult, M, N);
+    device_sigmoid<<<blocks, threads>>>(ddata, dresult, M, N);
 }
 
 
@@ -380,7 +380,7 @@ void device_exp(double* data, double* result, int M, int N) {
 }
 
 
-void gpu_exp(double* data, double* result, int M, int N) {
+void gpu_exp(double* ddata, double* dresult, int M, int N) {
 
     int block_size_x = BLOCK_SIZE;
     int block_size_y = BLOCK_SIZE;
@@ -389,7 +389,7 @@ void gpu_exp(double* data, double* result, int M, int N) {
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
 
-    device_sigmoid<<<blocks, threads>>>(ddata, ddresult, M, N);
+    device_sigmoid<<<blocks, threads>>>(ddata, dresult, M, N);
 }
 
 
@@ -412,7 +412,7 @@ void gpu_softmax(double* ddata, double* dresult, int M, int N)  {
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
 
-    device_softmax<<<blocks, threads>>>(ddata, ddresult, M, N);
+    device_softmax<<<blocks, threads>>>(ddata, dresult, M, N);
 
 
 }
@@ -458,10 +458,10 @@ void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache, 
     double* dT;
     double* dexp;
 
-/*     int num_sample = X.n_cols;
+    int num_sample = X.n_cols;
     int K = nn.W[0].n_rows;
     int M = nn.W[0].n_cols;
-    int N = nn.W[1].n_rows; */
+    int N = nn.W[1].n_rows;
 
 
 
