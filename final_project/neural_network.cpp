@@ -482,16 +482,25 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
     double beta1=0;
     
     gpu_addmat(dyc, dy, dDff, 1/(double)(num_sample), -1/(double)(num_sample), N, num_sample);
-
+    check_launch("add mat");
     myGEMM2(dW1, dDff, da1, &alpha1, &beta1, K, N, num_sample, true, false);
+    check_launch("myGEMM");
     myGEMM2(dDff, da0, dW1, &alpha1, &reg, N, K, num_sample, false, true);
+    check_launch("myGEMM 2");
 
     gpu_hadmard(dz1, da1, da0, K, num_sample);
+    check_launch("hadmard");
 
 
     gpu_sumrow(dDff, db1, N, num_sample);
+    check_launch("sumrow");
+
     myGEMM2(dz1, dX, dW0, &alpha1, &reg, K, M, num_sample, false, true);
+    check_launch("myGEMM 3");
+
     gpu_sumrow(dz1, db0, K, num_sample);
+    check_launch("sumrow2");
+
 
     
     
