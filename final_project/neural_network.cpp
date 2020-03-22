@@ -356,7 +356,7 @@ void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
     cudaMemcpy(a1, da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
     cudaMemcpy(yc, da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
     
-    cudaFree(dz0);
+/*     cudaFree(dz0);
     cudaFree(dz1);
     cudaFree(da0);
     cudaFree(da1);
@@ -365,7 +365,7 @@ void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
     cudaFree(db0);
     cudaFree(db1);
     cudaFree(dX);
-    cudaFree(dexp);
+    cudaFree(dexp); */
 
 }
 
@@ -423,8 +423,8 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
 
 
 
-void my_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct cache& bpcache, struct grads& bpgrads) {
-/*     int num_sample = bpcache.X.n_cols;
+/* void my_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct cache& bpcache, struct grads& bpgrads) {
+    int num_sample = bpcache.X.n_cols;
     int K = nn.W[0].n_rows;
     int M = nn.W[0].n_cols;
     int N = nn.W[1].n_rows;
@@ -493,9 +493,9 @@ void my_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct
     cudaMemcpy(bpgrads.dW[0].memptr(), dW0, sizeof(double) * M * K, cudaMemcpyDeviceToHost);
     cudaMemcpy(bpgrads.db[0].memptr(), db0, sizeof(double) * K, cudaMemcpyDeviceToHost);
     cudaMemcpy(bpgrads.dW[1].memptr(), dW1, sizeof(double) * N * K, cudaMemcpyDeviceToHost);
-    cudaMemcpy(bpgrads.db[1].memptr(), db1, sizeof(double) * N, cudaMemcpyDeviceToHost); */
+    cudaMemcpy(bpgrads.db[1].memptr(), db1, sizeof(double) * N, cudaMemcpyDeviceToHost);
 
-    /*
+    
     arma::mat diff = (1.0 / N) * (bpcache.yc - y);
     bpgrads.dW[1] = diff * bpcache.a[0].t() + reg * nn.W[1];
     bpgrads.db[1] = arma::sum(diff, 1);
@@ -506,10 +506,10 @@ void my_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct
     bpgrads.dW[0] = dz1 * bpcache.X.t() + reg * nn.W[0];
     bpgrads.db[0] = arma::sum(dz1, 1);
 
-    */
+    
 
 
-}
+} */
 
 
 void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct cache& bpcache, struct grads& bpgrads)  {
