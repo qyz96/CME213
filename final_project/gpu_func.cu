@@ -305,7 +305,7 @@ void device_sumcol(double* data, double* result, int M, int N) {
         if ((index + s) < blockDim.y) {
             sdata[index] += sdata[index+s];
         }
-        __syncthreads();
+        //__syncthreads();
     }
         
 
