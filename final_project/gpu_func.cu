@@ -44,15 +44,10 @@ void device_gemm(double* __restrict__ A, double* __restrict__ B,
            int M, int N, int K) {
     int j = blockIdx.x * blockDim.x + threadIdx.x;
     int i = blockIdx.y * blockDim.y + threadIdx.y;
-    if ((i==0)&& (j==0)) {printf("device_gemm is called!\n");}
     if ((i < M) && (j < N)) {
         double temp=0;
         for (int k=0; k<K; k++) {
             temp+=A[i+k*M]*B[k+j*K];
-            if ((i==0) && (j==0)) {
-
-                if (k<=5) {printf("w[%d,%d]=%f\n", i, k, A[i+k*M]);}
-            }
         }
         C[i+j*M]=alpha*temp+beta*C[i+j*M];
     }
@@ -238,7 +233,7 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     int numBlocks_x = (N + block_size_x * block_size_y  - 1) / (block_size_y * block_size_x);
     int numBlocks_x = (N + block_size_x - 1) / (block_size_x);
     int numBlocks_y = (M + block_size_y - 1) / (block_size_y); */
-    printf("myGEMM is called!\n");
+    //printf("myGEMM is called!\n");
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
     device_gemm<<<blocks, threads>>>(A, B, C, al, be, M, N, K);
@@ -311,7 +306,7 @@ void device_sumcol(double* data, double* result, int M, int N) {
 
     if ((i==0) && (j<N)) {
         result[j]=sdata[0];
-        printf("result[%d]=%f\n", j, result[j]);
+        //printf("result[%d]=%f\n", j, result[j]);
     }
 }
 
@@ -383,9 +378,9 @@ void device_exp(double* data, double* result, int M, int N) {
     int j = blockIdx.x * blockDim.x + threadIdx.x;
     if ((i < M) && (j < N)) {
         result[i + j * M] = (double)(std::exp(data[i + j * M]));
-        if((i==0) &&(j==0)) {
+/*         if((i==0) &&(j==0)) {
             printf("result[0,0]=%f", result[i+j*M]);
-        }
+        } */
     }
     return;
 }
@@ -461,158 +456,4 @@ void gpu_hadmard(double* c, double* a, double* b, int M, int N) {
 
 
 
-void my_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct cache& bpcache, struct grads& bpgrads) {
-    int num_sample = bpcache.X.n_cols;
-    int K = nn.W[0].n_rows;
-    int M = nn.W[0].n_cols;
-    int N = nn.W[1].n_rows;
-    
-    bpgrads.dW.resize(2);
-    bpgrads.dW[0].zeros(K, M);
-    bpgrads.dW[1].zeros(N, K);
-    bpgrads.db.resize(2);
-    bpgrads.db[0].zeros(K);
-    bpgrads.db[1].zeros(N);
 
-    arma::vec allones = arma::ones<arma::vec>(num_sample);
-
-    double* dW0;
-    double* da0;
-    double* dW1;
-    double* db0;
-    double* db1;
-    double* dyc;
-    double* dy;
-    double* dDff;
-    double* dOne;
-    double* daz;
-    double* dX;
-
-    cudaMalloc((void**)&dW0, sizeof(double) * M * K);
-    cudaMalloc((void**)&dW1, sizeof(double) * K * N);
-    cudaMalloc((void**)&db0, sizeof(double) * K);
-    cudaMalloc((void**)&db1, sizeof(double) * N);
-    cudaMalloc((void**)&dyc, sizeof(double) * N * num_sample);
-    cudaMalloc((void**)&dy, sizeof(double) * N * num_sample);
-    cudaMalloc((void**)&dOne, sizeof(double) * num_sample);
-    cudaMalloc((void**)&daz, sizeof(double) * K * num_sample);
-    cudaMalloc((void**)&dX, sizeof(double) * M * num_sample);
-    cudaMalloc((void**)&da0, sizeof(double) * K * num_sample);
-
-    cudaMemcpy(dW0, nn.W[0].memptr(), sizeof(double) * M * K, cudaMemcpyHostToDevice);
-    cudaMemcpy(dW1, nn.W[1].memptr(), sizeof(double) * K * N, cudaMemcpyHostToDevice);
-    cudaMemcpy(db0, nn.b[0].memptr(), sizeof(double) * K, cudaMemcpyHostToDevice);
-    cudaMemcpy(db1, nn.b[1].memptr(), sizeof(double) * N, cudaMemcpyHostToDevice);
-    cudaMemcpy(dyc, bpcache.yc.memptr(), sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
-    cudaMemcpy(dy, y.memptr(), sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
-    cudaMemcpy(dOne, allones.memptr(), sizeof(double) * num_sample, cudaMemcpyHostToDevice);
-    cudaMemcpy(dX, bpcache.X.memptr(), sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
-    cudaMemcpy(da0, bpcache.a[0].memptr(), sizeof(double) * K * num_sample, cudaMemcpyHostToDevice);
-
-
-    int block_size_x = 32;
-    int block_size_y = 32;
-    int numBlocks_x = (num_sample + block_size_x - 1) / block_size_x;
-    int numBlocks_y = (K + block_size_y - 1) / (block_size_y);
-    dim3 threads(block_size_x, block_size_y);
-    dim3 blocks(numBlocks_x, numBlocks_y);
-    double alpha = 1/(double)(num_sample);
-    double beta = -1/(double)(num_sample);
-    double alpha1 = 1;
-    double beta1=0;
-    device_addmat<<<blocks, threads>>>(dyc, dy, dy, alpha, beta, N, num_sample);
-
-    cudaError_t cudaStat;
-    cublasStatus_t stat;
-    cublasHandle_t handle;
-    stat = cublasCreate(&handle);
-    /*
-    stat = cublasDgemm(handle,
-        CUBLAS_OP_T, CUBLAS_OP_N,
-        K, num_sample, N,
-        &alpha1,
-        dW1, K,
-        dDff, N,
-        &beta1,
-        daz, K);
-
-    */
-    myGEMM(dW1, dDff, daz, &alpha1, &beta1, K, N, num_sample);
-
-
-    /*
-    stat = cublasDgemm(handle,
-        CUBLAS_OP_N, CUBLAS_OP_T,
-        N, K, num_sample,
-        &alpha1,
-        dy, N,
-        da0, num_sample,
-        &reg,
-        dW1, N);
-
-    */
-
-    myGEMM(dy, da0, dW1, &alpha1, &reg, N, num_sample, K);
-
-
-    /*
-
-    stat = cublasDgemm(handle,
-        CUBLAS_OP_N, CUBLAS_OP_N,
-        N, 1, num_sample,
-        &alpha1,
-        dDff, N,
-        dOne, num_sample,
-        &beta1,
-        db1, N);
-    */
-    
-    myGEMM(dDff, dOne, db1, &alpha1, &beta1, N, 1, num_sample);
-    device_hadmard<<<blocks, threads>>>(daz, daz, da0, K, num_sample);
-
-    stat = cublasDgemm(handle,
-        CUBLAS_OP_N, CUBLAS_OP_T,
-        K, M, num_sample,
-        &alpha1,
-        daz, K,
-        dX, num_sample,
-        &reg,
-        dW0, N);
-
-
-
-    myGEMM(daz, dX, dW0, &alpha1, &beta1, N, 1, num_sample);
-    stat = cublasDgemm(handle,
-        CUBLAS_OP_N, CUBLAS_OP_N,
-        K, num_sample, 1,
-        &alpha1,
-        daz, K,
-        dOne, num_sample,
-        &beta1,
-        db0, K);
-
-    myGEMM(daz, dOne, db0, &alpha1, &beta1, K, num_sample, 1);
-    
-    //std::cout << "backprop " << bpcache.yc << "\n";
-
-
-    cudaMemcpy(bpgrads.dW[0].memptr(), dW0, sizeof(double) * M * K, cudaMemcpyDeviceToHost);
-    cudaMemcpy(bpgrads.db[0].memptr(), db0, sizeof(double) * K, cudaMemcpyDeviceToHost);
-    cudaMemcpy(bpgrads.dW[1].memptr(), dW1, sizeof(double) * N * K, cudaMemcpyDeviceToHost);
-    cudaMemcpy(bpgrads.db[1].memptr(), db1, sizeof(double) * N, cudaMemcpyDeviceToHost);
-
-    /*
-    arma::mat diff = (1.0 / N) * (bpcache.yc - y);
-    bpgrads.dW[1] = diff * bpcache.a[0].t() + reg * nn.W[1];
-    bpgrads.db[1] = arma::sum(diff, 1);
-    arma::mat da1 = nn.W[1].t() * diff;
-
-    arma::mat dz1 = da1 % bpcache.a[0] % (1 - bpcache.a[0]);
-
-    bpgrads.dW[0] = dz1 * bpcache.X.t() + reg * nn.W[0];
-    bpgrads.db[0] = arma::sum(dz1, 1);
-
-    */
-
-
-}
