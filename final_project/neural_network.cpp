@@ -348,7 +348,7 @@ void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache,
     cudaMemcpy(z1, dz1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
     
     gpu_exp(dz1, da1, N, num_sample);
-    check_launch("exp");
+    //check_launch("exp");
     cudaMemcpy(a1, da1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
     gpu_sumcol(da1, dexp, N, num_sample);
     check_launch("sumcol");
