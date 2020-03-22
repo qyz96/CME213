@@ -535,9 +535,12 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
 }
 
 
-void gpu_updatecoeffcient(NeuralNetwork& nn, struct cache& bpcache, double learning_rate) {
+void gpu_updatecoeffcient(NeuralNetwork& nn, struct grads& bpcache, double learning_rate) {
 
 
+    int K = nn.W[0].n_rows;
+    int M = nn.W[0].n_cols;
+    int N = nn.W[1].n_rows;
     double* dW0;
     double* dW1;
     double* db0;
