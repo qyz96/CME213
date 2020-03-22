@@ -494,6 +494,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             std::cout<<"z0: "<<bpcache.z[0].submat(0,0, 5, 5)<<"\n";
             std::cout<<"a0: "<<bpcache.a[0].submat(0,0,5,5)<<"\n";
             std::cout<<"z1: "<<bpcache.z[1].submat(0,0,5,5)<<"\n";
+            std::cout<<"a1: "<<bpcache.a[1].submat(0,0,5,5)<<"\n";
             std::cout<<"y: "<<bpcache.yc.submat(0,0, 5, 5)<<"\n";
             struct grads bpgrads;
             //std::cout<<"Backpropagation begins...\n";
