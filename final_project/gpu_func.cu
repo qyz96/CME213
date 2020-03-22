@@ -321,7 +321,7 @@ void gpu_sumcol(double* ddata, double* dresult, int M, int N) {
     int numBlocks_y = (M + block_size_y - 1) / (block_size_y);
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
-    device_sumcol<<<blocks, threads>>>(ddata, dresult, M, N);
+    device_sumcol<<<blocks, threads, block_size_y*sizeof(double)>>>(ddata, dresult, M, N);
 }
 
 __global__
