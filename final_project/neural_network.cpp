@@ -429,7 +429,10 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
     int N = nn.W[1].n_rows;
     bpgrads.dW.resize(2);
     bpgrads.db.resize(2);
-
+    for (unsigned int k=0; k<bpgrads.dW.size(); k++) {
+        bpgrads.dW[k]=arma::mat(nn.W[k].n_rows, nn.W[k].n_cols);
+        bpgrads.db[k]=arma::vec(nn.b[k].n_elem);
+    }
 
     double* W0;
     double* W1;
@@ -506,7 +509,7 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
     
 
 
-    cudaMemcpy(W0, dW0, sizeof(double) * M * K, cudaMemcpyDeviceToHost);
+    cudaMemcpy(bpgrads.dW[0].memptr(), dW0, sizeof(double) * M * K, cudaMemcpyDeviceToHost);
     cudaMemcpy(b0, db0, sizeof(double) * K, cudaMemcpyDeviceToHost);
     cudaMemcpy(W1, dW1, sizeof(double) * N * K, cudaMemcpyDeviceToHost);
     cudaMemcpy(b1, db1, sizeof(double) * N, cudaMemcpyDeviceToHost);
@@ -524,7 +527,7 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
     cudaFree(dz1);
     cudaFree(dX);
 
-    bpgrads.dW[0]=arma::mat(W0, K, M);
+    //bpgrads.dW[0]=arma::mat(W0, K, M);
     bpgrads.dW[1]=arma::mat(W1, N, K);
     bpgrads.db[0]=arma::vec(b0, K);
     bpgrads.db[1]=arma::vec(b1, N);
@@ -581,8 +584,6 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     /* iter is a variable used to manage debugging. It increments in the inner loop
        and therefore goes from 0 to epochs*num_batches */
     int iter = 0;
-    print_every=1;
-    grad_check=false;
     for(int epoch = 0; epoch < epochs; ++epoch) {
         int num_batches = (N + batch_size - 1)/batch_size;
 
@@ -624,17 +625,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             std::cout<<"b0: "<<bpgrads.db[0].subvec(0, 5)<<"\n";
             std::cout<<"b1: "<<bpgrads.db[1].subvec(0, 5)<<"\n"; */
             //std::cout<<"Backpropagation done...\n";
-            if(print_every > 0 && iter % print_every == 0) {
-                if(grad_check) {
-                    struct grads numgrads;
-                    numgrad(nn, X_batch, y_batch, reg, numgrads);
-                    assert(gradcheck(numgrads, bpgrads));
-                }
 
-                std::cout << "Loss at iteration " << iter << " of epoch " << epoch << "/" <<
-                          epochs << " = " << loss(nn, bpcache.yc, y_batch, reg) << "\n";
-                return;
-            }
             //std::cout<<"Subtracting gradient...\n";
             // Gradient descent step
             for(int i = 0; i < nn.W.size(); ++i) {
