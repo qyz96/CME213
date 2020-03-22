@@ -321,6 +321,50 @@ void gpu_sumcol(double* ddata, double* dresult, int M, int N) {
     device_sumcol<<<blocks, threads, block_size_y*sizeof(double)>>>(ddata, dresult, M, N);
 }
 
+
+__global__
+void device_sumrow(double* data, double* result, int M, int N) {
+
+
+    extern __shared__ double sdata[];
+    int i = blockIdx.y;
+    int j = threadIdx.x;
+
+
+    if ((i < M) && (j < N)) {
+        sdata[j] = data[i + j * M];
+    }
+    else {
+        sdata[j] = 0;
+    }
+    __syncthreads();
+    for (unsigned int s=1; s < blockDim.x; s *= 2) {
+        int index = 2 * s * j;
+        if ((index + s) < blockDim.y) {
+            sdata[index] += sdata[index+s];
+        }
+        __syncthreads();
+    }
+        
+
+    if ((j==0) && (i<N)) {
+        result[i]=sdata[0];
+        //printf("result[%d]=%f\n", j, result[j]);
+    }
+}
+
+void gpu_sumrow(double* ddata, double* dresult, int M, int N) {
+
+    int block_size_x = 1024;
+    int block_size_y = 1;
+    int numBlocks_x = (N + block_size_x - 1) / block_size_x;
+    int numBlocks_y = (M + block_size_y - 1) / (block_size_y);
+    dim3 threads(block_size_x, block_size_y);
+    dim3 blocks(numBlocks_x, numBlocks_y);
+    device_sumcol<<<blocks, threads, block_size_x*sizeof(double)>>>(ddata, dresult, M, N);
+}
+
+
 __global__
 void device_transpose(double* data, double* result, int M, int N)  {
 
