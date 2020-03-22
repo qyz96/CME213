@@ -347,7 +347,7 @@ void device_sigmoid(double* data, double* result, int M, int N) {
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
     if ((i < M) && (j < N)) {
-        result[i + j * m] = 1 / (double)(1+std::exp(-data[i + j * m]));
+        result[i + j * M] = 1 / (double)(1+std::exp(-data[i + j * M]));
     }
     return;
 }
