@@ -594,7 +594,7 @@ void my_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct
     double beta = -1/(double)(num_sample);
     double alpha1 = 1;
     double beta1=0;
-    gpu_add<<<blocks, threads>>>(dyc, dy, dy, alpha, beta, N, num_sample);
+    gpu_addmat<<<blocks, threads>>>(dyc, dy, dy, alpha, beta, N, num_sample);
 
     cudaError_t cudaStat;
     cublasStatus_t stat;
@@ -642,7 +642,7 @@ void my_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct
     */
     
     myGEMM(dDff, dOne, db1, &alpha1, &beta1, N, 1, num_sample);
-    gpu_hadmard<<<blocks, threads>>>(daz, daz, da0, K, num_sample);
+    device_hadmard<<<blocks, threads>>>(daz, daz, da0, K, num_sample);
 
     stat = cublasDgemm(handle,
         CUBLAS_OP_N, CUBLAS_OP_T,
