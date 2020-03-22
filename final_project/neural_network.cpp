@@ -692,7 +692,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 nn.b[i] -= learning_rate * bpgrads.db[i];
             } */
 
-            gpu_updatecoeffcient(nn, bpcache, learning_rate);
+            gpu_updatecoeffcient(nn, bpgrads, learning_rate);
             //std::cout<<"Subtracting gradient done...\n";
             if(print_every <= 0) {
                 print_flag = batch == 0;
