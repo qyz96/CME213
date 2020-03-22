@@ -445,7 +445,7 @@ void gpu_hadmard(double* c, double* a, double* b, int M, int N) {
 
 
 void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache, 
-    const arma::mat& b0r, const arma::mat& b1r, const arma::mat& T, double* a0, double* a1, double* z0, double* z1, double* yc, double* W1_test, double* W0_test) {
+    const arma::mat& b0r, const arma::mat& b1r, const arma::mat& T, double* a0, double* a1, double* z0, double* z1, double* yc, double* W1_test, double* W0_test, double* W3_test) {
 
     double* dz0;
     double* dz1;
