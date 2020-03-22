@@ -51,7 +51,7 @@ void device_gemm(double* __restrict__ A, double* __restrict__ B,
             double right = B_T ? B[j + k * K] : B[k + j * K];
             temp+=left*right;
             if ((i==0) & (j==0)) {
-                printf("A[%d,%d]=%f\n", i, k, A[i + k * M]);
+                if (k<=5) printf("A[%d,%d]=%f\n", i, k, A[i + k * M]);
             }
         }
         C[i + j * M]=alpha*temp+beta*C[i+j*M];
