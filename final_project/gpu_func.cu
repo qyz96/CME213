@@ -458,14 +458,14 @@ void my_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& cache, 
     double* dT;
     double* dexp;
 
-    double* W1_test=(double*)malloc(N*K*sizeof(double));
-
+    
     int num_sample = X.n_cols;
     int K = nn.W[0].n_rows;
     int M = nn.W[0].n_cols;
     int N = nn.W[1].n_rows;
 
 
+    double* W1_test=(double*)malloc(N*K*sizeof(double));
 
     //std::cout<<"Allocating CUDA memory....\n";
     cudaMalloc((void**)&dz0, sizeof(double) * K * num_sample);
