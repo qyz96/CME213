@@ -319,7 +319,7 @@ void gpu_sumcol(double* ddata, double* dresult, int M, int N) {
 }
 
 __global__
-void device_transpose(double* data, double* result, int M，int N)  {
+void device_transpose(double* data, double* result, int M, int N)  {
 
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
@@ -329,7 +329,7 @@ void device_transpose(double* data, double* result, int M，int N)  {
     return; 
 }
 
-void gpu_transpose(double* ddata, double* dresult, int M，int N)  {
+void gpu_transpose(double* ddata, double* dresult, int M, int N)  {
 
     int block_size_x = 32;
     int block_size_y = 32;
@@ -374,7 +374,7 @@ void device_exp(double* data, double* result, int M, int N) {
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
     if ((i < M) && (j < N)) {
-        result[i + j * M] = (double)(std::exp(z[i + j * M]));
+        result[i + j * M] = (double)(std::exp(data[i + j * M]));
     }
     return;
 }
