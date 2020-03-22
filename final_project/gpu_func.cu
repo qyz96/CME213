@@ -380,6 +380,9 @@ void device_exp(double* data, double* result, int M, int N) {
     int j = blockIdx.x * blockDim.x + threadIdx.x;
     if ((i < M) && (j < N)) {
         result[i + j * M] = (double)(std::exp(data[i + j * M]));
+        if((i==0) &&(j==0)) {
+            printf("result[0,0]=%f", result[i+j*M]);
+        }
     }
     return;
 }
