@@ -215,12 +215,15 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
     }
 }
 
+
+
+
 /*
 Routine to perform an in-place GEMM operation, i.e., C := alpha*A*B + beta*C
 */
 int myGEMM(double* __restrict__ A, double* __restrict__ B,
            double* __restrict__ C, double* alpha, double* beta,
-           int M, int N, int K, bool A_T=false, bool B_T=false) {
+           int M, int N, int K) {
     /* TODO: Write an efficient GEMM implementation on GPU */
     double al=*alpha;
     double be=*beta;
@@ -238,7 +241,7 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     //printf("myGEMM is called!\n");
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
-    device_gemm<<<blocks, threads>>>(A, B, C, al, be, M, N, K, A_T, B_T);
+    device_gemm<<<blocks, threads>>>(A, B, C, al, be, M, N, K, false, false);
     /*
     block_size_x = BLOCK_SIZE;
     block_size_y = BLOCK_SIZE;
@@ -251,6 +254,42 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     
     return 0;
 }
+
+
+int myGEMM(double* __restrict__ A, double* __restrict__ B,
+    double* __restrict__ C, double* alpha, double* beta,
+    int M, int N, int K, bool A_T=false, bool B_T=false) {
+/* TODO: Write an efficient GEMM implementation on GPU */
+double al=*alpha;
+double be=*beta;
+
+int block_size_x = BLOCK_SIZE;
+int block_size_y = BLOCK_SIZE;
+int numBlocks_x = (N + block_size_x - 1) / block_size_x;
+int numBlocks_y = (M + block_size_y - 1) / (block_size_y);
+
+/*     int block_size_x = BLOCK_SIZE_X;
+int block_size_y = BLOCK_SIZE_Y;
+int numBlocks_x = (N + block_size_x * block_size_y  - 1) / (block_size_y * block_size_x);
+int numBlocks_x = (N + block_size_x - 1) / (block_size_x);
+int numBlocks_y = (M + block_size_y - 1) / (block_size_y); */
+//printf("myGEMM is called!\n");
+dim3 threads(block_size_x, block_size_y);
+dim3 blocks(numBlocks_x, numBlocks_y);
+device_gemm<<<blocks, threads>>>(A, B, C, al, be, M, N, K, A_T, B_T);
+/*
+block_size_x = BLOCK_SIZE;
+block_size_y = BLOCK_SIZE;
+numBlocks_x = (N + block_size_x - 1) / block_size_x;
+numBlocks_y = (M + block_size_y - 1) / (block_size_y);
+dim3 threads1(block_size_x, block_size_y);
+dim3 blocks1(numBlocks_x, numBlocks_y);
+device_gemm_shared<<<blocks1, threads1>>>(A, B, C, al, be, M, N, K);
+*/
+
+return 0;
+}
+
 
 
 /*
