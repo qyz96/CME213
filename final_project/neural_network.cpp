@@ -434,15 +434,6 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
         bpgrads.db[k]=arma::vec(nn.b[k].n_elem);
     }
 
-    double* W0;
-    double* W1;
-    double* b0;
-    double* b1;
-
-    W0 = (double*)(malloc(M*K*sizeof(double)));
-    W1 = (double*)(malloc(N*K*sizeof(double)));
-    b0 = (double*)(malloc(K*sizeof(double)));
-    b1 = (double*)(malloc(N*sizeof(double)));
 
     double* dW0;
     double* da0;
@@ -510,9 +501,9 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
 
 
     cudaMemcpy(bpgrads.dW[0].memptr(), dW0, sizeof(double) * M * K, cudaMemcpyDeviceToHost);
-    cudaMemcpy(b0, db0, sizeof(double) * K, cudaMemcpyDeviceToHost);
-    cudaMemcpy(W1, dW1, sizeof(double) * N * K, cudaMemcpyDeviceToHost);
-    cudaMemcpy(b1, db1, sizeof(double) * N, cudaMemcpyDeviceToHost);
+    cudaMemcpy(bpgrads.db[0].memptr(), db0, sizeof(double) * K, cudaMemcpyDeviceToHost);
+    cudaMemcpy(bpgrads.dW[1].memptr(), dW1, sizeof(double) * N * K, cudaMemcpyDeviceToHost);
+    cudaMemcpy(bpgrads.db[1].memptr(), db1, sizeof(double) * N, cudaMemcpyDeviceToHost);
 
 
     cudaFree(dW0);
@@ -542,10 +533,6 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
     bpgrads.dW[0] = dz1 * bpcache.X.t() + reg * nn.W[0];
     bpgrads.db[0] = arma::sum(dz1, 1); */
 
-    free(W0);
-    free(W1);
-    free(b0);
-    free(b1);
     
 
 
