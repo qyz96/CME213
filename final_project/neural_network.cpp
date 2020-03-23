@@ -642,10 +642,34 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             int subsize = (this_batch_size + num_procs - 1) / num_procs;
             for (unsigned int i = 0; i < num_procs; i++) {
                 displsx[i] = subsize * i * x_row;
-                countsx[i] = (rank == num_procs - 1) ? ((this_batch_size - (subsize)*(num_procs-1)) * x_row) : (subsize * x_row);
+                countsx[i] =  (subsize * x_row);
                 displsy[i] = subsize * i * y_row;
-                countsy[i] = (rank == num_procs - 1) ? ((this_batch_size - (subsize)*(num_procs-1)) * y_row) : (subsize * y_row);
+                countsy[i] =  (subsize * y_row);
             }
+            std::cout<<"displsx: \n";
+            for (unsigned int i=0; i<4; i++) {
+
+                std::cout<<displsx[i]<<" ";
+            }
+            std::cout<<"\n"
+            std::cout<<"displsy: \n";
+            for (unsigned int i=0; i<4; i++) {
+
+                std::cout<<displsx[i]<<" ";
+            }
+            std::cout<<"\n"
+            std::cout<<"countsx: \n";
+            for (unsigned int i=0; i<4; i++) {
+
+                std::cout<<countsx[i]<<" ";
+            }
+            std::cout<<"\n"
+            std::cout<<"countsy: \n";
+            for (unsigned int i=0; i<4; i++) {
+
+                std::cout<<countsy[i]<<" ";
+            }
+            std::cout<<"\n"
             //std::cout<<"rank "<<rank<<" "<<countsx[rank]<<" "<<countsy[rank]<<"\n";
             arma::mat X_subbatch(x_row, countsx[rank] / x_row);
             arma::mat y_subbatch(y_row, countsy[rank] / y_row);
