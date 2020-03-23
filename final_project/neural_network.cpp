@@ -632,7 +632,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 displsy[i] = subsize * i * y_row;
                 countsy[i] = (rank == num_procs - 1) ? ((this_batch_size - (subsize)*(num_procs-1)) * y_row) : (subsize * y_row);
             }
-            std::cout<<"rank "<<rank<<" "<<countsx[rank]<<" "<<countsy[rank]<<"\n";
+            //std::cout<<"rank "<<rank<<" "<<countsx[rank]<<" "<<countsy[rank]<<"\n";
             arma::mat X_subbatch(x_row, countsx[rank] / x_row);
             arma::mat y_subbatch(y_row, countsy[rank] / y_row);
             MPI_SAFE_CALL(MPI_Scatterv(xptr, countsx, displsx, MPI_DOUBLE, X_subbatch.memptr(), countsx[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
