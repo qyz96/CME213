@@ -285,7 +285,7 @@ void train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
 
 
-void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcache) {
+void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcache, int num_sample) {
 
 
     int K = nn.W[0].n_rows;
@@ -388,8 +388,8 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
 
 
 
-void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct cache& bpcache, struct grads& bpgrads) {
-    int num_sample = y.n_cols;
+void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct cache& bpcache, struct grads& bpgrads, int num_sample) {
+    //int num_sample = y.n_cols;
     int K = nn.W[0].n_rows;
     int M = nn.W[0].n_cols;
     int N = nn.W[1].n_rows;
@@ -581,9 +581,19 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     int N = (rank == 0)?X.n_cols:0;
     MPI_SAFE_CALL(MPI_Bcast(&N, 1, MPI_INT, 0, MPI_COMM_WORLD));
 
+    MPI_Comm comm;
+
     std::ofstream error_file;
     error_file.open("Outputs/CpuGpuDiff.txt");
     int print_flag = 0;
+
+    int *displsx = new int[num_procs];
+    int *displsy = new int[num_procs];
+    int *countsx = new int[num_procs];
+    int *countsy = new int[num_procs];
+    int x_row = X.n_rows;
+    int y_row = y.n_rows;
+    int subsize = b
 
     /* HINT: You can obtain a raw pointer to the memory used by Armadillo Matrices
        for storing elements in a column major way. Or you can allocate your own array
@@ -607,11 +617,22 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             int last_col = std::min((batch + 1)*batch_size-1, N-1);
             arma::mat X_batch = X.cols(batch * batch_size, last_col);
             arma::mat y_batch = y.cols(batch * batch_size, last_col);
-
+            int this_batch_size = last_col - batch * batch_size + 1;
+            int subsize = (this_batch_size + num_procs - 1) / num_procs;
+            for (unsigned int i = 0; i < num_procs; i++) {
+                displsx[i] = subsize * i * x_row;
+                countsx[i] = (rank == num_process - 1) ? ((this_batch_size % num_procs) * x_row) : (subsize * x_row);
+                displsx[i] = subsize * i * y_row;
+                countsx[i] = (rank == num_process - 1) ? ((this_batch_size % num_procs) * y_row) : (subsize * y_row);
+            }
+            arma::mat X_subbatch(X.n_rows, countsx[rank] / x_row);
+            arma::mat Y_subbatch(y.n_rows, countsy[rank] / y_row);
+            MPI_SAFE_CALL(MPI_Scatterv(X_batch.memptr(), countsx, displsx, MPI_DOUBLE, X_subbatch.memptr(), countsx[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
+            MPI_SAFE_CALL(MPI_Scatterv(y_batch.memptr(), countsy, displsy, MPI_DOUBLE, y_subbatch.memptr(), countsy[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
             struct cache bpcache;
 
 
-            gpu_feedforward(nn, X_batch, bpcache);
+            gpu_feedforward(nn, X_subbatch, bpcache, this_batch_size);
 /*             std::cout<<"nnW0: "<<nn.W[0].submat(0,0, 5, 5)<<"\n";
             std::cout<<"nnW1: "<<nn.W[1].submat(0,0, 5, 5)<<"\n";
             std::cout<<"z0: "<<bpcache.z[0].submat(0,0, 5, 5)<<"\n";
@@ -626,7 +647,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             
             std::cout<<"Backpropagation begins...\n"; */
             struct grads bpgrads;
-            gpu_backprop(nn, y_batch, reg, bpcache, bpgrads);
+            gpu_backprop(nn, y_subbatch, reg, bpcache, bpgrads, this_batch_size);
 
             //backprop(nn, y_batch, reg, bpcache, bpgrads);
 /*             std::cout<<"dW0: "<<bpgrads.dW[0].submat(0, 0, 5, 5)<<"\n";
@@ -655,8 +676,14 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             for(int i = 0; i < nn.b.size(); ++i) {
                 nn.b[i] -= learning_rate * bpgrads.db[i];
             }  */
+            MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, bpcache.dW[0].memptr(), bpcache.dW[0].n_elem, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD));
+            MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, bpcache.dW[1].memptr(), bpcache.dW[1].n_elem, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD));
+            MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, bpcache.db[0].memptr(), bpcache.db[0].n_elem, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD));
+            MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, bpcache.db[1].memptr(), bpcache.db[1].n_elem, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD));
 
             gpu_updatecoeffcient(nn, bpgrads, learning_rate);
+            
+
 
 
             //std::cout<<"nnW0: "<<nn.W[0].submat(0,0, 5, 5)<<"\n";
