@@ -699,7 +699,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, bpgrads.dW[1].memptr(), bpgrads.dW[1].n_elem, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
             MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, bpgrads.db[0].memptr(), bpgrads.db[0].n_elem, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
             MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, bpgrads.db[1].memptr(), bpgrads.db[1].n_elem, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
-            std::cout<<"dW0 After reduce, rank "<<rank<<"\n"<<bpgrads.W[0].submat(0,0,5,5)<<"\n";
+            std::cout<<"dW0 After reduce, rank "<<rank<<"\n"<<bpgrads.dW[0].submat(0,0,5,5)<<"\n";
             gpu_updatecoeffcient(nn, bpgrads, learning_rate);
             std::cout<<"W0 after update, rank "<<rank<<"\n"<<nn.W[0].submat(0,0,5,5)<<"\n";
 
