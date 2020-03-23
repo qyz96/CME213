@@ -621,8 +621,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             for (unsigned int i = 0; i < num_procs; i++) {
                 displsx[i] = subsize * i * x_row;
                 countsx[i] = subsize * x_row;
-                displsx[i] = subsize * i * y_row;
-                countsx[i] = subsize * y_row;
+                displsy[i] = subsize * i * y_row;
+                countsy[i] = subsize * y_row;
             }
             std::cout<<"rank "<<rank<<" "<<countsx[rank]<<" "<<countsy[rank]<<"\n";
             arma::mat X_subbatch(x_row, countsx[rank] / x_row);
