@@ -614,8 +614,10 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
              * 4. update local network coefficient at each node
              */
             int last_col = std::min((batch + 1)*batch_size-1, N-1);
-            arma::mat X_batch = X.cols(batch * batch_size, last_col);
-            arma::mat y_batch = y.cols(batch * batch_size, last_col);
+            if (rank ==0) {
+                arma::mat X_batch = X.cols(batch * batch_size, last_col);
+                arma::mat y_batch = y.cols(batch * batch_size, last_col);
+            }
             int this_batch_size = last_col - batch * batch_size + 1;
             int subsize = this_batch_size / num_procs;
             for (unsigned int i = 0; i < num_procs; i++) {
