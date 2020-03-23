@@ -676,11 +676,11 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             for(int i = 0; i < nn.b.size(); ++i) {
                 nn.b[i] -= learning_rate * bpgrads.db[i];
             }  */
-            MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, bpgrads.dW[0].memptr(), bpgrads.dW[0].n_elem, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
+/*             MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, bpgrads.dW[0].memptr(), bpgrads.dW[0].n_elem, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
             MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, bpgrads.dW[1].memptr(), bpgrads.dW[1].n_elem, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
             MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, bpgrads.db[0].memptr(), bpgrads.db[0].n_elem, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
             MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, bpgrads.db[1].memptr(), bpgrads.db[1].n_elem, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
-
+ */
             gpu_updatecoeffcient(nn, bpgrads, learning_rate);
             
 
