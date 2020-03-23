@@ -617,12 +617,12 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             arma::mat X_batch = X.cols(batch * batch_size, last_col);
             arma::mat y_batch = y.cols(batch * batch_size, last_col);
             int this_batch_size = last_col - batch * batch_size + 1;
-            int subsize = (this_batch_size + num_procs - 1) / num_procs;
+            int subsize = this_batch_size / num_procs;
             for (unsigned int i = 0; i < num_procs; i++) {
                 displsx[i] = subsize * i * x_row;
-                countsx[i] = (rank == num_procs - 1) ? ((this_batch_size % num_procs) * x_row) : (subsize * x_row);
+                countsx[i] = subsize * x_row;
                 displsx[i] = subsize * i * y_row;
-                countsx[i] = (rank == num_procs - 1) ? ((this_batch_size % num_procs) * y_row) : (subsize * y_row);
+                countsx[i] = subsize * y_row;
             }
             std::cout<<"rank "<<rank<<" "<<countsx[rank]<<" "<<countsy[rank]<<"\n";
             arma::mat X_subbatch(x_row, countsx[rank] / x_row);
