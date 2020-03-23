@@ -262,7 +262,6 @@ void train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             if (batch > 5) {
                 return;
             }
-            return;
 
             /* Debug routine runs only when debug flag is set. If print_every is zero, it saves
                for the first batch of each epoch to avoid saving too many large files.
