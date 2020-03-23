@@ -593,7 +593,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     int *countsy = new int[num_procs];
     int x_row = X.n_rows;
     int y_row = y.n_rows;
-
+    MPI_SAFE_CALL(MPI_Bcast(&x_row, 1, MPI_INT, 0, MPI_COMM_WORLD));
+    MPI_SAFE_CALL(MPI_Bcast(&y_row, 1, MPI_INT, 0, MPI_COMM_WORLD));
     /* HINT: You can obtain a raw pointer to the memory used by Armadillo Matrices
        for storing elements in a column major way. Or you can allocate your own array
        memory space and store the elements in a row major way. Remember to update the
@@ -613,29 +614,29 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
              * 3. reduce the coefficient updates and broadcast to all nodes with `MPI_Allreduce()'
              * 4. update local network coefficient at each node
              */
-
             double* xptr = nullptr;
             double* yptr = nullptr;
             int last_col = std::min((batch + 1)*batch_size-1, N-1);
-            if (rank ==0) {
+            if (rank==0) {
                 arma::mat X_batch = X.cols(batch * batch_size, last_col);
                 arma::mat y_batch = y.cols(batch * batch_size, last_col);
                 xptr = X_batch.memptr();
                 yptr = y_batch.memptr();
+
             }
-            int this_batch_size = batch_size;
-            int subsize = this_batch_size / num_procs;
+            int this_batch_size = last_col - batch * batch_size + 1;
+            int subsize = (this_batch_size + num_procs - 1) / num_procs;
             for (unsigned int i = 0; i < num_procs; i++) {
                 displsx[i] = subsize * i * x_row;
-                countsx[i] = subsize * x_row;
+                countsx[i] = (rank == num_procs - 1) ? ((this_batch_size % num_procs) * x_row) : (subsize * x_row);
                 displsy[i] = subsize * i * y_row;
-                countsy[i] = subsize * y_row;
+                countsy[i] = (rank == num_procs - 1) ? ((this_batch_size % num_procs) * y_row) : (subsize * y_row);
             }
             std::cout<<"rank "<<rank<<" "<<countsx[rank]<<" "<<countsy[rank]<<"\n";
             arma::mat X_subbatch(x_row, countsx[rank] / x_row);
             arma::mat y_subbatch(y_row, countsy[rank] / y_row);
-            MPI_SAFE_CALL(MPI_Scatterv(xptr, countsx, displsx, MPI_DOUBLE, X_subbatch.memptr(), countsx[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
-            MPI_SAFE_CALL(MPI_Scatterv(yptr, countsy, displsy, MPI_DOUBLE, y_subbatch.memptr(), countsy[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
+            MPI_SAFE_CALL(MPI_Scatterv(X_batch.memptr(), countsx, displsx, MPI_DOUBLE, X_subbatch.memptr(), countsx[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
+            MPI_SAFE_CALL(MPI_Scatterv(y_batch.memptr(), countsy, displsy, MPI_DOUBLE, y_subbatch.memptr(), countsy[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
             struct cache bpcache;
 
 
@@ -666,12 +667,12 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             if(print_every > 0 && iter % print_every == 0) {
                 if(grad_check) {
                     struct grads numgrads;
-                    numgrad(nn, X_subbatch, y_subbatch, reg, numgrads);
+                    numgrad(nn, X_batch, y_batch, reg, numgrads);
                     assert(gradcheck(numgrads, bpgrads));
                 }
 
                 std::cout << "Loss at iteration " << iter << " of epoch " << epoch << "/" <<
-                          epochs << " = " << loss(nn, bpcache.yc, y_subbatch, reg) << "\n";
+                          epochs << " = " << loss(nn, bpcache.yc, y_batch, reg) << "\n";
             }
 
 
