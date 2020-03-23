@@ -601,6 +601,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
         MPI_SAFE_CALL(MPI_Bcast(nn.W[i].memptr(), nn.W[i].n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Bcast(nn.b[i].memptr(), nn.b[i].n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD));
     }
+
+
+    std::cout<<"rank "<<rank<<"\n"<<nn.W[0].submat(0,0,5,5)<<"\n";
     /* HINT: You can obtain a raw pointer to the memory used by Armadillo Matrices
        for storing elements in a column major way. Or you can allocate your own array
        memory space and store the elements in a row major way. Remember to update the
@@ -697,7 +700,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, bpgrads.db[1].memptr(), bpgrads.db[1].n_elem, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
 
             gpu_updatecoeffcient(nn, bpgrads, learning_rate);
-            
+            std::cout<<"rank "<<rank<<"\n"<<nn.W[0].submat(0,0,5,5)<<"\n";
 
 
 
@@ -719,7 +722,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             if(debug && rank == 0 && print_flag) {
                 write_diff_gpu_cpu(nn, iter, error_file);
             }
-            
+            return;
             iter++;
         }
     }
