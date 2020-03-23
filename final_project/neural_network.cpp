@@ -232,8 +232,8 @@ void train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             int last_col = std::min((batch + 1)*batch_size-1, N-1);
             arma::mat X_batch = X.cols(batch * batch_size, last_col);
             arma::mat y_batch = y.cols(batch * batch_size, last_col);
-            std::cout<<"x_subbatch: "<<X_batch.submat(0,0,5,5)<<"\n";
-            std::cout<<"y_subbatch: "<<y_batch.submat(0,0,5,5)<<"\n";
+/*             std::cout<<"x_subbatch: "<<X_batch.submat(0,0,5,5)<<"\n";
+            std::cout<<"y_subbatch: "<<y_batch.submat(0,0,5,5)<<"\n"; */
             struct cache bpcache;
             feedforward(nn, X_batch, bpcache);
 
@@ -259,10 +259,10 @@ void train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             for(int i = 0; i < nn.b.size(); ++i) {
                 nn.b[i] -= learning_rate * bpgrads.db[i];
             }
-            std::cout<<"serial b0: "<<nn.b[0].subvec(0,  5)<<"\n";
+/*             std::cout<<"serial b0: "<<nn.b[0].subvec(0,  5)<<"\n";
             if (batch > 5) {
                 return;
-            }
+            } */
 
             /* Debug routine runs only when debug flag is set. If print_every is zero, it saves
                for the first batch of each epoch to avoid saving too many large files.
