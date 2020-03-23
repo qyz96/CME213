@@ -648,7 +648,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 displsy[i] = subsize * i * y_row;
                 countsy[i] =  (subsize * y_row);
             }
-            std::cout<<"displsx: \n";
+/*             std::cout<<"displsx: \n";
             for (unsigned int i=0; i<4; i++) {
 
                 std::cout<<displsx[i]<<" ";
@@ -671,7 +671,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
                 std::cout<<countsy[i]<<" ";
             }
-            std::cout<<"\n";
+            std::cout<<"\n"; */
             //std::cout<<"rank "<<rank<<" "<<countsx[rank]<<" "<<countsy[rank]<<"\n";
             arma::mat X_subbatch(x_row, countsx[rank] / x_row);
             arma::mat y_subbatch(y_row, countsy[rank] / y_row);
@@ -679,11 +679,11 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             MPI_SAFE_CALL(MPI_Scatterv(yptr, countsy, displsy, MPI_DOUBLE, y_subbatch.memptr(), countsy[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
             struct cache bpcache;
 
-            if (rank==0) {
+/*             if (rank==0) {
 
                 std::cout<<"x_subbatch: "<<X_subbatch.submat(0,0,5,5)<<"\n";
                 std::cout<<"y_subbatch: "<<y_subbatch.submat(0,0,5,5)<<"\n";
-            }
+            } */
 
 
             gpu_feedforward(nn, X_subbatch, bpcache);
@@ -741,9 +741,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             //std::cout<<"b0 after update, rank "<<rank<<"\n"<<nn.b[0].subvec(0,5)<<"\n";
 
 
-            if (rank == 0) {
+/*             if (rank == 0) {
                 std::cout<<"nnb0: "<<nn.b[0].subvec(0, 5)<<"\n";
-            }
+            } */
             //std::cout<<"nnW1: "<<nn.W[1].submat(0,0, 5, 5)<<"\n";
             //std::cout<<"nnb0: "<<nn.b[0].subvec(495, 510)<<"\n";
             //std::cout<<"nnb1: "<<nn.b[1].subvec(0, 5)<<"\n"; 
@@ -761,9 +761,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             if(debug && rank == 0 && print_flag) {
                 write_diff_gpu_cpu(nn, iter, error_file);
             }
-            if (iter>5) {
+/*             if (iter>5) {
                 return;
-            }
+            } */
             iter++;
         }
     }
