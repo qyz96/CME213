@@ -651,25 +651,25 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
                 std::cout<<displsx[i]<<" ";
             }
-            std::cout<<"\n"
+            std::cout<<"\n";
             std::cout<<"displsy: \n";
             for (unsigned int i=0; i<4; i++) {
 
                 std::cout<<displsx[i]<<" ";
             }
-            std::cout<<"\n"
+            std::cout<<"\n";
             std::cout<<"countsx: \n";
             for (unsigned int i=0; i<4; i++) {
 
                 std::cout<<countsx[i]<<" ";
             }
-            std::cout<<"\n"
+            std::cout<<"\n";
             std::cout<<"countsy: \n";
             for (unsigned int i=0; i<4; i++) {
 
                 std::cout<<countsy[i]<<" ";
             }
-            std::cout<<"\n"
+            std::cout<<"\n";
             //std::cout<<"rank "<<rank<<" "<<countsx[rank]<<" "<<countsy[rank]<<"\n";
             arma::mat X_subbatch(x_row, countsx[rank] / x_row);
             arma::mat y_subbatch(y_row, countsy[rank] / y_row);
