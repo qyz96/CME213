@@ -667,12 +667,12 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             if(print_every > 0 && iter % print_every == 0) {
                 if(grad_check) {
                     struct grads numgrads;
-                    numgrad(nn, X_subbatch, y_subbatch, reg, numgrads);
+                    numgrad(nn, X_subbatch, y_subbatch, reg/num_procs, numgrads);
                     assert(gradcheck(numgrads, bpgrads));
                 }
 
                 std::cout << "Loss at iteration " << iter << " of epoch " << epoch << "/" <<
-                          epochs << " = " << loss(nn, bpcache.yc, y_subbatch, reg) << "\n";
+                          epochs << " = " << loss(nn, bpcache.yc, y_subbatch, reg/num_procs) << "\n";
             }
 
 
