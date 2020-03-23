@@ -655,7 +655,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             std::cout<<"displsy: \n";
             for (unsigned int i=0; i<4; i++) {
 
-                std::cout<<displsx[i]<<" ";
+                std::cout<<displsy[i]<<" ";
             }
             std::cout<<"\n";
             std::cout<<"countsx: \n";
