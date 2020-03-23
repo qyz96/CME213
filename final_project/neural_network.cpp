@@ -289,7 +289,6 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
 
 
     int K = nn.W[0].n_rows;
-    int num_sample = X.n_cols;
     int M = nn.W[0].n_cols;
     int N = nn.W[1].n_rows;
     bpcache.z.resize(2);
@@ -593,7 +592,6 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     int *countsy = new int[num_procs];
     int x_row = X.n_rows;
     int y_row = y.n_rows;
-    int subsize = b
 
     /* HINT: You can obtain a raw pointer to the memory used by Armadillo Matrices
        for storing elements in a column major way. Or you can allocate your own array
@@ -621,12 +619,12 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             int subsize = (this_batch_size + num_procs - 1) / num_procs;
             for (unsigned int i = 0; i < num_procs; i++) {
                 displsx[i] = subsize * i * x_row;
-                countsx[i] = (rank == num_process - 1) ? ((this_batch_size % num_procs) * x_row) : (subsize * x_row);
+                countsx[i] = (rank == num_procs - 1) ? ((this_batch_size % num_procs) * x_row) : (subsize * x_row);
                 displsx[i] = subsize * i * y_row;
-                countsx[i] = (rank == num_process - 1) ? ((this_batch_size % num_procs) * y_row) : (subsize * y_row);
+                countsx[i] = (rank == num_procs - 1) ? ((this_batch_size % num_procs) * y_row) : (subsize * y_row);
             }
             arma::mat X_subbatch(X.n_rows, countsx[rank] / x_row);
-            arma::mat Y_subbatch(y.n_rows, countsy[rank] / y_row);
+            arma::mat y_subbatch(y.n_rows, countsy[rank] / y_row);
             MPI_SAFE_CALL(MPI_Scatterv(X_batch.memptr(), countsx, displsx, MPI_DOUBLE, X_subbatch.memptr(), countsx[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
             MPI_SAFE_CALL(MPI_Scatterv(y_batch.memptr(), countsy, displsy, MPI_DOUBLE, y_subbatch.memptr(), countsy[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
             struct cache bpcache;
