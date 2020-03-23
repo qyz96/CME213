@@ -656,7 +656,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
             std::cout<<"Backpropagation begins...\n"; */
             struct grads bpgrads;
-            gpu_backprop(nn, y_subbatch, reg, bpcache, bpgrads, this_batch_size);
+            gpu_backprop(nn, y_subbatch, reg/num_procs, bpcache, bpgrads, this_batch_size);
 
             //backprop(nn, y_batch, reg, bpcache, bpgrads);
 /*             std::cout<<"dW0: "<<bpgrads.dW[0].submat(0, 0, 5, 5)<<"\n";
