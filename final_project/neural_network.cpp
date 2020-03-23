@@ -623,7 +623,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 xptr = X_batch.memptr();
                 yptr = y_batch.memptr();
             }
-            int this_batch_size = last_col - batch * batch_size + 1;
+            int this_batch_size = batch_size;
             int subsize = this_batch_size / num_procs;
             for (unsigned int i = 0; i < num_procs; i++) {
                 displsx[i] = subsize * i * x_row;
