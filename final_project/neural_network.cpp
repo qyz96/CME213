@@ -232,7 +232,8 @@ void train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             int last_col = std::min((batch + 1)*batch_size-1, N-1);
             arma::mat X_batch = X.cols(batch * batch_size, last_col);
             arma::mat y_batch = y.cols(batch * batch_size, last_col);
-
+            std::cout<<"x_subbatch: "<<X_batch.submat(0,0,5,5)<<"\n";
+            std::cout<<"y_subbatch: "<<y_batch.submat(0,0,5,5)<<"\n";
             struct cache bpcache;
             feedforward(nn, X_batch, bpcache);
 
@@ -651,6 +652,12 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             MPI_SAFE_CALL(MPI_Scatterv(xptr, countsx, displsx, MPI_DOUBLE, X_subbatch.memptr(), countsx[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
             MPI_SAFE_CALL(MPI_Scatterv(yptr, countsy, displsy, MPI_DOUBLE, y_subbatch.memptr(), countsy[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
             struct cache bpcache;
+
+            if (rank==0) {
+
+                std::cout<<"x_subbatch: "<<X_subbatch.submat(0,0,5,5)<<"\n";
+                std::cout<<"y_subbatch: "<<y_subbatch.submat(0,0,5,5)<<"\n";
+            }
 
 
             gpu_feedforward(nn, X_subbatch, bpcache);
