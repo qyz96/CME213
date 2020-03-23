@@ -258,6 +258,8 @@ void train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             for(int i = 0; i < nn.b.size(); ++i) {
                 nn.b[i] -= learning_rate * bpgrads.db[i];
             }
+            std::cout<<nn.b[0].subvec(0,5);
+            return;
 
             /* Debug routine runs only when debug flag is set. If print_every is zero, it saves
                for the first batch of each epoch to avoid saving too many large files.
@@ -701,7 +703,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, bpgrads.db[1].memptr(), bpgrads.db[1].n_elem, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
             //std::cout<<"db0 After reduce, rank "<<rank<<"\n"<<bpgrads.db[0](0)<<"\n";
             gpu_updatecoeffcient(nn, bpgrads, learning_rate);
-            //std::cout<<"b0 after update, rank "<<rank<<"\n"<<nn.b[0](0)<<"\n";
+            std::cout<<"b0 after update, rank "<<rank<<"\n"<<nn.b[0].subvec(0,5)<<"\n";
 
 
 
