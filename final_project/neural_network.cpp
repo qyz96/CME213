@@ -336,7 +336,7 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
     cudaMalloc((void**)&dW1, sizeof(double) * K * N);
     cudaMalloc((void**)&db0, sizeof(double) * K);
     cudaMalloc((void**)&db1, sizeof(double) * N);
-    cudaMalloc((void**)&dX, sizeof(double) * K * num_sample);
+    cudaMalloc((void**)&dX, sizeof(double) * M * num_sample);
     cudaMalloc((void**)&dexp, sizeof(double) * 1 * num_sample);
 
     
