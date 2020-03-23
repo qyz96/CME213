@@ -613,10 +613,15 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
              * 3. reduce the coefficient updates and broadcast to all nodes with `MPI_Allreduce()'
              * 4. update local network coefficient at each node
              */
+
+            double* xptr = nullptr;
+            double* yptr = nullptr;
             int last_col = std::min((batch + 1)*batch_size-1, N-1);
             if (rank ==0) {
                 arma::mat X_batch = X.cols(batch * batch_size, last_col);
                 arma::mat y_batch = y.cols(batch * batch_size, last_col);
+                xptr = X_batch.memptr();
+                yptr = y_batch.memptr();
             }
             int this_batch_size = last_col - batch * batch_size + 1;
             int subsize = this_batch_size / num_procs;
@@ -629,8 +634,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             std::cout<<"rank "<<rank<<" "<<countsx[rank]<<" "<<countsy[rank]<<"\n";
             arma::mat X_subbatch(x_row, countsx[rank] / x_row);
             arma::mat y_subbatch(y_row, countsy[rank] / y_row);
-            MPI_SAFE_CALL(MPI_Scatterv(X_batch.memptr(), countsx, displsx, MPI_DOUBLE, X_subbatch.memptr(), countsx[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
-            MPI_SAFE_CALL(MPI_Scatterv(y_batch.memptr(), countsy, displsy, MPI_DOUBLE, y_subbatch.memptr(), countsy[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
+            MPI_SAFE_CALL(MPI_Scatterv(xptr, countsx, displsx, MPI_DOUBLE, X_subbatch.memptr(), countsx[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
+            MPI_SAFE_CALL(MPI_Scatterv(yptr, countsy, displsy, MPI_DOUBLE, y_subbatch.memptr(), countsy[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
             struct cache bpcache;
 
 
@@ -666,7 +671,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 }
 
                 std::cout << "Loss at iteration " << iter << " of epoch " << epoch << "/" <<
-                          epochs << " = " << loss(nn, bpcache.yc, y_batch, reg) << "\n";
+                          epochs << " = " << loss(nn, bpcache.yc, y_subbatch, reg) << "\n";
             }
 
 
