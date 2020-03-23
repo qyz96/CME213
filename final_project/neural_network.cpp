@@ -285,12 +285,13 @@ void train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
 
 
-void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcache, int num_sample) {
+void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcache) {
 
 
     int K = nn.W[0].n_rows;
     int M = nn.W[0].n_cols;
     int N = nn.W[1].n_rows;
+    int num_sample = X.n_cols;
     bpcache.z.resize(2);
     bpcache.a.resize(2);
     for (unsigned int k=0; k<bpcache.z.size(); k++) {
@@ -387,8 +388,8 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
 
 
 
-void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct cache& bpcache, struct grads& bpgrads, int num_sample) {
-    //int num_sample = y.n_cols;
+void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struct cache& bpcache, struct grads& bpgrads, int batch_size) {
+    int num_sample = y.n_cols;
     int K = nn.W[0].n_rows;
     int M = nn.W[0].n_cols;
     int N = nn.W[1].n_rows;
@@ -440,7 +441,7 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
     double alpha1 = 1;
     double beta1=0;
     //std::cout<<1/(double)(num_sample)<<"\n";
-    gpu_addmat(dyc, dy, dDff, 1/(double)(num_sample), -1/(double)(num_sample), N, num_sample);
+    gpu_addmat(dyc, dy, dDff, 1/(double)(batch_size), -1/(double)(batch_size), N, num_sample);
     check_launch("add mat");
     myGEMM2(dW1, dDff, da1, &alpha1, &beta1, K, num_sample, N, true, false);
     check_launch("myGEMM");
@@ -623,8 +624,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 displsx[i] = subsize * i * y_row;
                 countsx[i] = (rank == num_procs - 1) ? ((this_batch_size % num_procs) * y_row) : (subsize * y_row);
             }
-            arma::mat X_subbatch(X.n_rows, countsx[rank] / x_row);
-            arma::mat y_subbatch(y.n_rows, countsy[rank] / y_row);
+            arma::mat X_subbatch(x_row, countsx[rank] / x_row);
+            arma::mat y_subbatch(y_row, countsy[rank] / y_row);
             MPI_SAFE_CALL(MPI_Scatterv(X_batch.memptr(), countsx, displsx, MPI_DOUBLE, X_subbatch.memptr(), countsx[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
             MPI_SAFE_CALL(MPI_Scatterv(y_batch.memptr(), countsy, displsy, MPI_DOUBLE, y_subbatch.memptr(), countsy[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
             struct cache bpcache;
@@ -642,7 +643,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             std::cout<<"a1: "<<bpcache.a[1].submat(0,0,5,5)<<"\n";
             std::cout<<"y: "<<bpcache.yc.submat(0,0, 5, 5)<<"\n";
             std::cout<<bpcache.yc.is_finite()<<std::endl;
-            
+            .
+
             std::cout<<"Backpropagation begins...\n"; */
             struct grads bpgrads;
             gpu_backprop(nn, y_subbatch, reg, bpcache, bpgrads, this_batch_size);
