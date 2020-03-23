@@ -258,7 +258,10 @@ void train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             for(int i = 0; i < nn.b.size(); ++i) {
                 nn.b[i] -= learning_rate * bpgrads.db[i];
             }
-            std::cout<<nn.b[0].subvec(0,5);
+            std::cout<<"serial W0: "<<nn.W[0].submat(0,5)<<"\n";
+            if (batch > 5) {
+                return;
+            }
             return;
 
             /* Debug routine runs only when debug flag is set. If print_every is zero, it saves
@@ -706,8 +709,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             //std::cout<<"b0 after update, rank "<<rank<<"\n"<<nn.b[0].subvec(0,5)<<"\n";
 
 
-
-            //std::cout<<"nnW0: "<<nn.W[0].submat(0,0, 5, 5)<<"\n";
+            if (rank == 0) {
+                std::cout<<"nnW0: "<<nn.W[0].submat(0,0, 5, 5)<<"\n";
+            }
             //std::cout<<"nnW1: "<<nn.W[1].submat(0,0, 5, 5)<<"\n";
             //std::cout<<"nnb0: "<<nn.b[0].subvec(495, 510)<<"\n";
             //std::cout<<"nnb1: "<<nn.b[1].subvec(0, 5)<<"\n"; 
@@ -725,7 +729,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             if(debug && rank == 0 && print_flag) {
                 write_diff_gpu_cpu(nn, iter, error_file);
             }
-            //return;
+            if (iter>5) {
+                return;
+            }
             iter++;
         }
     }
