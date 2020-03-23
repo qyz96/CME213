@@ -661,7 +661,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             if(print_every > 0 && iter % print_every == 0) {
                 if(grad_check) {
                     struct grads numgrads;
-                    numgrad(nn, X_batch, y_batch, reg, numgrads);
+                    numgrad(nn, X_subbatch, y_subbatch, reg, numgrads);
                     assert(gradcheck(numgrads, bpgrads));
                 }
 
