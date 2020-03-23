@@ -289,9 +289,6 @@ void device_repmat(double* vec, double* result, int M, int N) {
     
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
-    if ((i==0)&&(j==0)) {
-        printf("M is %d, N is %d: \n", M, N);
-    }
     if ((i < M) && (j < N)) {
         result[i + j * M] = vec[i];
     }
@@ -301,17 +298,14 @@ void device_repmat(double* vec, double* result, int M, int N) {
 
 void gpu_repmat(double* vec, double* result, int M, int N)  {
 
-/*     if (1) {
-        printf("M is %d, N is %d: \n", M, N);
-    }
     int block_size_x = BLOCK_SIZE;
     int block_size_y = BLOCK_SIZE;
     int numBlocks_x = (N + block_size_x - 1) / block_size_x;
     int numBlocks_y = (M + block_size_y - 1) / block_size_y;
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
-    device_repmat<<<blocks, threads>>>(vec, result, M, N); */
-}
+    device_repmat<<<blocks, threads>>>(vec, result, M, N); 
+} 
 
 
 __global__
