@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
 
     // Read in command line arguments
     std::vector<int> H(3);
-    double reg = 0;
+    double reg = 1e-4;
     double learning_rate = 0.001;
     int num_epochs = 20;
     int batch_size = 800;
