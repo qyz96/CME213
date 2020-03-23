@@ -301,7 +301,7 @@ void device_repmat(double* vec, double* result, int M, int N) {
 
 void gpu_repmat(double* vec, double* result, int M, int N)  {
 
-    if (1) {
+/*     if (1) {
         printf("M is %d, N is %d: \n", M, N);
     }
     int block_size_x = BLOCK_SIZE;
@@ -310,7 +310,7 @@ void gpu_repmat(double* vec, double* result, int M, int N)  {
     int numBlocks_y = (M + block_size_y - 1) / block_size_y;
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
-    //device_repmat<<<blocks, threads>>>(vec, result, M, N);
+    device_repmat<<<blocks, threads>>>(vec, result, M, N); */
 }
 
 
