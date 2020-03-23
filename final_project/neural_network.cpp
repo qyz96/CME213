@@ -632,10 +632,12 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             double* yptr = nullptr;
             int last_col = std::min((batch + 1)*batch_size-1, N-1);
             if (rank==0) {
-                arma::mat X_batch = X.cols(batch * batch_size, last_col);
-                arma::mat y_batch = y.cols(batch * batch_size, last_col);
-                xptr = X_batch.memptr();
-                yptr = y_batch.memptr();
+                //arma::mat X_batch = X.cols(batch * batch_size, last_col);
+                //arma::mat y_batch = y.cols(batch * batch_size, last_col);
+                xptr = X.memptr();
+                yptr = y.memptr();
+                xptr += batch * batch_size * x_row;
+                yptr += batch * batch_size * y_row;
 
             }
             int this_batch_size = last_col - batch * batch_size + 1;
