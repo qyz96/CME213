@@ -374,8 +374,8 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
     gpu_sigmoid(dz0, da0, K, num_sample);
     cudaMemcpy(bpcache.a[0].memptr(), da0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
     //std::cout<<"nn.W[0] * X + arma::repmat(nn.b[0], 1, N)....\n";
-    //cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, num_sample, K, &alpha, dW1, N, da0, K, &beta, dz1, N);
-    myGEMM(dW1, da0, dz1, &alpha, &beta, N, num_sample, K);
+    cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, num_sample, K, &alpha, dW1, N, da0, K, &beta, dz1, N);
+    //myGEMM(dW1, da0, dz1, &alpha, &beta, N, num_sample, K);
     check_launch("myGEMM 2");
     cudaMemcpy(bpcache.z[1].memptr(), dz1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
     
