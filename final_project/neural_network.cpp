@@ -367,8 +367,8 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
         std::cerr << "CUBLAS initialization failed!" << std::endl;
         return;
     }
-    //cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, K, num_sample, M, &alpha, dW0, K, dX, M, &beta, dz0, K);
-    myGEMM(dW0, dX, dz0, &alpha, &beta, K, num_sample, M);
+    cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, K, num_sample, M, &alpha, dW0, K, dX, M, &beta, dz0, K);
+    //myGEMM(dW0, dX, dz0, &alpha, &beta, K, num_sample, M);
     cudaMemcpy(bpcache.z[0].memptr(), dz0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
     check_launch("myGEMM 1");
     gpu_sigmoid(dz0, da0, K, num_sample);
