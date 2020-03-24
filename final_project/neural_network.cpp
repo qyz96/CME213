@@ -757,12 +757,29 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 nn.b[i] -= learning_rate * bpgrads.db[i];
             }  */
             //std::cout<<"db0 Before reduce, rank "<<rank<<"\n"<<bpgrads.db[0](0)<<"\n";
-            MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, bpgrads.dW[0].memptr(), bpgrads.dW[0].n_elem, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
-            MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, bpgrads.dW[1].memptr(), bpgrads.dW[1].n_elem, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
-            MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, bpgrads.db[0].memptr(), bpgrads.db[0].n_elem, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
-            MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, bpgrads.db[1].memptr(), bpgrads.db[1].n_elem, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
+
+            if (rank == 0)   {
+                MPI_SAFE_CALL(MPI_Reduce(MPI_IN_PLACE, bpgrads.dW[0].memptr(), bpgrads.dW[0].n_elem, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD));
+                MPI_SAFE_CALL(MPI_Reduce(MPI_IN_PLACE, bpgrads.dW[1].memptr(), bpgrads.dW[1].n_elem, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD));
+                MPI_SAFE_CALL(MPI_Reduce(MPI_IN_PLACE, bpgrads.db[0].memptr(), bpgrads.db[0].n_elem, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD));
+                MPI_SAFE_CALL(MPI_Reduce(MPI_IN_PLACE, bpgrads.db[1].memptr(), bpgrads.db[1].n_elem, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD));
+            }
+            else {
+                MPI_SAFE_CALL(MPI_Reduce(bpgrads.dW[0].memptr(), bpgrads.dW[0].memptr(), bpgrads.dW[0].n_elem, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD));
+                MPI_SAFE_CALL(MPI_Reduce(bpgrads.dW[1].memptr(), bpgrads.dW[1].memptr(), bpgrads.dW[1].n_elem, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD));
+                MPI_SAFE_CALL(MPI_Reduce(bpgrads.db[0].memptr(), bpgrads.db[0].memptr(), bpgrads.db[0].n_elem, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD));
+                MPI_SAFE_CALL(MPI_Reduce(bpgrads.db[1].memptr(), bpgrads.db[1].memptr(), bpgrads.db[1].n_elem, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD));
+            }
             //std::cout<<"db0 After reduce, rank "<<rank<<"\n"<<bpgrads.db[0](0)<<"\n";
-            gpu_updatecoeffcient(nn, bpgrads, learning_rate);
+
+            if (rank == 0) {
+                gpu_updatecoeffcient(nn, bpgrads, learning_rate);
+            }
+
+            for (unsigned int i=0; i<nn.W.size(); i++) {
+                MPI_SAFE_CALL(MPI_Bcast(nn.W[i].memptr(), nn.W[i].n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+                MPI_SAFE_CALL(MPI_Bcast(nn.b[i].memptr(), nn.b[i].n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+            }
             //std::cout<<"b0 after update, rank "<<rank<<"\n"<<nn.b[0].subvec(0,5)<<"\n";
 
 
