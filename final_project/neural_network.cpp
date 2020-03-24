@@ -470,8 +470,8 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
     //std::cout<<1/(double)(num_sample)<<"\n";
     gpu_addmat(dyc, dy, dDff, 1/(double)(batch_size), -1/(double)(batch_size), N, num_sample);
     check_launch("add mat");
-    myGEMM2(dW1, dDff, da1, &alpha1, &beta1, K, num_sample, N, true, false);
-    //cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, K, num_sample, N, &alpha1, dW1, K, dDff, N, &beta1, da1, K);
+    //myGEMM2(dW1, dDff, da1, &alpha1, &beta1, K, num_sample, N, true, false);
+    cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, K, num_sample, N, &alpha1, dW1, K, dDff, N, &beta1, da1, K);
     check_launch("myGEMM");
     myGEMM2(dDff, da0, dW1, &alpha1, &reg, N, K, num_sample, false, true);
     //cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, N, K, num_sample, &alpha1, dDff, N, da0, K, &reg, dW1, N);
