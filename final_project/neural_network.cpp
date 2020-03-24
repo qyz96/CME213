@@ -2,6 +2,7 @@
 
 #include <armadillo>
 #include "utils/common.h"
+#include "cublas_v2.h"
 #include "gpu_func.h"
 #include "mpi.h"
 #include "iomanip"
