@@ -358,14 +358,23 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
     double alpha = 1;
     double beta = 1;
 
-
-    myGEMM(dW0, dX, dz0, &alpha, &beta, K, num_sample, M);
+    cudaError_t cudaStat;
+    cublasStatus_t stat;
+    cublasHandle_t handle;
+    stat = cublasCreate(&handle);
+    if(stat != CUBLAS_STATUS_SUCCESS) {
+        std::cerr << "CUBLAS initialization failed!" << std::endl;
+        return;
+    }
+    cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, K, num_sample, M, &alpha, dW0, K, dX, M, &beta, dz0, K);
+    //myGEMM(dW0, dX, dz0, &alpha, &beta, K, num_sample, M);
     cudaMemcpy(bpcache.z[0].memptr(), dz0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
     check_launch("myGEMM 1");
     gpu_sigmoid(dz0, da0, K, num_sample);
     cudaMemcpy(bpcache.a[0].memptr(), da0, sizeof(double) * K * num_sample, cudaMemcpyDeviceToHost);
     //std::cout<<"nn.W[0] * X + arma::repmat(nn.b[0], 1, N)....\n";
-    myGEMM(dW1, da0, dz1, &alpha, &beta, N, num_sample, K);
+    cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, num_sample, K, &alpha, dW1, N, da0, K, &beta, dz1, N);
+    //myGEMM(dW1, da0, dz1, &alpha, &beta, N, num_sample, K);
     check_launch("myGEMM 2");
     cudaMemcpy(bpcache.z[1].memptr(), dz1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
     
@@ -445,12 +454,26 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
     double beta = -1/(double)(num_sample);
     double alpha1 = 1;
     double beta1=0;
+
+
+    cudaError_t cudaStat;
+    cublasStatus_t stat;
+    cublasHandle_t handle;
+    stat = cublasCreate(&handle);
+    if(stat != CUBLAS_STATUS_SUCCESS) {
+        std::cerr << "CUBLAS initialization failed!" << std::endl;
+        return;
+    }
+
+
     //std::cout<<1/(double)(num_sample)<<"\n";
     gpu_addmat(dyc, dy, dDff, 1/(double)(batch_size), -1/(double)(batch_size), N, num_sample);
     check_launch("add mat");
-    myGEMM2(dW1, dDff, da1, &alpha1, &beta1, K, num_sample, N, true, false);
+    //myGEMM2(dW1, dDff, da1, &alpha1, &beta1, K, num_sample, N, true, false);
+    cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, K, num_sample, N, &alpha1, dW1, K, dDff, N, &beta1, da1, K);
     check_launch("myGEMM");
-    myGEMM2(dDff, da0, dW1, &alpha1, &reg, N, K, num_sample, false, true);
+    //myGEMM2(dDff, da0, dW1, &alpha1, &reg, N, K, num_sample, false, true);
+    cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, N, K, num_sample, &alpha1, dDff, N, da0, K, &reg, dW1, N);
     check_launch("myGEMM 2");
 
     gpu_hadmard(dz1, da1, da0, K, num_sample);
@@ -460,7 +483,8 @@ void gpu_backprop(NeuralNetwork& nn, const arma::mat& y, double reg, const struc
     gpu_sumrow(dDff, db1, N, num_sample);
     check_launch("sumrow");
 
-    myGEMM2(dz1, dX, dW0, &alpha1, &reg, K, M, num_sample, false, true);
+    //myGEMM2(dz1, dX, dW0, &alpha1, &reg, K, M, num_sample, false, true);
+    cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, K, M, num_sample, &alpha1, dz1, K, dX, num_sample, &reg, dW0, K);
     check_launch("myGEMM 3");
 
     gpu_sumrow(dz1, db0, K, num_sample);
