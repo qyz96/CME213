@@ -1053,6 +1053,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     }
     std::cout<<"Broadcast done...\n";
     OneBatchUpdate pp(nn, batch_size/num_procs, batch_size, reg, learning_rate, rank, num_procs);
+    std::cout<<"Initialization done...\n";
     for(int epoch = 0; epoch < epochs; ++epoch) {
         int num_batches = (N + batch_size - 1)/batch_size;
 
