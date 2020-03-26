@@ -333,7 +333,7 @@ class OneBatchUpdate  {
 
         double alpha = 1;
         double beta = 1;
-
+        std::cout<<"Feedforward...\n";
         cudaError_t cudaStat;
         cublasStatus_t stat;
         cublasHandle_t handle;
@@ -373,6 +373,8 @@ class OneBatchUpdate  {
         cudaMemcpy(dy, yptr, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
         cudaMemcpy(dW0, W0, sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
         cudaMemcpy(dW1, W1, sizeof(double) * K * N, cudaMemcpyDeviceToDevice);
+
+        std::cout<<"BackProp...\n";
         gpu_addmat(a1, dy, dy, 1/(double)(batch_size), -1/(double)(batch_size), N, num_sample);
         check_launch("add mat");
         //myGEMM2(dW1, dDff, da1, &alpha1, &beta1, K, num_sample, N, true, false);
