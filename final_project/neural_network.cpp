@@ -1057,12 +1057,13 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
         int num_batches = (N + batch_size - 1)/batch_size;
 
         for(int batch = 0; batch < num_batches; ++batch) {
-
+            std::cout<<"Calculating pointer...\n";
             const double* xptr = X.memptr() + batch * batch_size * x_row;
             const double* yptr = y.memptr() + batch * batch_size * y_row;
             int last_col = std::min((batch + 1) * batch_size-1, N-1);
             int this_batch_size = last_col - batch * batch_size + 1;
             int subsize = (this_batch_size + num_procs - 1) / num_procs;
+            std::cout<<"Assigning positions...\n";
             for (unsigned int i = 0; i < num_procs; i++) {
                 displsx[i] = subsize * i * x_row;
                 countsx[i] = subsize * x_row;
@@ -1070,7 +1071,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 countsy[i] = subsize * y_row;
             }
 
-
+            std::cout<<"Scatter beings...\n";
             MPI_SAFE_CALL(MPI_Scatterv(xptr, countsx, displsx, MPI_DOUBLE, xptr_sub, countsx[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
             MPI_SAFE_CALL(MPI_Scatterv(yptr, countsy, displsy, MPI_DOUBLE, yptr_sub, countsy[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD)); 
             std::cout<<"Scatter done...\n";
