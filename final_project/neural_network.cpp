@@ -338,7 +338,7 @@ class OneBatchUpdate  {
 
 
 
-    void FeedForward(const double* xptr, int subsize, int wholesize)  {
+    void FeedForward(double* xptr, int subsize, int wholesize)  {
         num_sample = subsize;
         batch_size = wholesize;
         cudaMemcpy(dX, xptr, sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
@@ -367,7 +367,7 @@ class OneBatchUpdate  {
 
     }
 
-    void BackProp(const double* yptr) {
+    void BackProp(double* yptr) {
 
         double alpha = 1/(double)(num_sample);
         double beta = -1/(double)(num_sample);
