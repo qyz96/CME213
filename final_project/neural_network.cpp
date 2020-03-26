@@ -1039,7 +1039,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             iter++;
         }
     }
-    //pp.UpdateCoefficient(nn);
+    pp.UpdateCoefficient(nn);
 
     error_file.close();
 }
