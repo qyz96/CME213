@@ -294,8 +294,8 @@ class OneBatchUpdate  {
 
 
     public:
-    OneBatchUpdate(NeuralNetwork& nn, int sub_size, int total_size, double regularizer, double lr): M(nn.W[0].n_cols), N(nn.W[1].n_rows), 
-    K(nn.W[0].n_rows), num_sample(sub_size), batch_size(total_size), reg(regularizer), learning_rate(lr) {
+    OneBatchUpdate(NeuralNetwork& nn, int sub_size, int total_size, double regularizer, double lr, int r, int np): M(nn.W[0].n_cols), N(nn.W[1].n_rows), 
+    K(nn.W[0].n_rows), num_sample(sub_size), batch_size(total_size), reg(regularizer), learning_rate(lr), rank(r), num_procs(np) {
 
 
         stat = cublasCreate(&handle);
@@ -303,6 +303,14 @@ class OneBatchUpdate  {
             std::cerr << "CUBLAS initialization failed!" << std::endl;
             return;
         }
+
+
+
+        int *displsx = new int[num_procs];
+        int *displsy = new int[num_procs];
+        int *countsx = new int[num_procs];
+        int *countsy = new int[num_procs];
+
         cudaMalloc((void**)&z0, sizeof(double) * K * num_sample);
         cudaMalloc((void**)&z1, sizeof(double) * N * num_sample);
         cudaMalloc((void**)&a0, sizeof(double) * K * num_sample);
@@ -326,12 +334,28 @@ class OneBatchUpdate  {
         cudaMemcpy(W1, nn.W[1].memptr(), sizeof(double) * K * N, cudaMemcpyHostToDevice);
 
 
+        MPI_SAFE_CALL(MPI_Bcast(W0, M*K, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Bcast(b0, K, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Bcast(W1, K*N MPI_DOUBLE, 0, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Bcast(b1, N, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+
     }
 
 
-    void FeedForward(const double* xptr, int subsize, int wholesize)  {
+    void ScatterData(int subsize, int wholesize)  {
         num_sample = subsize;
         batch_size = wholesize;
+        for (unsigned int i = 0; i < num_procs; i++) {
+                displsx[i] = num_sample * i * M;
+                countsx[i] = num_sample * M);
+                displsy[i] = num_sample * i * N;
+                countsy[i] = num_sample * N;
+            }
+    }
+
+
+    void FeedForward(const double* xptr)  {
+
         cudaMemcpy(dX, xptr, sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
         gpu_repmat(b0, z0, K, num_sample);
         check_launch("repmat b0");
@@ -426,7 +450,11 @@ class OneBatchUpdate  {
 
 
     ~OneBatchUpdate()   {
-
+        
+        delete[] displsx;
+        delete[] displsy;
+        delete[] countsx;
+        delete[] countsy;
         cudaFree(W0);
         cudaFree(W1);
         cudaFree(b0);
@@ -454,7 +482,7 @@ class OneBatchUpdate  {
     cublasStatus_t stat;
     cublasHandle_t handle;
 
-
+    int rank;
     int num_sample;
     int batch_size;
     int N;
@@ -479,6 +507,12 @@ class OneBatchUpdate  {
     double* dyc;
     double reg;
     double learning_rate;
+
+    int num_procs;
+    int *displsx;
+    int *displsy;
+    int *countsx;
+    int *countsy;
 
 
 
@@ -1022,7 +1056,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     error_file.open("Outputs/CpuGpuDiff.txt");
     int print_flag = 0;
     int iter = 0;
-    OneBatchUpdate pp(nn, batch_size/num_procs, batch_size, reg, learning_rate);
+    OneBatchUpdate pp(nn, batch_size/num_procs, batch_size, reg, learning_rate, rank, num_procs);
     for(int epoch = 0; epoch < epochs; ++epoch) {
         int num_batches = (N + batch_size - 1)/batch_size;
 
