@@ -361,6 +361,15 @@ class OneBatchUpdate  {
         double beta = -1/(double)(num_sample);
         double alpha1 = 1;
         double beta1=0;
+
+        cudaError_t cudaStat;
+        cublasStatus_t stat;
+        cublasHandle_t handle;
+        stat = cublasCreate(&handle);
+        if(stat != CUBLAS_STATUS_SUCCESS) {
+            std::cerr << "CUBLAS initialization failed!" << std::endl;
+            return;
+        }
         cudaMemcpy(dy, y.memptr(), sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
         cudaMemcpy(dW0, W0, sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
         cudaMemcpy(dW1, W1, sizeof(double) * K * N, cudaMemcpyDeviceToDevice);
