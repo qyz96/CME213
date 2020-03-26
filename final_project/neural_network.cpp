@@ -320,7 +320,7 @@ class OneBatchUpdate  {
     }
 
 
-    void FeedForward(double* xptr)  {
+    void FeedForward(const double* xptr)  {
         cudaMemcpy(dX, xptr, sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
         gpu_repmat(b0, z0, K, num_sample);
         check_launch("repmat b0");
@@ -355,7 +355,7 @@ class OneBatchUpdate  {
 
     }
 
-    void BackProp(double* yptr) {
+    void BackProp(const double* yptr) {
 
         double alpha = 1/(double)(num_sample);
         double beta = -1/(double)(num_sample);
@@ -789,7 +789,7 @@ void gpu_updatecoeffcient(NeuralNetwork& nn, struct grads& bpgrads, double learn
  * Train the neural network &nn of rank 0 in parallel. Your MPI implementation
  * should mainly be in this function.
  */
-void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
+void parallel_train2(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                     double learning_rate, double reg,
                     const int epochs, const int batch_size, bool grad_check, int print_every,
                     int debug) {
@@ -999,6 +999,44 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             iter++;
         }
     }
+
+    error_file.close();
+}
+
+
+void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
+                    double learning_rate, double reg,
+                    const int epochs, const int batch_size, bool grad_check, int print_every,
+                    int debug) {
+
+    int rank, num_procs;
+
+    int N = (rank == 0)?X.n_cols:0;
+
+    std::ofstream error_file;
+    error_file.open("Outputs/CpuGpuDiff.txt");
+    int print_flag = 0;
+    int iter = 0;
+
+    OneBatchUpdate pp(nn, batch_size, batch_size, reg, learning_rate);
+    for(int epoch = 0; epoch < epochs; ++epoch) {
+        int num_batches = (N + batch_size - 1)/batch_size;
+
+        for(int batch = 0; batch < num_batches; ++batch) {
+
+            const double* xptr = X.memptr() + batch * batch_size * x_row;
+            const double* yptr = y.memptr() + batch * batch_size * y_row;
+            pp.FeedForward(xptr);
+            pp.BackProp(yptr);
+            pp.GradientDescent();
+            if(debug && rank == 0 && print_flag) {
+                write_diff_gpu_cpu(nn, iter, error_file);
+            }
+
+            iter++;
+        }
+    }
+    pp.UpdateCoefficient();
 
     error_file.close();
 }
