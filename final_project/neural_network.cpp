@@ -1058,8 +1058,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
         for(int batch = 0; batch < num_batches; ++batch) {
 
-            const double* xptr = nullptr;
-            const double* yptr = nullptr;
+            double* xptr = nullptr;
+            double* yptr = nullptr;
 
             if (rank == 0) {
                 xptr = X.memptr() + batch * batch_size * x_row;
