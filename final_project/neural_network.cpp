@@ -289,6 +289,173 @@ void train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
 
 
+class OneBatchUpdate  {
+
+
+
+
+    OneBatchUpdate(NeuralNetwork& nn, int sub_size, int total_size, double regularizer): M(nn.W[0].n_cols), N(nn.W[1].n_rows), K(nn.W[0].n_rows), num_sample(sub_size), batch_size(total_size), reg(regularizer) {
+        cudaMalloc((void**)&z0, sizeof(double) * K * num_sample);
+        cudaMalloc((void**)&z1, sizeof(double) * N * num_sample);
+        cudaMalloc((void**)&a0, sizeof(double) * K * num_sample);
+        cudaMalloc((void**)&a1, sizeof(double) * N * num_sample);
+        cudaMalloc((void**)&W0, sizeof(double) * M * K);
+        cudaMalloc((void**)&W1, sizeof(double) * K * N);
+        cudaMalloc((void**)&b0, sizeof(double) * K);
+        cudaMalloc((void**)&b1, sizeof(double) * N);
+        cudaMalloc((void**)&dX, sizeof(double) * M * num_sample);
+        cudaMalloc((void**)&dexp, sizeof(double) * 1 * num_sample);
+        cudaMalloc((void**)&dW0, sizeof(double) * M * K);
+        cudaMalloc((void**)&dW1, sizeof(double) * K * N);
+        cudaMalloc((void**)&db0, sizeof(double) * K);
+        cudaMalloc((void**)&db1, sizeof(double) * N);
+        cudaMalloc((void**)&dyc, sizeof(double) * N * num_sample);
+        cudaMalloc((void**)&dy, sizeof(double) * N * num_sample);
+
+        cudaMemcpy(b0, nn.b[0].memptr(), sizeof(double) * K , cudaMemcpyHostToDevice);
+        cudaMemcpy(b1, nn.b[1].memptr(), sizeof(double) * N, cudaMemcpyHostToDevice);
+        cudaMemcpy(W0, nn.W[0].memptr(), sizeof(double) * M * K, cudaMemcpyHostToDevice);
+        cudaMemcpy(W1, nn.W[1].memptr(), sizeof(double) * K * N, cudaMemcpyHostToDevice);
+    }
+
+
+    FeedForward(const arma::mat& X)  {
+        cudaMemcpy(dX, X.memptr(), sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
+        gpu_repmat(b0, z0, K, num_sample);
+        check_launch("repmat b0");
+        gpu_repmat(b1, z1, N, num_sample);
+        check_launch("repmat b1");
+        
+
+
+
+
+        double alpha = 1;
+        double beta = 1;
+
+        cudaError_t cudaStat;
+        cublasStatus_t stat;
+        cublasHandle_t handle;
+        stat = cublasCreate(&handle);
+        if(stat != CUBLAS_STATUS_SUCCESS) {
+            std::cerr << "CUBLAS initialization failed!" << std::endl;
+            return;
+        }
+        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, K, num_sample, M, &alpha, W0, K, dX, M, &beta, z0, K);
+        check_launch("myGEMM 1");
+        gpu_sigmoid(z0, a0, K, num_sample);
+        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, num_sample, K, &alpha, dW1, N, da0, K, &beta, dz1, N);
+        check_launch("myGEMM 2");
+        gpu_exp(z1, a1, N, num_sample);
+        check_launch("exp");
+        gpu_sumcol(a1, dexp, N, num_sample);
+        check_launch("sumcol");
+        gpu_softmax(dexp, a1, N, num_sample);
+
+    }
+
+    BackProp(const arma::mat& y) {
+
+
+        cudaMemcpy(dy, y.memptr(), sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
+        cudaMemcpy(dW0, W0, sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
+        cudaMemcpy(dW1, W1, sizeof(double) * K * N, cudaMemcpyDeviceToDevice);
+        gpu_addmat(a1, dy, dy, 1/(double)(batch_size), -1/(double)(batch_size), N, num_sample);
+        check_launch("add mat");
+        //myGEMM2(dW1, dDff, da1, &alpha1, &beta1, K, num_sample, N, true, false);
+        cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, K, num_sample, N, &alpha1, W1, N, dy, N, &beta1, z0, K);
+        check_launch("myGEMM");
+        //myGEMM2(dDff, da0, dW1, &alpha1, &reg, N, K, num_sample, false, true);
+        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, N, K, num_sample, &alpha1, dy, N, a0, K, &reg, dW1, N);
+        check_launch("myGEMM 2");
+
+        gpu_hadmard(z0, z0, a0, K, num_sample);
+        check_launch("hadmard");
+
+
+        gpu_sumrow(dy, db1, N, num_sample);
+        check_launch("sumrow");
+
+        //myGEMM2(dz1, dX, dW0, &alpha1, &reg, K, M, num_sample, false, true);
+        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, K, M, num_sample, &alpha1, z0, K, dX, M, &reg, dW0, K);
+        check_launch("myGEMM 3");
+
+        gpu_sumrow(z0, db0, K, num_sample);
+        check_launch("sumrow2");
+
+
+
+    }
+
+
+    GradientDescent() {
+
+        gpu_addmat(W0, dW0, W0, 1, -learning_rate, K, M);
+        check_launch("addmat 1");
+        gpu_addmat(W1, dW1, W1, 1, -learning_rate, N, K);
+        check_launch("addmat 2");
+        gpu_addmat(b0, db0, b0, 1, -learning_rate, K, 1);
+        check_launch("addmat 3");
+        gpu_addmat(b1, db1, b1, 1, -learning_rate, N, 1);
+        check_launch("addmat 4");
+    }
+
+
+
+    UpdateCoefficient(NeuralNetwork& nn) {
+        
+        cudaMemcpy(nn.W[0].memptr(), W0, sizeof(double) * M * K, cudaMemcpyDeviceToHost);
+        cudaMemcpy(nn.b[0].memptr(), b0, sizeof(double) * K, cudaMemcpyDeviceToHost);
+        cudaMemcpy(nn.W[1].memptr(), W1, sizeof(double) * N * K, cudaMemcpyDeviceToHost);
+        cudaMemcpy(nn.b[1].memptr(), b1, sizeof(double) * N, cudaMemcpyDeviceToHost);
+
+
+    }
+
+
+
+    ~OneBatchUpdate()   {
+
+        cudaFree(W0);
+        cudaFree(W1);
+        cudaFree(b0);
+        cudaFree(b1);
+        cudaFree(z0);
+        cudaFree(z1);
+        cudaFree(a0);
+        cudaFree(a1);
+        cudaFree(dW0);
+        cudaFree(dW1);
+        cudaFree(db0);
+        cudaFree(db1);
+        cudaFree(dX);
+        cudaFree(dexp);
+        cudaFree(dyc);
+        cudaFree(dy);
+    }
+
+    
+
+
+    private:
+
+    int num_sample;
+    int batch_size;
+    int N;
+    int M;
+    int K;
+
+    double* z0, z1, a0, a1, W0, W1, b0, b1;
+    double* dW0, dW1, db0, db1;
+    double* dX, dexp;
+    double* dy, dyc;
+    double reg;
+
+
+
+};
+
+
 
 
 void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcache) {
@@ -309,11 +476,8 @@ void gpu_feedforward(NeuralNetwork& nn, const arma::mat& X, struct cache& bpcach
     bpcache.a[0]=arma::mat(K, num_sample);
     bpcache.z[1]=arma::mat(N, num_sample);
     bpcache.a[1]=arma::mat(N, num_sample);
-    //arma::mat b0r = arma::repmat(nn.b[0], 1, num_sample);
-    //arma::mat b1r = arma::repmat(nn.b[1], 1, num_sample);
 
 
-    //my_feedforward(nn, X, bpcache, b0r, b1r, a0, a1, z0, z1, yc);
     double* dz0;
     double* dz1;
     double* da0;
