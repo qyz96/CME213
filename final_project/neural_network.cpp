@@ -345,7 +345,7 @@ class OneBatchUpdate  {
         cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, K, num_sample, M, &alpha, W0, K, dX, M, &beta, z0, K);
         check_launch("myGEMM 1");
         gpu_sigmoid(z0, a0, K, num_sample);
-        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, num_sample, K, &alpha, dW1, N, da0, K, &beta, dz1, N);
+        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, num_sample, K, &alpha, W1, N, a0, K, &beta, z1, N);
         check_launch("myGEMM 2");
         gpu_exp(z1, a1, N, num_sample);
         check_launch("exp");
