@@ -294,7 +294,8 @@ class OneBatchUpdate  {
 
 
 
-    OneBatchUpdate(NeuralNetwork& nn, int sub_size, int total_size, double regularizer): M(nn.W[0].n_cols), N(nn.W[1].n_rows), K(nn.W[0].n_rows), num_sample(sub_size), batch_size(total_size), reg(regularizer) {
+    OneBatchUpdate(NeuralNetwork& nn, int sub_size, int total_size, double regularizer, double lr): M(nn.W[0].n_cols), N(nn.W[1].n_rows), 
+    K(nn.W[0].n_rows), num_sample(sub_size), batch_size(total_size), reg(regularizer), learning_rate(lr) {
         cudaMalloc((void**)&z0, sizeof(double) * K * num_sample);
         cudaMalloc((void**)&z1, sizeof(double) * N * num_sample);
         cudaMalloc((void**)&a0, sizeof(double) * K * num_sample);
@@ -356,7 +357,10 @@ class OneBatchUpdate  {
 
     void BackProp(const arma::mat& y) {
 
-
+        double alpha = 1/(double)(num_sample);
+        double beta = -1/(double)(num_sample);
+        double alpha1 = 1;
+        double beta1=0;
         cudaMemcpy(dy, y.memptr(), sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
         cudaMemcpy(dW0, W0, sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
         cudaMemcpy(dW1, W1, sizeof(double) * K * N, cudaMemcpyDeviceToDevice);
@@ -462,6 +466,7 @@ class OneBatchUpdate  {
     double* dy;
     double* dyc;
     double reg;
+    double learning_rate;
 
 
 
