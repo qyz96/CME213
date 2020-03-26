@@ -329,7 +329,7 @@ class OneBatchUpdate  {
 
         MPI_SAFE_CALL(MPI_Bcast(W0, M*K, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Bcast(b0, K, MPI_DOUBLE, 0, MPI_COMM_WORLD));
-        MPI_SAFE_CALL(MPI_Bcast(W1, K*N MPI_DOUBLE, 0, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Bcast(W1, K*N, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Bcast(b1, N, MPI_DOUBLE, 0, MPI_COMM_WORLD));
 
     }
