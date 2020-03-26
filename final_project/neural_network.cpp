@@ -1012,7 +1012,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                     int debug) {
 
     int rank, num_procs;
-
+    MPI_SAFE_CALL(MPI_Comm_size(MPI_COMM_WORLD, &num_procs));
+    MPI_SAFE_CALL(MPI_Comm_rank(MPI_COMM_WORLD, &rank));
     int N = (rank == 0)?X.n_cols:0;
     int x_row = X.n_rows;
     int y_row = y.n_rows;
@@ -1020,8 +1021,6 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     error_file.open("Outputs/CpuGpuDiff.txt");
     int print_flag = 0;
     int iter = 0;
-    MPI_SAFE_CALL(MPI_Comm_size(MPI_COMM_WORLD, &num_procs));
-    MPI_SAFE_CALL(MPI_Comm_rank(MPI_COMM_WORLD, &rank));
     OneBatchUpdate pp(nn, batch_size/num_procs, batch_size, reg, learning_rate);
     for(int epoch = 0; epoch < epochs; ++epoch) {
         int num_batches = (N + batch_size - 1)/batch_size;
