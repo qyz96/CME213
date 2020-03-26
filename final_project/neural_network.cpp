@@ -319,7 +319,7 @@ class OneBatchUpdate  {
     }
 
 
-    FeedForward(const arma::mat& X)  {
+    void FeedForward(const arma::mat& X)  {
         cudaMemcpy(dX, X.memptr(), sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
         gpu_repmat(b0, z0, K, num_sample);
         check_launch("repmat b0");
@@ -354,7 +354,7 @@ class OneBatchUpdate  {
 
     }
 
-    BackProp(const arma::mat& y) {
+    void BackProp(const arma::mat& y) {
 
 
         cudaMemcpy(dy, y.memptr(), sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
@@ -388,7 +388,7 @@ class OneBatchUpdate  {
     }
 
 
-    GradientDescent() {
+    void GradientDescent() {
 
         gpu_addmat(W0, dW0, W0, 1, -learning_rate, K, M);
         check_launch("addmat 1");
@@ -402,7 +402,7 @@ class OneBatchUpdate  {
 
 
 
-    UpdateCoefficient(NeuralNetwork& nn) {
+    void UpdateCoefficient(NeuralNetwork& nn) {
         
         cudaMemcpy(nn.W[0].memptr(), W0, sizeof(double) * M * K, cudaMemcpyDeviceToHost);
         cudaMemcpy(nn.b[0].memptr(), b0, sizeof(double) * K, cudaMemcpyDeviceToHost);
