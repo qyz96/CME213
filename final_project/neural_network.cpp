@@ -1056,7 +1056,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     std::cout<<"Initialization done...\n";
     for(int epoch = 0; epoch < epochs; ++epoch) {
         int num_batches = (N + batch_size - 1)/batch_size;
-
+        std::cout<<"Number of batches..."<<num_batches<<"\n";
         for(int batch = 0; batch < num_batches; ++batch) {
             std::cout<<"Calculating pointer...\n";
             const double* xptr = X.memptr() + batch * batch_size * x_row;
