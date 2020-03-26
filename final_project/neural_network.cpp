@@ -445,10 +445,22 @@ class OneBatchUpdate  {
     int M;
     int K;
 
-    double* z0, z1, a0, a1, W0, W1, b0, b1;
-    double* dW0, dW1, db0, db1;
-    double* dX, dexp;
-    double* dy, dyc;
+    double* z0; 
+    double* z1;
+    double* a0;
+    double* a1;
+    double* W0;
+    double* W1;
+    double* b0;
+    double* b1;
+    double* dW0;
+    double* dW1;
+    double* db0;
+    double* db1;
+    double* dX;
+    double* dexp;
+    double* dy;
+    double* dyc;
     double reg;
 
 
