@@ -320,7 +320,9 @@ class OneBatchUpdate  {
     }
 
 
-    void FeedForward(const double* xptr)  {
+    void FeedForward(const double* xptr, int subsize, int wholesize)  {
+        num_sample = subsize;
+        batch_size = wholesize;
         cudaMemcpy(dX, xptr, sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
         gpu_repmat(b0, z0, K, num_sample);
         check_launch("repmat b0");
@@ -333,7 +335,6 @@ class OneBatchUpdate  {
 
         double alpha = 1;
         double beta = 1;
-        std::cout<<"Feedforward...\n";
         cudaError_t cudaStat;
         cublasStatus_t stat;
         cublasHandle_t handle;
@@ -374,7 +375,6 @@ class OneBatchUpdate  {
         cudaMemcpy(dW0, W0, sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
         cudaMemcpy(dW1, W1, sizeof(double) * K * N, cudaMemcpyDeviceToDevice);
 
-        std::cout<<"BackProp...\n";
         gpu_addmat(a1, dy, dy, 1/(double)(batch_size), -1/(double)(batch_size), N, num_sample);
         check_launch("add mat");
         //myGEMM2(dW1, dDff, da1, &alpha1, &beta1, K, num_sample, N, true, false);
@@ -1029,7 +1029,10 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
             const double* xptr = X.memptr() + batch * batch_size * x_row;
             const double* yptr = y.memptr() + batch * batch_size * y_row;
-            pp.FeedForward(xptr);
+            int last_col = std::min((batch + 1) * batch_size-1, N-1);
+            int this_batch_size = last_col - batch * batch_size + 1;
+            int subsize = (this_batch_size + num_procs - 1) / num_procs;
+            pp.FeedForward(xptr, subsize, this_batch_size);
             pp.BackProp(yptr);
             pp.GradientDescent();
             if(debug && rank == 0 && print_flag) {
