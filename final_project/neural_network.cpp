@@ -296,6 +296,13 @@ class OneBatchUpdate  {
     public:
     OneBatchUpdate(NeuralNetwork& nn, int sub_size, int total_size, double regularizer, double lr): M(nn.W[0].n_cols), N(nn.W[1].n_rows), 
     K(nn.W[0].n_rows), num_sample(sub_size), batch_size(total_size), reg(regularizer), learning_rate(lr) {
+
+
+        stat = cublasCreate(&handle);
+        if(stat != CUBLAS_STATUS_SUCCESS) {
+            std::cerr << "CUBLAS initialization failed!" << std::endl;
+            return;
+        }
         cudaMalloc((void**)&z0, sizeof(double) * K * num_sample);
         cudaMalloc((void**)&z1, sizeof(double) * N * num_sample);
         cudaMalloc((void**)&a0, sizeof(double) * K * num_sample);
@@ -317,6 +324,8 @@ class OneBatchUpdate  {
         cudaMemcpy(b1, nn.b[1].memptr(), sizeof(double) * N, cudaMemcpyHostToDevice);
         cudaMemcpy(W0, nn.W[0].memptr(), sizeof(double) * M * K, cudaMemcpyHostToDevice);
         cudaMemcpy(W1, nn.W[1].memptr(), sizeof(double) * K * N, cudaMemcpyHostToDevice);
+
+
     }
 
 
@@ -335,14 +344,7 @@ class OneBatchUpdate  {
 
         double alpha = 1;
         double beta = 1;
-        cudaError_t cudaStat;
-        cublasStatus_t stat;
-        cublasHandle_t handle;
-        stat = cublasCreate(&handle);
-        if(stat != CUBLAS_STATUS_SUCCESS) {
-            std::cerr << "CUBLAS initialization failed!" << std::endl;
-            return;
-        }
+
         cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, K, num_sample, M, &alpha, W0, K, dX, M, &beta, z0, K);
         check_launch("myGEMM 1");
         gpu_sigmoid(z0, a0, K, num_sample);
@@ -363,14 +365,8 @@ class OneBatchUpdate  {
         double alpha1 = 1;
         double beta1=0;
 
-        cudaError_t cudaStat;
-        cublasStatus_t stat;
-        cublasHandle_t handle;
-        stat = cublasCreate(&handle);
-        if(stat != CUBLAS_STATUS_SUCCESS) {
-            std::cerr << "CUBLAS initialization failed!" << std::endl;
-            return;
-        }
+
+        
         cudaMemcpy(dy, yptr, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
         cudaMemcpy(dW0, W0, sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
         cudaMemcpy(dW1, W1, sizeof(double) * K * N, cudaMemcpyDeviceToDevice);
@@ -453,6 +449,11 @@ class OneBatchUpdate  {
 
 
     private:
+
+    cudaError_t cudaStat;
+    cublasStatus_t stat;
+    cublasHandle_t handle;
+
 
     int num_sample;
     int batch_size;
