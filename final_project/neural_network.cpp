@@ -338,7 +338,7 @@ class OneBatchUpdate  {
 
 
 
-    void FeedForward(double* xptr, int subsize, int wholesize)  {
+    void FeedForward(const double* xptr, int subsize, int wholesize)  {
         num_sample = subsize;
         batch_size = wholesize;
         cudaMemcpy(dX, xptr, sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
@@ -367,7 +367,7 @@ class OneBatchUpdate  {
 
     }
 
-    void BackProp(double* yptr) {
+    void BackProp(const double* yptr) {
 
         double alpha = 1/(double)(num_sample);
         double beta = -1/(double)(num_sample);
@@ -1058,13 +1058,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
         for(int batch = 0; batch < num_batches; ++batch) {
 
-            double* xptr = nullptr;
-            double* yptr = nullptr;
-
-            if (rank == 0) {
-                xptr = X.memptr() + batch * batch_size * x_row;
-                yptr = y.memptr() + batch * batch_size * y_row;
-            }
+            double* xptr = X.memptr() + batch * batch_size * x_row;
+            double* yptr = y.memptr() + batch * batch_size * y_row;
             int last_col = std::min((batch + 1) * batch_size-1, N-1);
             int this_batch_size = last_col - batch * batch_size + 1;
             int subsize = (this_batch_size + num_procs - 1) / num_procs;
@@ -1076,8 +1071,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             }
 
 
-            /* MPI_SAFE_CALL(MPI_Scatterv(xptr, countsx, displsx, MPI_DOUBLE, xptr_sub, countsx[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
-            MPI_SAFE_CALL(MPI_Scatterv(yptr, countsy, displsy, MPI_DOUBLE, yptr_sub, countsy[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD)); */
+            MPI_SAFE_CALL(MPI_Scatterv(xptr, countsx, displsx, MPI_DOUBLE, xptr_sub, countsx[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
+            MPI_SAFE_CALL(MPI_Scatterv(yptr, countsy, displsy, MPI_DOUBLE, yptr_sub, countsy[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD)); 
             std::cout<<"Scatter done...\n";
             pp.FeedForward(xptr, subsize, this_batch_size);
             pp.BackProp(yptr);
