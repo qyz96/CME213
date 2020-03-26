@@ -320,8 +320,8 @@ class OneBatchUpdate  {
     }
 
 
-    void FeedForward(const arma::mat& X)  {
-        cudaMemcpy(dX, X.memptr(), sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
+    void FeedForward(double* xptr)  {
+        cudaMemcpy(dX, xptr, sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
         gpu_repmat(b0, z0, K, num_sample);
         check_launch("repmat b0");
         gpu_repmat(b1, z1, N, num_sample);
@@ -355,7 +355,7 @@ class OneBatchUpdate  {
 
     }
 
-    void BackProp(const arma::mat& y) {
+    void BackProp(double* yptr) {
 
         double alpha = 1/(double)(num_sample);
         double beta = -1/(double)(num_sample);
@@ -370,7 +370,7 @@ class OneBatchUpdate  {
             std::cerr << "CUBLAS initialization failed!" << std::endl;
             return;
         }
-        cudaMemcpy(dy, y.memptr(), sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
+        cudaMemcpy(dy, yptr, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
         cudaMemcpy(dW0, W0, sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
         cudaMemcpy(dW1, W1, sizeof(double) * K * N, cudaMemcpyDeviceToDevice);
         gpu_addmat(a1, dy, dy, 1/(double)(batch_size), -1/(double)(batch_size), N, num_sample);
