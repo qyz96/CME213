@@ -304,13 +304,6 @@ class OneBatchUpdate  {
             return;
         }
 
-
-
-        int *displsx = new int[num_procs];
-        int *displsy = new int[num_procs];
-        int *countsx = new int[num_procs];
-        int *countsy = new int[num_procs];
-
         cudaMalloc((void**)&z0, sizeof(double) * K * num_sample);
         cudaMalloc((void**)&z1, sizeof(double) * N * num_sample);
         cudaMalloc((void**)&a0, sizeof(double) * K * num_sample);
@@ -342,20 +335,11 @@ class OneBatchUpdate  {
     }
 
 
-    void ScatterData(int subsize, int wholesize)  {
+
+
+    void FeedForward(const double* xptr, int subsize, int wholesize)  {
         num_sample = subsize;
         batch_size = wholesize;
-        for (unsigned int i = 0; i < num_procs; i++) {
-                displsx[i] = num_sample * i * M;
-                countsx[i] = num_sample * M);
-                displsy[i] = num_sample * i * N;
-                countsy[i] = num_sample * N;
-            }
-    }
-
-
-    void FeedForward(const double* xptr)  {
-
         cudaMemcpy(dX, xptr, sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
         gpu_repmat(b0, z0, K, num_sample);
         check_launch("repmat b0");
@@ -435,6 +419,13 @@ class OneBatchUpdate  {
         check_launch("addmat 4");
     }
 
+    void ReduceGradient() {
+        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, dW0, M * K, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, dW1, K * N, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, db0, K, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, db1, N, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
+    }
+
 
 
     void UpdateCoefficient(NeuralNetwork& nn) {
@@ -451,10 +442,6 @@ class OneBatchUpdate  {
 
     ~OneBatchUpdate()   {
         
-        delete[] displsx;
-        delete[] displsy;
-        delete[] countsx;
-        delete[] countsy;
         cudaFree(W0);
         cudaFree(W1);
         cudaFree(b0);
@@ -509,10 +496,7 @@ class OneBatchUpdate  {
     double learning_rate;
 
     int num_procs;
-    int *displsx;
-    int *displsy;
-    int *countsx;
-    int *countsy;
+
 
 
 
@@ -1056,6 +1040,12 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     error_file.open("Outputs/CpuGpuDiff.txt");
     int print_flag = 0;
     int iter = 0;
+    int *displsx = new int[num_procs];
+    int *displsy = new int[num_procs];
+    int *countsx = new int[num_procs];
+    int *countsy = new int[num_procs];
+    double* xptr_sub = (double*)malloc(sizeof(double)*M*batch_size);
+    double* yptr_sub = (double*)malloc(sizeof(double)*N*batch_size);
     OneBatchUpdate pp(nn, batch_size/num_procs, batch_size, reg, learning_rate, rank, num_procs);
     for(int epoch = 0; epoch < epochs; ++epoch) {
         int num_batches = (N + batch_size - 1)/batch_size;
@@ -1067,8 +1057,20 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             int last_col = std::min((batch + 1) * batch_size-1, N-1);
             int this_batch_size = last_col - batch * batch_size + 1;
             int subsize = (this_batch_size + num_procs - 1) / num_procs;
+            for (unsigned int i = 0; i < num_procs; i++) {
+                displsx[i] = subsize * i * x_row;
+                countsx[i] = subsize * x_row;
+                displsy[i] = subsize * i * y_row;
+                countsy[i] = subsize * y_row;
+            }
+
+
+            MPI_SAFE_CALL(MPI_Scatterv(xptr, countsx, displsx, MPI_DOUBLE, xptr_sub, countsx[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
+            MPI_SAFE_CALL(MPI_Scatterv(yptr, countsy, displsy, MPI_DOUBLE, yptr_sub, countsy[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
+
             pp.FeedForward(xptr, subsize, this_batch_size);
             pp.BackProp(yptr);
+            pp.ReduceGradient();
             pp.GradientDescent();
             if(debug && rank == 0 && print_flag) {
                 write_diff_gpu_cpu(nn, iter, error_file);
@@ -1078,6 +1080,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
         }
     }
     pp.UpdateCoefficient(nn);
-
+    free(xptr_sub);
+    free(yptr_sub);
     error_file.close();
 }
