@@ -293,7 +293,7 @@ class OneBatchUpdate  {
 
 
 
-
+    public:
     OneBatchUpdate(NeuralNetwork& nn, int sub_size, int total_size, double regularizer, double lr): M(nn.W[0].n_cols), N(nn.W[1].n_rows), 
     K(nn.W[0].n_rows), num_sample(sub_size), batch_size(total_size), reg(regularizer), learning_rate(lr) {
         cudaMalloc((void**)&z0, sizeof(double) * K * num_sample);
@@ -1036,7 +1036,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             iter++;
         }
     }
-    pp.UpdateCoefficient();
+    pp.UpdateCoefficient(nn);
 
     error_file.close();
 }
