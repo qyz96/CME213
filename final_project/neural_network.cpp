@@ -811,7 +811,7 @@ void gpu_updatecoeffcient(NeuralNetwork& nn, struct grads& bpgrads, double learn
  * Train the neural network &nn of rank 0 in parallel. Your MPI implementation
  * should mainly be in this function.
  */
-void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
+void parallel_train1(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                     double learning_rate, double reg,
                     const int epochs, const int batch_size, bool grad_check, int print_every,
                     int debug) {
@@ -1026,7 +1026,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 }
 
 
-void parallel_train1(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
+void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                     double learning_rate, double reg,
                     const int epochs, const int batch_size, bool grad_check, int print_every,
                     int debug) {
@@ -1052,7 +1052,7 @@ void parallel_train1(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
         MPI_SAFE_CALL(MPI_Bcast(nn.b[i].memptr(), nn.b[i].n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD));
     }
     std::cout<<"Broadcast done...\n";
-    OneBatchUpdate pp(nn, batch_size, batch_size, reg, learning_rate, rank, num_procs);
+    OneBatchUpdate pp(nn, 0, 0, reg, learning_rate, rank, num_procs);
     std::cout<<"Initialization done...\n";
     for(int epoch = 0; epoch < epochs; ++epoch) {
         int num_batches = (N + batch_size - 1)/batch_size;
