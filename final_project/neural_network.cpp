@@ -1044,8 +1044,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     int *displsy = new int[num_procs];
     int *countsx = new int[num_procs];
     int *countsy = new int[num_procs];
-    double* xptr_sub = (double*)malloc(sizeof(double)*M*batch_size);
-    double* yptr_sub = (double*)malloc(sizeof(double)*N*batch_size);
+    double* xptr_sub = (double*)malloc(sizeof(double)*x_row*batch_size);
+    double* yptr_sub = (double*)malloc(sizeof(double)*y_row*batch_size);
     OneBatchUpdate pp(nn, batch_size/num_procs, batch_size, reg, learning_rate, rank, num_procs);
     for(int epoch = 0; epoch < epochs; ++epoch) {
         int num_batches = (N + batch_size - 1)/batch_size;
