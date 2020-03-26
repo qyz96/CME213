@@ -1012,7 +1012,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     int rank, num_procs;
 
     int N = (rank == 0)?X.n_cols:0;
-
+    int x_row = X.n_rows;
+    int y_row = y.n_rows;
     std::ofstream error_file;
     error_file.open("Outputs/CpuGpuDiff.txt");
     int print_flag = 0;
