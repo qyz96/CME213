@@ -332,7 +332,7 @@ class OneBatchUpdate  {
         cudaMemcpy(W1, nn.W[1].memptr(), sizeof(double) * K * N, cudaMemcpyHostToDevice);
 
 
-/*         MPI_SAFE_CALL(MPI_Bcast(W0, M*K, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+/*      MPI_SAFE_CALL(MPI_Bcast(W0, M*K, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Bcast(b0, K, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Bcast(W1, K*N, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Bcast(b1, N, MPI_DOUBLE, 0, MPI_COMM_WORLD)); */
@@ -1107,7 +1107,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             //std::cout<<rank<<"Feedforward done...\n";
             pp.BackProp(yptr_sub);
             //std::cout<<rank<<"Backprop done...\n";
-            pp.ReduceGradient();
+            //pp.ReduceGradient();
             //std::cout<<"Reduce done...\n";
             pp.GradientDescent();
             if(debug && rank == 0 && print_flag) {
