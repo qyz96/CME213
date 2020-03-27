@@ -1076,8 +1076,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     int *countsy = new int[num_procs];
     int subsize = (batch_size + num_procs - 1) / num_procs;
     int this_batch_size = batch_size;
-    double* xptr_sub = (double*)malloc(sizeof(double)*x_row*batch_size);
-    double* yptr_sub = (double*)malloc(sizeof(double)*y_row*batch_size);
+    double* xptr_sub = (double*)malloc(sizeof(double)*x_row*subsize);
+    double* yptr_sub = (double*)malloc(sizeof(double)*y_row*subsize);
     for (unsigned int i=0; i<nn.W.size(); i++) {
         MPI_SAFE_CALL(MPI_Bcast(nn.W[i].memptr(), nn.W[i].n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Bcast(nn.b[i].memptr(), nn.b[i].n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD));
