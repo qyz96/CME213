@@ -884,7 +884,7 @@ void gpu_updatecoeffcient(NeuralNetwork& nn, struct grads& bpgrads, double learn
  * Train the neural network &nn of rank 0 in parallel. Your MPI implementation
  * should mainly be in this function.
  */
-void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
+void parallel_train1(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                     double learning_rate, double reg,
                     const int epochs, const int batch_size, bool grad_check, int print_every,
                     int debug) {
@@ -1099,7 +1099,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 }
 
 
-void parallel_train1(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
+void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                     double learning_rate, double reg,
                     const int epochs, const int batch_size, bool grad_check, int print_every,
                     int debug) {
@@ -1133,7 +1133,9 @@ void parallel_train1(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             subsize = (this_batch_size + num_procs - 1) / num_procs;
             int counts = (rank == (num_procs - 1)) ? (this_batch_size-(num_procs-1)*subsize) : subsize;
 
-
+            arma::mat X_subbatch(X.memptr()+batch_posx, pp.M1(), subsize);
+            arma::mat y_subbatch(pp.N1(), subsize);
+            std::cout<<"Our X: \n"<<X_subbatch.submat(0,0,5,5);
             //std::cout<<rank<<" rank Scatter begins...\n";
             //std::cout<<rank<<" rank Scatter done...\n";
             pp.FeedForward(batch_posx + subsize * rank * pp.M1(), counts, this_batch_size, X);
