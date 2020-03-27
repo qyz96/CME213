@@ -1099,16 +1099,16 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 countsy[i] = subsize * y_row;
             }
 
-            std::cout<<rank<<" rank Scatter begins...\n";
+            //std::cout<<rank<<" rank Scatter begins...\n";
             MPI_SAFE_CALL(MPI_Scatterv(xptr, countsx, displsx, MPI_DOUBLE, xptr_sub, countsx[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
             MPI_SAFE_CALL(MPI_Scatterv(yptr, countsy, displsy, MPI_DOUBLE, yptr_sub, countsy[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD)); 
-            std::cout<<rank<<" rank Scatter done...\n";
+            //std::cout<<rank<<" rank Scatter done...\n";
             pp.FeedForward(xptr_sub, subsize, this_batch_size);
-            std::cout<<rank<<"Feedforward done...\n";
+            //std::cout<<rank<<"Feedforward done...\n";
             pp.BackProp(yptr_sub);
-            std::cout<<rank<<"Backprop done...\n";
+            //std::cout<<rank<<"Backprop done...\n";
             pp.ReduceGradient();
-            std::cout<<"Reduce done...\n";
+            //std::cout<<"Reduce done...\n";
             pp.GradientDescent();
             if(debug && rank == 0 && print_flag) {
                 write_diff_gpu_cpu(nn, iter, error_file);
