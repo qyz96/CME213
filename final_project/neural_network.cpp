@@ -332,10 +332,10 @@ class OneBatchUpdate  {
         cudaMemcpy(W1, nn.W[1].memptr(), sizeof(double) * K * N, cudaMemcpyHostToDevice);
 
 
-        MPI_SAFE_CALL(MPI_Bcast(W0, M*K, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+/*         MPI_SAFE_CALL(MPI_Bcast(W0, M*K, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Bcast(b0, K, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Bcast(W1, K*N, MPI_DOUBLE, 0, MPI_COMM_WORLD));
-        MPI_SAFE_CALL(MPI_Bcast(b1, N, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Bcast(b1, N, MPI_DOUBLE, 0, MPI_COMM_WORLD)); */
         
 
     }
@@ -1074,10 +1074,10 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     int this_batch_size = batch_size;
     double* xptr_sub = (double*)malloc(sizeof(double)*x_row*batch_size);
     double* yptr_sub = (double*)malloc(sizeof(double)*y_row*batch_size);
-/*     for (unsigned int i=0; i<nn.W.size(); i++) {
+    for (unsigned int i=0; i<nn.W.size(); i++) {
         MPI_SAFE_CALL(MPI_Bcast(nn.W[i].memptr(), nn.W[i].n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Bcast(nn.b[i].memptr(), nn.b[i].n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD));
-    } */
+    }
     //std::cout<<"Broadcast done...\n";
     OneBatchUpdate pp(nn, subsize, batch_size, reg, learning_rate, rank, num_procs);
     //std::cout<<"Initialization done...\n";
