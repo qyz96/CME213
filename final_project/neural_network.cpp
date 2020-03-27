@@ -353,14 +353,14 @@ class OneBatchUpdate  {
         totalsize = (rank == 0)?X.n_cols:0;
         MPI_SAFE_CALL(MPI_Bcast(&totalsize, 1, MPI_INT, 0, MPI_COMM_WORLD));
         if (rank == 0 ) {
-        double* xdata = X.memptr();
-        double* ydata = y.memptr();
+        const double* xdata = X.memptr();
+        const double* ydata = y.memptr();
 
         }
         
         else {
-            double* xdata = (double*)malloc(sizeof(double)*M*totalsize);
-            double* ydata = (double*)malloc(sizeof(double)*totalsize*N);
+            const double* xdata = (double*)malloc(sizeof(double)*M*totalsize);
+            const double* ydata = (double*)malloc(sizeof(double)*totalsize*N);
         }
 
         MPI_SAFE_CALL(MPI_Bcast(xdata, M*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));
@@ -496,10 +496,10 @@ class OneBatchUpdate  {
 
     }
 
-    int T() {return totalsize;}
-    int M() {return M;}
-    int K() {return K;}
-    int N() {return N;}
+    int T1() {return totalsize;}
+    int M1() {return M;}
+    int K1() {return K;}
+    int N1() {return N;}
 
 
     ~OneBatchUpdate()   {
@@ -517,9 +517,9 @@ class OneBatchUpdate  {
         cudaFree(db0);
         cudaFree(db1);
         cudaFree(dX);
+        cudaFree(dY);
         cudaFree(dexp);
-        cudaFree(dyc);
-        cudaFree(dy);
+
     }
 
     
@@ -1121,8 +1121,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
         int num_batches = (pp.T() + batch_size - 1)/batch_size;
         for(int batch = 0; batch < num_batches; ++batch) {
             //std::cout<<"Calculating pointer...\n";
-            int batch_posx =  batch * batch_size * pp.M();
-            int batch_posy =  batch * batch_size * pp.N();
+            int batch_posx =  batch * batch_size * pp.M1();
+            int batch_posy =  batch * batch_size * pp.N1();
 
             int last_col = std::min((batch + 1) * batch_size-1, N-1);
             this_batch_size = last_col - batch * batch_size + 1;
@@ -1132,9 +1132,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
             //std::cout<<rank<<" rank Scatter begins...\n";
             //std::cout<<rank<<" rank Scatter done...\n";
-            pp.FeedForward(batch_posx + subsize * i * pp.M(), counts, this_batch_size);
+            pp.FeedForward(batch_posx + subsize * rank * pp.M1(), counts, this_batch_size);
             //std::cout<<rank<<"Feedforward done...\n";
-            pp.BackProp(batch_posy + subsize * i * pp.Y());
+            pp.BackProp(batch_posy + subsize * rank * pp.N1());
             //std::cout<<rank<<"Backprop done...\n";
             pp.ReduceGradient();
             //std::cout<<"Reduce done...\n";
