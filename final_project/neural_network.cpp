@@ -320,6 +320,11 @@ class OneBatchUpdate  {
         cudaMalloc((void**)&db1, sizeof(double) * N);
         cudaMalloc((void**)&dyc, sizeof(double) * N * num_sample);
         cudaMalloc((void**)&dy, sizeof(double) * N * num_sample);
+        dW0_h = (double*)malloc(sizeof(double)*M*K);
+        dW1_h = (double*)malloc(sizeof(double)*K*N);
+        db0_h = (double*)malloc(sizeof(double)*K);
+        db1_h = (double*)malloc(sizeof(double)*N);
+
 
         cudaMemcpy(b0, nn.b[0].memptr(), sizeof(double) * K , cudaMemcpyHostToDevice);
         cudaMemcpy(b1, nn.b[1].memptr(), sizeof(double) * N, cudaMemcpyHostToDevice);
@@ -422,10 +427,21 @@ class OneBatchUpdate  {
     }
 
     void ReduceGradient() {
-        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, dW0, M * K, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
-        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, dW1, K * N, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
-        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, db0, K, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
-        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, db1, N, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
+
+        cudaMemcpy(dW0_h, dW0, sizeof(double) * M * K, cudaMemcpyDeviceToHost);
+        cudaMemcpy(db0_h, db0, sizeof(double) * K, cudaMemcpyDeviceToHost);
+        cudaMemcpy(dW1_h, dW1, sizeof(double) * N * K, cudaMemcpyDeviceToHost);
+        cudaMemcpy(db1_h, db1, sizeof(double) * N, cudaMemcpyDeviceToHost);
+
+        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, dW0_h, M * K, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, dW1_h, K * N, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, db0_h, K, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, db1_h, N, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
+
+        cudaMemcpy(dW0, dW0_h, sizeof(double) * M * K, cudaMemcpyHostToDevice);
+        cudaMemcpy(db0, db0_h, sizeof(double) * K, cudaMemcpyHostToDevice);
+        cudaMemcpy(dW1, dW1_h, sizeof(double) * N * K, cudaMemcpyHostToDevice);
+        cudaMemcpy(db1, db1_h, sizeof(double) * N, cudaMemcpyHostToDevice);
     }
 
 
@@ -496,6 +512,11 @@ class OneBatchUpdate  {
     double* dyc;
     double reg;
     double learning_rate;
+    double* dW0_h;
+    double* dW1_h;
+    double* db0_h;
+    double* db1_h;
+
 
     int num_procs;
 
