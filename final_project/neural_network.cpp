@@ -1124,13 +1124,13 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     OneBatchUpdate pp(nn, subsize, batch_size, reg, learning_rate, rank, num_procs, X, y);
     //std::cout<<"Initialization done...\n";
     for(int epoch = 0; epoch < epochs; ++epoch) {
-        int num_batches = (pp.T() + batch_size - 1)/batch_size;
+        int num_batches = (pp.T1() + batch_size - 1)/batch_size;
         for(int batch = 0; batch < num_batches; ++batch) {
             //std::cout<<"Calculating pointer...\n";
             int batch_posx =  batch * batch_size * pp.M1();
             int batch_posy =  batch * batch_size * pp.N1();
 
-            int last_col = std::min((batch + 1) * batch_size-1, N-1);
+            int last_col = std::min((batch + 1) * batch_size-1, pp.T1()-1);
             this_batch_size = last_col - batch * batch_size + 1;
             subsize = (this_batch_size + num_procs - 1) / num_procs;
             int counts = (rank == (num_procs - 1)) ? (this_batch_size-(num_procs-1)*subsize) : subsize
