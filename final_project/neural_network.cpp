@@ -383,7 +383,12 @@ class OneBatchUpdate  {
     void FeedForward(int pos, int subsize, int wholesize)  {
         num_sample = subsize;
         batch_size = wholesize;
-        double* dx = dX + pos;
+        double* dx = (double*)malloc(sizeof(double)*M*subsize);
+        cudaMemcpy(dx, dX+pos, sizeof(double)*M*subsize, cudaMemcpyDeviceToHost);
+        arma::mat temp(dx, M, subsize);
+        std::cout<<"X: \n"<<temp;
+
+
         std::cout<<pos<<"\n";
         //cudaMemcpy(dX, xptr, sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
         //check_launch("Copying X");
@@ -1141,7 +1146,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             if(debug && rank == 0 && print_flag) {
                 write_diff_gpu_cpu(nn, iter, error_file);
             }
-
+            if (iter > 5) {
+                return;
+            }
             iter++;
 
         }
