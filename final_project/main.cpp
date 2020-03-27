@@ -296,13 +296,37 @@ int main(int argc, char* argv[]) {
                   std::endl;
 
         for(int i = 0; i < seq_nn.b[0].n_rows; ++i) {
-        for(int j = 0; j < seq_nn.b[0].n_cols; ++j) {
-            if(abs(seq_nn.b[0](i,j) - nn.b[0](i,j)) > 1e-6) {
-                std::cout << "Mismatch at pos (" << i << ", " << j << " )seq: "
-                    << seq_nn.b[0](i,j) << " par: " << nn.b[0](i,j) << std::endl;
+            for(int j = 0; j < seq_nn.b[0].n_cols; ++j) {
+                if(abs(seq_nn.b[0](i,j) - nn.b[0](i,j)) > 1e-6) {
+                    std::cout << "b0 Mismatch at pos (" << i << ", " << j << " )seq: "
+                        << seq_nn.b[0](i,j) << " par: " << nn.b[0](i,j) << std::endl;
+                }
             }
         }
-    }
+        for(int i = 0; i < seq_nn.b[1].n_rows; ++i) {
+            for(int j = 0; j < seq_nn.b[1].n_cols; ++j) {
+                if(abs(seq_nn.b[1](i,j) - nn.b[1](i,j)) > 1e-6) {
+                    std::cout << "b1 Mismatch at pos (" << i << ", " << j << " )seq: "
+                        << seq_nn.b[1](i,j) << " par: " << nn.b[1](i,j) << std::endl;
+                }
+            }
+        }
+        for(int i = 0; i < seq_nn.W[0].n_rows; ++i) {
+            for(int j = 0; j < seq_nn.W[0].n_cols; ++j) {
+                if(abs(seq_nn.W[0](i,j) - nn.W[0](i,j)) > 1e-6) {
+                    std::cout << "W0 Mismatch at pos (" << i << ", " << j << " )seq: "
+                        << seq_nn.W[0](i,j) << " par: " << nn.W[0](i,j) << std::endl;
+                }
+            }
+        }
+        for(int i = 0; i < seq_nn.W[1].n_rows; ++i) {
+            for(int j = 0; j < seq_nn.W[1].n_cols; ++j) {
+                if(abs(seq_nn.W[1](i,j) - nn.W[1](i,j)) > 1e-6) {
+                    std::cout << "W1 Mismatch at pos (" << i << ", " << j << " )seq: "
+                        << seq_nn.W[1](i,j) << " par: " << nn.W[1](i,j) << std::endl;
+                }
+            }
+        }
         checkNNErrors(seq_nn, nn, "Outputs/NNErrors.txt");
     }
 
