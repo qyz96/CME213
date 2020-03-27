@@ -387,7 +387,7 @@ class OneBatchUpdate  {
         batch_size = wholesize;
         double* dx = dX + pos;
         //cudaMemcpy(dX, xptr, sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
-        check_launch("Copying X");
+        //check_launch("Copying X");
         gpu_repmat(b0, z0, K, num_sample);
         check_launch("repmat b0");
         gpu_repmat(b1, z1, N, num_sample);
@@ -474,7 +474,7 @@ class OneBatchUpdate  {
         cudaMemcpy(dW1_h, dW1, sizeof(double) * N * K, cudaMemcpyDeviceToHost);
         cudaMemcpy(db1_h, db1, sizeof(double) * N, cudaMemcpyDeviceToHost);
 
-        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, dW0, M * K, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, dW0_h, M * K, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, dW1_h, K * N, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, db0_h, K, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, db1_h, N, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
