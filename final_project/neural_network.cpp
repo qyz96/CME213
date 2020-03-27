@@ -1136,7 +1136,7 @@ void parallel_train1(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
             //std::cout<<rank<<" rank Scatter begins...\n";
             //std::cout<<rank<<" rank Scatter done...\n";
-            pp.FeedForward(batch_posx + subsize * rank * pp.M1(), counts, this_batch_size);
+            pp.FeedForward(batch_posx + subsize * rank * pp.M1(), counts, this_batch_size, X);
             //std::cout<<rank<<"Feedforward done...\n";
             pp.BackProp(batch_posy + subsize * rank * pp.N1());
             //std::cout<<rank<<"Backprop done...\n";
