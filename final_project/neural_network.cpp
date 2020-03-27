@@ -380,7 +380,7 @@ class OneBatchUpdate  {
 
 
 
-    void FeedForward(int pos, int subsize, int wholesize)  {
+    void FeedForward(int pos, int subsize, int wholesize, const arma::mat X)  {
         num_sample = subsize;
         batch_size = wholesize;
         double* dx = (double*)malloc(sizeof(double)*M*subsize);
@@ -884,7 +884,7 @@ void gpu_updatecoeffcient(NeuralNetwork& nn, struct grads& bpgrads, double learn
  * Train the neural network &nn of rank 0 in parallel. Your MPI implementation
  * should mainly be in this function.
  */
-void parallel_train1(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
+void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                     double learning_rate, double reg,
                     const int epochs, const int batch_size, bool grad_check, int print_every,
                     int debug) {
@@ -989,11 +989,11 @@ void parallel_train1(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             MPI_SAFE_CALL(MPI_Scatterv(yptr, countsy, displsy, MPI_DOUBLE, y_subbatch.memptr(), countsy[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
             struct cache bpcache;
 
-/*             if (rank==0) {
+            if (rank==0) {
 
                 std::cout<<"x_subbatch: "<<X_subbatch.submat(0,0,5,5)<<"\n";
                 std::cout<<"y_subbatch: "<<y_subbatch.submat(0,0,5,5)<<"\n";
-            } */
+            }
 
 
             gpu_feedforward(nn, X_subbatch, bpcache);
@@ -1099,7 +1099,7 @@ void parallel_train1(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 }
 
 
-void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
+void parallel_train1(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                     double learning_rate, double reg,
                     const int epochs, const int batch_size, bool grad_check, int print_every,
                     int debug) {
