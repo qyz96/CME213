@@ -384,6 +384,7 @@ class OneBatchUpdate  {
         num_sample = subsize;
         batch_size = wholesize;
         double* dx = dX + pos;
+        std::cout<<pos<<"\n";
         //cudaMemcpy(dX, xptr, sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
         //check_launch("Copying X");
         gpu_repmat(b0, z0, K, num_sample);
