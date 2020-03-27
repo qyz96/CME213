@@ -336,7 +336,7 @@ class OneBatchUpdate  {
         cudaMemcpy(b1, nn.b[1].memptr(), sizeof(double) * N, cudaMemcpyHostToDevice);
         cudaMemcpy(W0, nn.W[0].memptr(), sizeof(double) * M * K, cudaMemcpyHostToDevice);
         cudaMemcpy(W1, nn.W[1].memptr(), sizeof(double) * K * N, cudaMemcpyHostToDevice);
-        std::cout<<total_size<<" "<<M<<" "<<N<<" "<<K<<"\n";
+        std::cout<<totalsize<<" "<<M<<" "<<N<<" "<<K<<"\n";
 
 /*      MPI_SAFE_CALL(MPI_Bcast(W0, M*K, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Bcast(b0, K, MPI_DOUBLE, 0, MPI_COMM_WORLD));
