@@ -341,7 +341,7 @@ class OneBatchUpdate  {
     void FeedForward(const double* xptr, int subsize, int wholesize)  {
         num_sample = subsize;
         batch_size = wholesize;
-        //cudaMemcpy(dX, xptr, sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
+        cudaMemcpy(dX, xptr, sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
         check_launch("Copying X");
         gpu_repmat(b0, z0, K, num_sample);
         check_launch("repmat b0");
@@ -377,7 +377,7 @@ class OneBatchUpdate  {
 
 
         
-        //cudaMemcpy(dy, yptr, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
+        cudaMemcpy(dy, yptr, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
         cudaMemcpy(dW0, W0, sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
         cudaMemcpy(dW1, W1, sizeof(double) * K * N, cudaMemcpyDeviceToDevice);
 
