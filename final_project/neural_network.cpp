@@ -884,7 +884,7 @@ void gpu_updatecoeffcient(NeuralNetwork& nn, struct grads& bpgrads, double learn
  * Train the neural network &nn of rank 0 in parallel. Your MPI implementation
  * should mainly be in this function.
  */
-void parallel_train1(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
+void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                     double learning_rate, double reg,
                     const int epochs, const int batch_size, bool grad_check, int print_every,
                     int debug) {
@@ -991,7 +991,7 @@ void parallel_train1(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
             if (rank==0) {
 
-                std::cout<<"x_subbatch: "<<X_subbatch.submat(0,0,5,5)<<"\n";
+                std::cout<<"x_subbatch: "<<X.submat(0,0,5,5)<<"\n";
                 std::cout<<"y_subbatch: "<<y_subbatch.submat(0,0,5,5)<<"\n";
             }
 
@@ -1099,7 +1099,7 @@ void parallel_train1(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 }
 
 
-void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
+void parallel_train1(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                     double learning_rate, double reg,
                     const int epochs, const int batch_size, bool grad_check, int print_every,
                     int debug) {
