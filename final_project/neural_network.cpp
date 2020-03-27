@@ -1035,6 +1035,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     MPI_SAFE_CALL(MPI_Comm_size(MPI_COMM_WORLD, &num_procs));
     MPI_SAFE_CALL(MPI_Comm_rank(MPI_COMM_WORLD, &rank));
     int N = (rank == 0)?X.n_cols:0;
+    MPI_SAFE_CALL(MPI_Bcast(&N, 1, MPI_INT, 0, MPI_COMM_WORLD));
     int x_row = X.n_rows;
     int y_row = y.n_rows;
     std::ofstream error_file;
@@ -1056,7 +1057,6 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     std::cout<<"Initialization done...\n";
     for(int epoch = 0; epoch < epochs; ++epoch) {
         int num_batches = (N + batch_size - 1)/batch_size;
-        std::cout<<"Number of batches..."<<num_batches<<"\n";
         for(int batch = 0; batch < num_batches; ++batch) {
             std::cout<<"Calculating pointer...\n";
             const double* xptr = X.memptr() + batch * batch_size * x_row;
