@@ -991,7 +991,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
             if (rank==0) {
 
-                std::cout<<"x_subbatch: "<<X.submat(0,batch * batch_size,5,batch * batch_size+5)<<"\n";
+                std::cout<<"x_subbatch: "<<X_subbatch.submat(0,0,5,5)<<"\n";
                 std::cout<<"y_subbatch: "<<y_subbatch.submat(0,0,5,5)<<"\n";
             }
 
