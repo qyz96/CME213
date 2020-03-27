@@ -283,9 +283,6 @@ void train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
             
             iter++;
-            if (iter>1) {
-                return;
-            } 
         }
     }
 }
@@ -1119,10 +1116,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             }
 
             iter++;
-            if (iter>1) {
-                return;
-            } 
-            iter++;
+
         }
     }
     pp.UpdateCoefficient(nn);
