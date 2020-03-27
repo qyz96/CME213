@@ -371,8 +371,8 @@ class OneBatchUpdate  {
         cudaMalloc((void**)&dX, sizeof(double) * M * totalsize);
         cudaMalloc((void**)&dY, sizeof(double) * N * totalsize);
         //if (rank == 0 ) {
-        cudaMemcpy(dX, X.memptr(), sizeof(double) * M * totalsize , cudaMemcpyHostToDevice);
-        cudaMemcpy(dY, y.memptr(), sizeof(double) * N * totalsize, cudaMemcpyHostToDevice);
+        cudaMemcpy(dX, xdata, sizeof(double) * M * totalsize, cudaMemcpyHostToDevice);
+        cudaMemcpy(dY, ydata, sizeof(double) * N * totalsize, cudaMemcpyHostToDevice);
         //}
         //MPI_SAFE_CALL(MPI_Bcast(dX, M*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         //MPI_SAFE_CALL(MPI_Bcast(dY, N*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));
