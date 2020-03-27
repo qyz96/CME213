@@ -281,7 +281,11 @@ void train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 write_cpudata_tofile(nn, iter);
             }
 
+            
             iter++;
+            if (iter>1) {
+                return;
+            } 
         }
     }
 }
@@ -1037,9 +1041,9 @@ void parallel_train1(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             if(debug && rank == 0 && print_flag) {
                 write_diff_gpu_cpu(nn, iter, error_file);
             }
-/*             if (iter>5) {
+             if (iter>1) {
                 return;
-            } */
+            } 
             iter++;
         }
     }
@@ -1114,6 +1118,10 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 write_diff_gpu_cpu(nn, iter, error_file);
             }
 
+            iter++;
+            if (iter>1) {
+                return;
+            } 
             iter++;
         }
     }
