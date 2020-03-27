@@ -1133,7 +1133,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             int last_col = std::min((batch + 1) * batch_size-1, pp.T1()-1);
             this_batch_size = last_col - batch * batch_size + 1;
             subsize = (this_batch_size + num_procs - 1) / num_procs;
-            int counts = (rank == (num_procs - 1)) ? (this_batch_size-(num_procs-1)*subsize) : subsize
+            int counts = (rank == (num_procs - 1)) ? (this_batch_size-(num_procs-1)*subsize) : subsize;
 
 
             //std::cout<<rank<<" rank Scatter begins...\n";
