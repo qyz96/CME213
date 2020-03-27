@@ -386,7 +386,7 @@ class OneBatchUpdate  {
         double* dx = (double*)malloc(sizeof(double)*M*subsize);
         cudaMemcpy(dx, dX+pos, sizeof(double)*M*subsize, cudaMemcpyDeviceToHost);
         arma::mat temp(dx, M, subsize);
-        std::cout<<"X: \n"<<temp.submat(0,0,5,5);
+        std::cout<<"X: \n"<<arma::norm(temp,2)<<"\n";
 
 
         std::cout<<pos<<"\n";
