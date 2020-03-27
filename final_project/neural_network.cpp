@@ -1066,6 +1066,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             //std::cout<<"Calculating pointer...\n";
             const double* xptr = X.memptr() + batch * batch_size * x_row;
             const double* yptr = y.memptr() + batch * batch_size * y_row;
+
             int last_col = std::min((batch + 1) * batch_size-1, N-1);
             this_batch_size = last_col - batch * batch_size + 1;
             subsize = (this_batch_size + num_procs - 1) / num_procs;
@@ -1082,7 +1083,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             MPI_SAFE_CALL(MPI_Scatterv(yptr, countsy, displsy, MPI_DOUBLE, yptr_sub, countsy[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD)); 
             std::cout<<rank<<" rank Scatter done...\n";
             pp.FeedForward(xptr_sub, subsize, this_batch_size);
+            std::cout<<rank<<"Feedforward done...\n";
             pp.BackProp(yptr_sub);
+            std::cout<<rank<<"Backprop done...\n";
             pp.ReduceGradient();
             std::cout<<"Reduce done...\n";
             pp.GradientDescent();
