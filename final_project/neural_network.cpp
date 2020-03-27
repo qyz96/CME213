@@ -353,7 +353,7 @@ class OneBatchUpdate  {
         totalsize = (rank == 0)?X.n_cols:0;
         MPI_SAFE_CALL(MPI_Bcast(&totalsize, 1, MPI_INT, 0, MPI_COMM_WORLD));
         const double* xdata = (rank == 0) ? X.memptr() : (double*)malloc(sizeof(double)*M*totalsize);
-        const double* ydata = (rank == 0) ? y.memptr() : (double*)malloc(sizeof(double)*totalsize*N)
+        const double* ydata = (rank == 0) ? y.memptr() : (double*)malloc(sizeof(double)*totalsize*N);
 /*         if (rank == 0 ) {
             xdata = X.memptr();
             ydata = y.memptr();
@@ -377,8 +377,8 @@ class OneBatchUpdate  {
         //MPI_SAFE_CALL(MPI_Bcast(dX, M*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         //MPI_SAFE_CALL(MPI_Bcast(dY, N*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));
 
-        free(xdata);
-        free(ydata);
+        //free(xdata);
+        //free(ydata);
 
 
 
