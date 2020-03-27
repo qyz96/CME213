@@ -1047,10 +1047,10 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     int *displsy = new int[num_procs];
     int *countsx = new int[num_procs];
     int *countsy = new int[num_procs];
-    double* xptr_sub = (double*)malloc(sizeof(double)*x_row*batch_size);
-    double* yptr_sub = (double*)malloc(sizeof(double)*y_row*batch_size);
     int subsize = (batch_size + num_procs - 1) / num_procs;
     int this_batch_size = batch_size;
+    double* xptr_sub = (double*)malloc(sizeof(double)*x_row*batch_size);
+    double* yptr_sub = (double*)malloc(sizeof(double)*y_row*batch_size);
     for (unsigned int i=0; i<nn.W.size(); i++) {
         MPI_SAFE_CALL(MPI_Bcast(nn.W[i].memptr(), nn.W[i].n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Bcast(nn.b[i].memptr(), nn.b[i].n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD));
@@ -1075,7 +1075,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 countsy[i] = subsize * y_row;
             }
 
-            std::cout<<"Scatter beings...\n";
+            std::cout<<"Scatter begins...\n";
             MPI_SAFE_CALL(MPI_Scatterv(xptr, countsx, displsx, MPI_DOUBLE, xptr_sub, countsx[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
             MPI_SAFE_CALL(MPI_Scatterv(yptr, countsy, displsy, MPI_DOUBLE, yptr_sub, countsy[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD)); 
             std::cout<<"Scatter done...\n";
