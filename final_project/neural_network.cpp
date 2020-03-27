@@ -376,10 +376,10 @@ class OneBatchUpdate  {
         //}
         //MPI_SAFE_CALL(MPI_Bcast(dX, M*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         //MPI_SAFE_CALL(MPI_Bcast(dY, N*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));
-
-        //free(xdata);
-        //free(ydata);
-
+        if (rank != 0) {
+            free(xdata);
+            free(ydata);
+        }
 
 
 
