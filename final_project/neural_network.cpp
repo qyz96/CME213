@@ -352,7 +352,7 @@ class OneBatchUpdate  {
 
         totalsize = (rank == 0)?X.n_cols:0;
         MPI_SAFE_CALL(MPI_Bcast(&totalsize, 1, MPI_INT, 0, MPI_COMM_WORLD));
-        const double* xdata
+/*         const double* xdata
         const double* ydata
         if (rank == 0 ) {
             xdata = X.memptr();
@@ -363,18 +363,22 @@ class OneBatchUpdate  {
         else {
             xdata = (double*)malloc(sizeof(double)*M*totalsize);
             ydata = (double*)malloc(sizeof(double)*totalsize*N);
-        }
+        } */
 
-        MPI_SAFE_CALL(MPI_Bcast(xdata, M*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));
-        MPI_SAFE_CALL(MPI_Bcast(ydata, N*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+        //MPI_SAFE_CALL(MPI_Bcast(xdata, M*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+        //MPI_SAFE_CALL(MPI_Bcast(ydata, N*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));
 
         cudaMalloc((void**)&dX, sizeof(double) * M * totalsize);
         cudaMalloc((void**)&dY, sizeof(double) * N * totalsize);
-        cudaMemcpy(dX, xdata, sizeof(double) * M * totalsize , cudaMemcpyHostToDevice);
-        cudaMemcpy(dY, ydata, sizeof(double) * N * totalsize, cudaMemcpyHostToDevice);
+        if (rank == 0 ) {
+            cudaMemcpy(dX, X.memptr(), sizeof(double) * M * totalsize , cudaMemcpyHostToDevice);
+            cudaMemcpy(dY, y.memptr(), sizeof(double) * N * totalsize, cudaMemcpyHostToDevice);
+        }
+        MPI_SAFE_CALL(MPI_Bcast(dX, M*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Bcast(dY, N*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));
 
-        free(xdata);
-        free(ydata);
+        //free(xdata);
+        //free(ydata);
 
 
 
