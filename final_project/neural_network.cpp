@@ -295,7 +295,7 @@ class OneBatchUpdate  {
 
 
     public:
-    OneBatchUpdate(NeuralNetwork& nn, int sub_size, int total_size, double regularizer, double lr, int r, int np, int r, int np, const arma::mat& X, const arma::mat& y): M(nn.W[0].n_cols), N(nn.W[1].n_rows), 
+    OneBatchUpdate(NeuralNetwork& nn, int sub_size, int total_size, double regularizer, double lr, int r, int np, const arma::mat& X, const arma::mat& y): M(nn.W[0].n_cols), N(nn.W[1].n_rows), 
     K(nn.W[0].n_rows), num_sample(sub_size), batch_size(total_size), reg(regularizer), learning_rate(lr), rank(r), num_procs(np) {
 
 
@@ -352,15 +352,17 @@ class OneBatchUpdate  {
 
         totalsize = (rank == 0)?X.n_cols:0;
         MPI_SAFE_CALL(MPI_Bcast(&totalsize, 1, MPI_INT, 0, MPI_COMM_WORLD));
+        const double* xdata
+        const double* ydata
         if (rank == 0 ) {
-        const double* xdata = X.memptr();
-        const double* ydata = y.memptr();
+            xdata = X.memptr();
+            ydata = y.memptr();
 
         }
         
         else {
-            const double* xdata = (double*)malloc(sizeof(double)*M*totalsize);
-            const double* ydata = (double*)malloc(sizeof(double)*totalsize*N);
+            xdata = (double*)malloc(sizeof(double)*M*totalsize);
+            ydata = (double*)malloc(sizeof(double)*totalsize*N);
         }
 
         MPI_SAFE_CALL(MPI_Bcast(xdata, M*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));
@@ -531,7 +533,7 @@ class OneBatchUpdate  {
     cublasStatus_t stat;
     cublasHandle_t handle;
 
-    int totalsize
+    int totalsize;
     int rank;
     int num_sample;
     int batch_size;
