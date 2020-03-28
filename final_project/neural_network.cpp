@@ -872,9 +872,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             if (epoch == 0) {
                 const double* xptr = X.memptr() + batch * batch_size * x_row;
                 const double* yptr = y.memptr() + batch * batch_size * y_row;
-                for (unsigned int i = 0; i < num_procs; i++) {
+                for (int i = 0; i < num_procs; i++) {
                     displsx[i] = subsize * i * x_row;
-                    int count_t =  std::min(this_batch_size-(i)*subsize, subsize);
+                    int count_t =  std::min(this_batch_size-i*subsize, subsize);
                     if (count_t < 0) count_t = 0;
                     countsx[i] = count_t * x_row;
                     displsy[i] = subsize * i * y_row;
