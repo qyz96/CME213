@@ -244,7 +244,7 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     //printf("myGEMM is called!\n");
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
-    device_gemm<<<blocks, threads>>>(A, B, C, al, be, M, N, K);
+    device_gemm_shared<<<blocks, threads>>>(A, B, C, al, be, M, N, K);
     /*
     block_size_x = BLOCK_SIZE;
     block_size_y = BLOCK_SIZE;
