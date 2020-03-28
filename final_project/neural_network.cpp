@@ -851,12 +851,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
 
     OneBatchUpdate2 pp(nn, subsize, batch_size, reg, learning_rate, rank, num_procs, X, y);
-    std::cout<<pp.T1()<<" "<<pp.M1()<<" "<<pp.N1()<<"\n";
-    //std::cout<<"Initialization done...\n";
     for(int epoch = 0; epoch < epochs; ++epoch) {
         int num_batches = (N + batch_size - 1)/batch_size;
         for(int batch = 0; batch < num_batches; ++batch) {
-            //std::cout<<"Calculating pointer...\n";
 
 
             int last_col = std::min((batch + 1) * batch_size-1, N-1);
@@ -868,18 +865,12 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             int ypos = batch * batch_size * y_row + subsize * rank * y_row;
 
             pp.FeedForward(xpos, counts, this_batch_size);
-            //std::cout<<rank<<"Feedforward done...\n";
             pp.BackProp(xpos, ypos);
-            //std::cout<<rank<<"Backprop done...\n";
             pp.ReduceGradient();
-            //std::cout<<"Reduce done...\n";
             pp.GradientDescent();
             if(debug && rank == 0 && print_flag) {
                 write_diff_gpu_cpu(nn, iter, error_file);
             }
-/*             if (iter > 5) {
-                return;
-            } */
             iter++;
 
         }
