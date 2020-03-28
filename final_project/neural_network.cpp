@@ -422,8 +422,8 @@ class OneBatchUpdate2  {
     void BackProp(int posx, int posy) {
 
         if (num_sample == 0) {
-            gpu_addmat(dW0, dW0, dW0, 0, 0, K, M);
-            gpu_addmat(dW1, dW1, dW1, 0, 0, N, K);
+            gpu_addmat(dW0, dW0, dW0, (double)0, (double)0, K, M);
+            gpu_addmat(dW1, dW1, dW1, (double)0, (double)0, N, K);
             gpu_addmat(db0, db0, db0, 0, 0, K, 1);
             gpu_addmat(db1, db1, db1, 0, 0, N, 1);
             return;
