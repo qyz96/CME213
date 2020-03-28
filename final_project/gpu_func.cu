@@ -175,7 +175,7 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
             for (int k=0; k < BLOCK_SIZE_Y; k++) {
                 int kk = (k + ri) % BLOCK_SIZE_Y;
                 if ((BLOCK_SIZE_Y*m+kk) >= K)  {
-                    if (k < BLOCK_SIZE_Y - 1 - ri) {
+                    if (k <= BLOCK_SIZE_Y - 1 - ri) {
                         k = BLOCK_SIZE_Y - 1 - ri;
                         continue;
                     }
@@ -186,7 +186,7 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
                 for (int i=0; i<BLOCK_SIZE_X; i++) {
                     int ii = (i + rj) % BLOCK_SIZE_X;
                     if ((blockIdx.x * blockDim.x+ii) >=N) {
-                        if (i < BLOCK_SIZE_X - 1 - rj) {
+                        if (i <= BLOCK_SIZE_X - 1 - rj) {
                             i = BLOCK_SIZE_X - 1 - rj;
                             continue;
                         }
