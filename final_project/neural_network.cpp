@@ -410,7 +410,7 @@ class OneBatchUpdate  {
 
     }
 
-    void BackProp(double* yptr) {
+    void BackProp(const double* yptr) {
 
         double alpha = 1/(double)(num_sample);
         double beta = -1/(double)(num_sample);
