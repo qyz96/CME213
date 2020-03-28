@@ -390,7 +390,7 @@ class OneBatchUpdate2  {
     void FeedForward(int pos, int subsize, int wholesize)  {
         num_sample = subsize;
         batch_size = wholesize;
-
+        if (num_sample == 0) return;
         gpu_repmat(b0, z0, K, num_sample);
         check_launch("repmat b0");
         gpu_repmat(b1, z1, N, num_sample);
@@ -421,6 +421,13 @@ class OneBatchUpdate2  {
 
     void BackProp(int posx, int posy) {
 
+        if (num_sample == 0) {
+            gpu_addmat(dW0, dW0, dW0, 0, 0, M, K);
+            gpu_addmat(dW1, dW1, dW1, 0, 0, K, N);
+            gpu_addmat(db0, db0, db0, 0, 0, K, 1);
+            gpu_addmat(db1, gb1, db1, 0, 0, N, 1);
+            return;
+        }
         double alpha = 1/(double)(num_sample);
         double beta = -1/(double)(num_sample);
         double alpha1 = 1;
@@ -893,8 +900,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 pp.LoadXY(xpos, ypos, xptr_sub, yptr_sub, counts);
 
             }
-            if (counts == 0) break;
-
+            
             pp.FeedForward(xpos, counts, this_batch_size);
             pp.BackProp(xpos, ypos);
             pp.ReduceGradient();
