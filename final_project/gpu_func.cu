@@ -129,30 +129,29 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
         }
         __syncthreads();
         if ((i<M)) {
-            for (int ii=0; ii<BLOCK_SIZE_X; ii++) {
-                if ((blockIdx.x * blockDim.x+ii) >=N) {
+            for (int k=0; k < BLOCK_SIZE_Y; k++) {
+                if ((BLOCK_SIZE_Y*m+k) >= K)  {
                     break;
                 }
-                for (int k=0; k < BLOCK_SIZE_Y; k++) {
-                    if ((BLOCK_SIZE_Y*m+k) >= K)  {
+                for (int ii=0; ii<BLOCK_SIZE_X; ii++) {
+                    if ((blockIdx.x * blockDim.x+ii) >=N) {
                         break;
                     }
                     temp[ii]+=As[k]*Bs[k][ii];
-                    
+                }
+            } 
+            }
+        }
+        __syncthreads();
+    }
+        if ((i<M)) {
+            for (int ii=0; ii<BLOCK_SIZE_X; ii++) {
+                if ((blockIdx.x * blockDim.x+ii) >=N) {
+                    break;
                 }
                 C[i+M*(blockIdx.x * blockDim.x+ii)]=alpha*temp[ii]+beta*C[i+M*(blockIdx.x * blockDim.x+ii)];
             }
         }
-        //__syncthreads();
-    }
-/*         if ((i<M)) {
-            for (int ii=0; ii<BLOCK_SIZE_X; ii++) {
-                if ((blockIdx.x * blockDim.x+ii) >=N) {
-                    break;
-                }
-                C[i+M*(blockIdx.x * blockDim.x+ii)]=alpha*temp[ii]+beta*C[i+M*(blockIdx.x * blockDim.x+ii)];
-            }
-        } */
 }
 
 __global__
