@@ -162,7 +162,6 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
         if ((j<N) && ((BLOCK_SIZE_Y*m+ri)<K)) {
             Bs[ri][rj]=B[BLOCK_SIZE_Y*m+ri+K*j];
         }
-        
         __syncthreads();
         if (i<M) {
             for (int ii=0; ii<BLOCK_SIZE_Y;ii++) {
@@ -173,31 +172,6 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
             }
         }
         if ((i<M)) {
-/*             for (int k=0; k < BLOCK_SIZE_Y; k++) {
-                int kk = (k + ri) % BLOCK_SIZE_Y;
-                if ((BLOCK_SIZE_Y*m+kk) >= K)  {
-                    if (k <= BLOCK_SIZE_Y - 1 - ri) {
-                        k = BLOCK_SIZE_Y - 1 - ri;
-                        continue;
-                    }
-                    else {
-                        break;
-                    }
-                }
-                for (int i=0; i<BLOCK_SIZE_X; i++) {
-                    int ii = (i + rj) % BLOCK_SIZE_X;
-                    if ((blockIdx.x * blockDim.x+ii) >=N) {
-                        if (i <= BLOCK_SIZE_X - 1 - rj) {
-                            i = BLOCK_SIZE_X - 1 - rj;
-                            continue;
-                        }
-                        else {
-                            break;
-                        }
-                    }
-                    temp[ii]+=As[kk]*Bs[kk][ii];
-                }
-            } */
             for (int k=0; k < BLOCK_SIZE_Y; k++) {
                 if ((BLOCK_SIZE_Y*m+k) >= K)  {
                     break;
@@ -209,20 +183,9 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
                     temp[ii]+=As[k]*Bs[k][ii];
                 }
             } 
-            
-            
-/*             for (int p = 0; p < BLOCK_SIZE_X * BLOCK_SIZE_Y; p++) {
-                int pp = (p + row) % (BLOCK_SIZE_Y * BLOCK_SIZE_X);
-                int ii = pp % BLOCK_SIZE_X;
-                int kk = pp / BLOCK_SIZE_X;
-                if (((blockIdx.x * blockDim.x+ii) >=N) || ((BLOCK_SIZE_Y*m+kk) >= K)) {
-                    continue;
-                }
-                temp[ii]+=As[kk]*Bs[kk][ii];
-            } */
         }
         
-        __syncthreads();
+    __syncthreads();
     }
     if ((i<M)) {
         for (int ii=0; ii<BLOCK_SIZE_X; ii++) {
