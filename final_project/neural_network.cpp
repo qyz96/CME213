@@ -329,10 +329,10 @@ class OneBatchUpdate  {
         db0_h = (double*)malloc(sizeof(double)*K);
         db1_h = (double*)malloc(sizeof(double)*N);
 
-        for (unsigned int i=0; i<nn.W.size(); i++) {
+/*         for (unsigned int i=0; i<nn.W.size(); i++) {
             MPI_SAFE_CALL(MPI_Bcast(nn.W[i].memptr(), nn.W[i].n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD));
             MPI_SAFE_CALL(MPI_Bcast(nn.b[i].memptr(), nn.b[i].n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD));
-        }
+        } */
 
         cudaMemcpy(b0, nn.b[0].memptr(), sizeof(double) * K , cudaMemcpyHostToDevice);
         cudaMemcpy(b1, nn.b[1].memptr(), sizeof(double) * N, cudaMemcpyHostToDevice);
@@ -1096,7 +1096,7 @@ void parallel_train1(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 }
 
 
-void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
+void parallel_train2(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                     double learning_rate, double reg,
                     const int epochs, const int batch_size, bool grad_check, int print_every,
                     int debug) {
@@ -1163,5 +1163,81 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
         }
     }
     pp.UpdateCoefficient(nn);
+    error_file.close();
+}
+
+void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
+                    double learning_rate, double reg,
+                    const int epochs, const int batch_size, bool grad_check, int print_every,
+                    int debug) {
+
+    int rank, num_procs;
+    MPI_SAFE_CALL(MPI_Comm_size(MPI_COMM_WORLD, &num_procs));
+    MPI_SAFE_CALL(MPI_Comm_rank(MPI_COMM_WORLD, &rank));
+    int N = (rank == 0)?X.n_cols:0;
+    MPI_SAFE_CALL(MPI_Bcast(&N, 1, MPI_INT, 0, MPI_COMM_WORLD));
+    int x_row = X.n_rows;
+    int y_row = y.n_rows;
+    MPI_SAFE_CALL(MPI_Bcast(&x_row, 1, MPI_INT, 0, MPI_COMM_WORLD));
+    MPI_SAFE_CALL(MPI_Bcast(&y_row, 1, MPI_INT, 0, MPI_COMM_WORLD));
+    std::ofstream error_file;
+    error_file.open("Outputs/CpuGpuDiff.txt");
+    int print_flag = 0;
+    int iter = 0;
+    int *displsx = new int[num_procs];
+    int *displsy = new int[num_procs];
+    int *countsx = new int[num_procs];
+    int *countsy = new int[num_procs];
+    int subsize = (batch_size + num_procs - 1) / num_procs;
+    int this_batch_size = batch_size;
+    double* xptr_sub = (double*)malloc(sizeof(double)*x_row*subsize);
+    double* yptr_sub = (double*)malloc(sizeof(double)*y_row*subsize);
+    for (unsigned int i=0; i<nn.W.size(); i++) {
+        MPI_SAFE_CALL(MPI_Bcast(nn.W[i].memptr(), nn.W[i].n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Bcast(nn.b[i].memptr(), nn.b[i].n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+    }
+    //std::cout<<"Broadcast done...\n";
+    OneBatchUpdate pp(nn, subsize, batch_size, reg, learning_rate, rank, num_procs);
+    //std::cout<<"Initialization done...\n";
+    for(int epoch = 0; epoch < epochs; ++epoch) {
+        int num_batches = (N + batch_size - 1)/batch_size;
+        for(int batch = 0; batch < num_batches; ++batch) {
+            //std::cout<<"Calculating pointer...\n";
+            const double* xptr = X.memptr() + batch * batch_size * x_row;
+            const double* yptr = y.memptr() + batch * batch_size * y_row;
+
+            int last_col = std::min((batch + 1) * batch_size-1, N-1);
+            this_batch_size = last_col - batch * batch_size + 1;
+            subsize = (this_batch_size + num_procs - 1) / num_procs;
+            //std::cout<<"Assigning positions...\n";
+            for (unsigned int i = 0; i < num_procs; i++) {
+                displsx[i] = subsize * i * x_row;
+                countsx[i] = subsize * x_row;
+                displsy[i] = subsize * i * y_row;
+                countsy[i] = subsize * y_row;
+            }
+
+            //std::cout<<rank<<" rank Scatter begins...\n";
+            MPI_SAFE_CALL(MPI_Scatterv(xptr, countsx, displsx, MPI_DOUBLE, xptr_sub, countsx[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
+            MPI_SAFE_CALL(MPI_Scatterv(yptr, countsy, displsy, MPI_DOUBLE, yptr_sub, countsy[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD)); 
+            //std::cout<<rank<<" rank Scatter done...\n";
+            pp.FeedForward(xptr_sub, subsize, this_batch_size);
+            //std::cout<<rank<<"Feedforward done...\n";
+            pp.BackProp(yptr_sub);
+            //std::cout<<rank<<"Backprop done...\n";
+            pp.ReduceGradient();
+            //std::cout<<"Reduce done...\n";
+            pp.GradientDescent();
+            if(debug && rank == 0 && print_flag) {
+                write_diff_gpu_cpu(nn, iter, error_file);
+            }
+
+            iter++;
+
+        }
+    }
+    pp.UpdateCoefficient(nn);
+    free(xptr_sub);
+    free(yptr_sub);
     error_file.close();
 }
