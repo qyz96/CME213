@@ -429,7 +429,7 @@ class OneBatchUpdate  {
         //cudaMemcpy(dy, yptr, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
         double* dy = dY + pos;
         cudaMemcpy(dy, dY+pos, sizeof(double)*M*num_sample, cudaMemcpyDeviceToHost);
-        arma::mat y_temp(dy, N, subsize);
+        arma::mat y_temp(dy, N, num_sample);
         std::cout<<"Y: "<<y_temp.submat(0,0,5,5)<<"\n";
         cudaMemcpy(dW0, W0, sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
         cudaMemcpy(dW1, W1, sizeof(double) * K * N, cudaMemcpyDeviceToDevice);
