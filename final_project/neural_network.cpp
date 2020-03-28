@@ -414,7 +414,7 @@ class OneBatchUpdate2  {
 
     } 
 
-    void BackProp(int pos) {
+    void BackProp(const double* yptr) {
 
         double alpha = 1/(double)(num_sample);
         double beta = -1/(double)(num_sample);
@@ -423,12 +423,12 @@ class OneBatchUpdate2  {
 
         double r = reg/(double)(num_procs);
         
-        //cudaMemcpy(dy, yptr, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
+        cudaMemcpy(dy, yptr, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
 
         cudaMemcpy(dW0, W0, sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
         cudaMemcpy(dW1, W1, sizeof(double) * K * N, cudaMemcpyDeviceToDevice);
 
-        gpu_addmat(a1, dY+pos, a1, 1/(double)(batch_size), -1/(double)(batch_size), N, num_sample);
+        gpu_addmat(a1, dy, a1, 1/(double)(batch_size), -1/(double)(batch_size), N, num_sample);
         check_launch("add mat");
         //myGEMM2(dW1, dDff, da1, &alpha1, &beta1, K, num_sample, N, true, false);
         cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, K, num_sample, N, &alpha1, W1, N, a1, N, &beta1, z0, K);
@@ -872,7 +872,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             //std::cout<<rank<<" rank Scatter done...\n";
             pp.FeedForward(batch * batch_size * x_row, counts, this_batch_size);
             //std::cout<<rank<<"Feedforward done...\n";
-            pp.BackProp(batch * batch_size * y_row);
+            pp.BackProp(yptr);
             //std::cout<<rank<<"Backprop done...\n";
             pp.ReduceGradient();
             //std::cout<<"Reduce done...\n";
