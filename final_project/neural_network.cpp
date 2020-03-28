@@ -320,6 +320,7 @@ class OneBatchUpdate  {
         cudaMalloc((void**)&dW1, sizeof(double) * K * N);
         cudaMalloc((void**)&db0, sizeof(double) * K);
         cudaMalloc((void**)&db1, sizeof(double) * N);
+        cudaMalloc((void**)&dy, sizeof(double) * N * num_sample);
 
 
         dW0_h = (double*)malloc(sizeof(double)*M*K);
@@ -409,7 +410,7 @@ class OneBatchUpdate  {
 
     }
 
-    void BackProp(int pos) {
+    void BackProp(double* yptr) {
 
         double alpha = 1/(double)(num_sample);
         double beta = -1/(double)(num_sample);
@@ -418,25 +419,25 @@ class OneBatchUpdate  {
 
         double r = reg/(double)(num_procs);
         
-        //cudaMemcpy(dy, yptr, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
+        cudaMemcpy(dy, yptr, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
 
         cudaMemcpy(dW0, W0, sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
         cudaMemcpy(dW1, W1, sizeof(double) * K * N, cudaMemcpyDeviceToDevice);
 
-        gpu_addmat(a1, dY+pos, a1, 1/(double)(batch_size), -1/(double)(batch_size), N, num_sample);
+        gpu_addmat(a1, dy, a1, 1/(double)(batch_size), -1/(double)(batch_size), N, num_sample);
         check_launch("add mat");
         //myGEMM2(dW1, dDff, da1, &alpha1, &beta1, K, num_sample, N, true, false);
-        cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, K, num_sample, N, &alpha1, W1, N, a1, N, &beta1, z0, K);
+        cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, K, num_sample, N, &alpha1, W1, N, dy, N, &beta1, z0, K);
         check_launch("myGEMM");
         //myGEMM2(dDff, da0, dW1, &alpha1, &reg, N, K, num_sample, false, true);
-        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, N, K, num_sample, &alpha1, a1, N, a0, K, &r, dW1, N);
+        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, N, K, num_sample, &alpha1, dy, N, a0, K, &r, dW1, N);
         check_launch("myGEMM 2");
 
         gpu_hadmard(z0, z0, a0, K, num_sample);
         check_launch("hadmard");
 
 
-        gpu_sumrow(a1, db1, N, num_sample);
+        gpu_sumrow(dy, db1, N, num_sample);
         check_launch("sumrow");
 
         //myGEMM2(dz1, dX, dW0, &alpha1, &reg, K, M, num_sample, false, true);
@@ -514,6 +515,7 @@ class OneBatchUpdate  {
         cudaFree(db1);
         cudaFree(dX);
         cudaFree(dY);
+        cudaFree(dy);
         cudaFree(dexp);
 
     }
@@ -550,6 +552,7 @@ class OneBatchUpdate  {
     double* dX;
     double* dexp;
     double* dY;
+    double* dy;
     double reg;
     double learning_rate;
     double* dW0_h;
@@ -1105,7 +1108,10 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     int print_flag = 0;
     int iter = 0;
 
-
+    int *displsx = new int[num_procs];
+    int *displsy = new int[num_procs];
+    int *countsx = new int[num_procs];
+    int *countsy = new int[num_procs];
 
     int subsize = (batch_size + num_procs - 1) / num_procs;
     int this_batch_size = batch_size;
@@ -1129,10 +1135,10 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             //arma::mat y_subbatch(pp.N1(), subsize);
             //std::cout<<"Our X: \n"<<X.submat(0,0,5,5);
             //std::cout<<rank<<" rank Scatter begins...\n";
-            std::cout<<rank<<" rank Scatter done...\n";
+            //std::cout<<rank<<" rank Scatter done...\n";
             pp.FeedForward(batch_posx + subsize * rank * pp.M1(), counts, this_batch_size);
             //std::cout<<rank<<"Feedforward done...\n";
-            pp.BackProp(batch_posy + subsize * rank * pp.N1());
+            pp.BackProp(y.memptr()+batch_posy);
             //std::cout<<rank<<"Backprop done...\n";
             pp.ReduceGradient();
             //std::cout<<"Reduce done...\n";
