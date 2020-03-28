@@ -500,7 +500,7 @@ class OneBatchUpdate2  {
     int N1() {return N;}
 
 
-    ~OneBatchUpdate()   {
+    ~OneBatchUpdate2()   {
         
         cudaFree(W0);
         cudaFree(W1);
