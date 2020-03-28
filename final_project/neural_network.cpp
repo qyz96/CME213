@@ -399,8 +399,8 @@ class OneBatchUpdate2  {
         double alpha = 1;
         double beta = 1;
 
-        gpu_addmat(dx, dX+pos, a1, 1, -1, M, num_sample);
-        return;
+        //gpu_addmat(dx, dX+pos, a1, 1, -1, M, num_sample);
+        
         cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, K, num_sample, M, &alpha, W0, K, dX+pos, M, &beta, z0, K);
         check_launch("myGEMM 1");
         gpu_sigmoid(z0, a0, K, num_sample);
