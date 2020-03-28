@@ -295,12 +295,12 @@ class OneBatchUpdate2  {
 
 
     public:
-    OneBatchUpdate2(NeuralNetwork& nn, int sub_size, int bs, double regularizer, double lr, int r, int np): M(nn.W[0].n_cols), N(nn.W[1].n_rows), 
+    OneBatchUpdate2(NeuralNetwork& nn, int sub_size, int bs, double regularizer, double lr, int r, int np, const arma::mat X, const arma::mat y): M(nn.W[0].n_cols), N(nn.W[1].n_rows), 
     K(nn.W[0].n_rows), num_sample(sub_size), batch_size(bs), reg(regularizer), learning_rate(lr), rank(r), num_procs(np) {
 
 
 
-        //LoadData(X, y);
+        LoadData(X, y);
         stat = cublasCreate(&handle);
         if(stat != CUBLAS_STATUS_SUCCESS) {
             std::cerr << "CUBLAS initialization failed!" << std::endl;
@@ -1366,7 +1366,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     int this_batch_size = batch_size;
 
 
-    OneBatchUpdate2 pp(nn, subsize, batch_size, reg, learning_rate, rank, num_procs);
+    OneBatchUpdate2 pp(nn, subsize, batch_size, reg, learning_rate, rank, num_procs, X, y);
     std::cout<<pp.T1()<<" "<<pp.M1()<<" "<<pp.N1()<<"\n";
     //std::cout<<"Initialization done...\n";
     for(int epoch = 0; epoch < epochs; ++epoch) {
@@ -1380,7 +1380,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             this_batch_size = last_col - batch * batch_size + 1;
             subsize = (this_batch_size + num_procs - 1) / num_procs;
             int counts = (rank == (num_procs - 1)) ? (this_batch_size-(num_procs-1)*subsize) : subsize;
-            std::cout<<counts<<"\n";
+            //std::cout<<counts<<"\n";
 
             //arma::mat X_subbatch(X.memptr()+batch_posx, pp.M1(), subsize);
             //arma::mat y_subbatch(pp.N1(), subsize);
