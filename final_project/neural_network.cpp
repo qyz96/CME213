@@ -862,7 +862,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             int last_col = std::min((batch + 1) * batch_size-1, N-1);
             this_batch_size = last_col - batch * batch_size + 1;
             subsize = (this_batch_size + num_procs - 1) / num_procs;
-            int counts = std::min((this_batch_size-(rank-1)*subsize, subsize));
+            int counts = std::min(this_batch_size-(rank-1)*subsize, subsize);
             if (counts<0) counts=0;
             std::cout<<rank<<" "<<counts<<" "<<this_batch_size<<"\n";
             
