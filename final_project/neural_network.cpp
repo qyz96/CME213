@@ -383,15 +383,7 @@ class OneBatchUpdate  {
     void FeedForward(int pos, int subsize, int wholesize, const arma::mat X)  {
         num_sample = subsize;
         batch_size = wholesize;
-        //double* dx = (double*)malloc(sizeof(double)*M*subsize);
-        //cudaMemcpy(dx, dX+pos, sizeof(double)*M*subsize, cudaMemcpyDeviceToHost);
-        //arma::mat temp(dx, M, subsize);
-        //std::cout<<"X: \n"<<arma::norm(temp,2)<<"\n";
 
-
-        //std::cout<<pos<<"\n";
-        //cudaMemcpy(dX, xptr, sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
-        //check_launch("Copying X");
         gpu_repmat(b0, z0, K, num_sample);
         check_launch("repmat b0");
         gpu_repmat(b1, z1, N, num_sample);
@@ -427,10 +419,7 @@ class OneBatchUpdate  {
         double r = reg/(double)(num_procs);
         
         //cudaMemcpy(dy, yptr, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
-        double* dy = (double*)malloc(sizeof(double)*N*num_sample);
-        cudaMemcpy(dy, dY+pos, sizeof(double)*N*num_sample, cudaMemcpyDeviceToHost);
-        arma::mat y_temp(dy, N, num_sample);
-        std::cout<<"Y: "<<y_temp.submat(0,0,5,5)<<"\n";
+
         cudaMemcpy(dW0, W0, sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
         cudaMemcpy(dW1, W1, sizeof(double) * K * N, cudaMemcpyDeviceToDevice);
 
