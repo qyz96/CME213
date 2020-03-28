@@ -271,7 +271,7 @@ int numBlocks_x = (N + block_size_x - 1) / block_size_x;
 int numBlocks_y = (M + block_size_y - 1) / (block_size_y);
 dim3 threads(block_size_x, block_size_y);
 dim3 blocks(numBlocks_x, numBlocks_y);
-device_gemm_shared<<<blocks, threads>>>(A, B, C, al, be, M, N, K, A_T, B_T);
+device_gemm<<<blocks, threads>>>(A, B, C, al, be, M, N, K, A_T, B_T);
 
 
 return 0;
