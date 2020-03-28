@@ -313,8 +313,6 @@ void device_addmat(double* A, double* B, double* C, double alpha, double beta, i
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
     if ((i < M) && (j < N)) {
-        if ((i < 5) && (j < 5))
-        printf("A[%d,%d]=%f, B[%d,%d]=%f\n", i,j,A[i+j*M], i, j, B[i+j*M]);
         C[i + j * M] = alpha * A[i + j * M] + beta * B[i + j * M];
     }
     return;
