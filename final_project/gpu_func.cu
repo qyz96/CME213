@@ -197,8 +197,20 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
                     temp[ii]+=As[kk]*Bs[kk][ii];
                 }
             } */
+            for (int k=0; k < BLOCK_SIZE_Y; k++) {
+                if ((BLOCK_SIZE_Y*m+k) >= K)  {
+                    break;
+                }
+                for (int ii=0; ii<BLOCK_SIZE_X; ii++) {
+                    if ((blockIdx.x * blockDim.x+ii) >=N) {
+                        break;
+                    }
+                    temp[ii]+=As[k]*Bs[k][ii];
+                }
+            } 
             
-            for (int p = 0; p < BLOCK_SIZE_X * BLOCK_SIZE_Y; p++) {
+            
+/*             for (int p = 0; p < BLOCK_SIZE_X * BLOCK_SIZE_Y; p++) {
                 int pp = (p + row) % (BLOCK_SIZE_Y * BLOCK_SIZE_X);
                 int ii = pp % BLOCK_SIZE_X;
                 int kk = pp / BLOCK_SIZE_X;
@@ -206,7 +218,7 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
                     continue;
                 }
                 temp[ii]+=As[kk]*Bs[kk][ii];
-            }
+            } */
         }
         
         __syncthreads();
