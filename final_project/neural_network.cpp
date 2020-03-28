@@ -1116,7 +1116,10 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     int *displsy = new int[num_procs];
     int *countsx = new int[num_procs];
     int *countsy = new int[num_procs];
-
+    int x_row = X.n_rows;
+    int y_row = y.n_rows;
+    MPI_SAFE_CALL(MPI_Bcast(&x_row, 1, MPI_INT, 0, MPI_COMM_WORLD));
+    MPI_SAFE_CALL(MPI_Bcast(&y_row, 1, MPI_INT, 0, MPI_COMM_WORLD));
     int subsize = (batch_size + num_procs - 1) / num_procs;
     int this_batch_size = batch_size;
 
@@ -1128,8 +1131,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
         int num_batches = (N + batch_size - 1)/batch_size;
         for(int batch = 0; batch < num_batches; ++batch) {
             //std::cout<<"Calculating pointer...\n";
-            int batch_posx =  batch * batch_size * pp.M1();
-            int batch_posy =  batch * batch_size * pp.N1();
+            int batch_posx =  batch * batch_size * x_row;
+            int batch_posy =  batch * batch_size * y_row;
 
             int last_col = std::min((batch + 1) * batch_size-1, pp.T1()-1);
             this_batch_size = last_col - batch * batch_size + 1;
