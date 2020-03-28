@@ -295,7 +295,7 @@ class OneBatchUpdate2  {
 
 
     public:
-    OneBatchUpdate2(NeuralNetwork& nn, int sub_size, int bs, double regularizer, double lr, int r, int np, const arma::mat& X, const arma::mat& y): M(nn.W[0].n_cols), N(nn.W[1].n_rows), 
+    OneBatchUpdate2(NeuralNetwork& nn, int sub_size, int bs, double regularizer, double lr, int r, int np): M(nn.W[0].n_cols), N(nn.W[1].n_rows), 
     K(nn.W[0].n_rows), num_sample(sub_size), batch_size(bs), reg(regularizer), learning_rate(lr), rank(r), num_procs(np) {
 
 
@@ -321,7 +321,7 @@ class OneBatchUpdate2  {
         cudaMalloc((void**)&db0, sizeof(double) * K);
         cudaMalloc((void**)&db1, sizeof(double) * N);
         cudaMalloc((void**)&dy, sizeof(double) * N * num_sample);
-        cudaMalloc((void**)&dx, sizeof(double) * M * num_sample);
+        cudaMalloc((void**)&dX, sizeof(double) * M * num_sample);
 
 
         dW0_h = (double*)malloc(sizeof(double)*M*K);
@@ -392,13 +392,13 @@ class OneBatchUpdate2  {
         check_launch("repmat b1");
         
         
-        cudaMemcpy(dx, xptr, sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
+        cudaMemcpy(dX, xptr, sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
 
 
         double alpha = 1;
         double beta = 1;
 
-        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, K, num_sample, M, &alpha, W0, K, dx, M, &beta, z0, K);
+        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, K, num_sample, M, &alpha, W0, K, dX, M, &beta, z0, K);
         check_launch("myGEMM 1");
         gpu_sigmoid(z0, a0, K, num_sample);
         cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, num_sample, K, &alpha, W1, N, a0, K, &beta, z1, N);
@@ -442,7 +442,7 @@ class OneBatchUpdate2  {
         check_launch("sumrow");
 
         //myGEMM2(dz1, dX, dW0, &alpha1, &reg, K, M, num_sample, false, true);
-        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, K, M, num_sample, &alpha1, z0, K, dx, M, &r, dW0, K);
+        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, K, M, num_sample, &alpha1, z0, K, dX, M, &r, dW0, K);
         check_launch("myGEMM 3");
 
         gpu_sumrow(z0, db0, K, num_sample);
@@ -551,7 +551,7 @@ class OneBatchUpdate2  {
     double* db0;
     double* db1;
     double* dX;
-    double* dx;
+    //double* dx;
     double* dexp;
     double* dY;
     double* dy;
