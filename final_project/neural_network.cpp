@@ -409,7 +409,7 @@ class OneBatchUpdate2  {
         check_launch("sumcol");
         gpu_softmax(dexp, a1, N, num_sample);
 
-    }
+    } */
 
     void BackProp(const double* yptr) {
 
@@ -450,7 +450,7 @@ class OneBatchUpdate2  {
 
 
 
-    } */
+    } 
 
         void FeedForward(const double* xptr, int subsize, int wholesize)  {
         num_sample = subsize;
@@ -482,7 +482,7 @@ class OneBatchUpdate2  {
 
     }
 
-    void BackProp(const double* yptr) {
+/*     void BackProp(const double* yptr) {
 
         double alpha = 1/(double)(num_sample);
         double beta = -1/(double)(num_sample);
@@ -520,7 +520,7 @@ class OneBatchUpdate2  {
 
 
 
-    }
+    } */
 
 
     void GradientDescent() {
