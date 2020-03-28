@@ -383,13 +383,13 @@ class OneBatchUpdate  {
     void FeedForward(int pos, int subsize, int wholesize, const arma::mat X)  {
         num_sample = subsize;
         batch_size = wholesize;
-        double* dx = (double*)malloc(sizeof(double)*M*subsize);
-        cudaMemcpy(dx, dX+pos, sizeof(double)*M*subsize, cudaMemcpyDeviceToHost);
-        arma::mat temp(dx, M, subsize);
-        std::cout<<"X: \n"<<arma::norm(temp,2)<<"\n";
+        //double* dx = (double*)malloc(sizeof(double)*M*subsize);
+        //cudaMemcpy(dx, dX+pos, sizeof(double)*M*subsize, cudaMemcpyDeviceToHost);
+        //arma::mat temp(dx, M, subsize);
+        //std::cout<<"X: \n"<<arma::norm(temp,2)<<"\n";
 
 
-        std::cout<<pos<<"\n";
+        //std::cout<<pos<<"\n";
         //cudaMemcpy(dX, xptr, sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
         //check_launch("Copying X");
         gpu_repmat(b0, z0, K, num_sample);
@@ -428,6 +428,9 @@ class OneBatchUpdate  {
         
         //cudaMemcpy(dy, yptr, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
         double* dy = dY + pos;
+        cudaMemcpy(dy, dY+pos, sizeof(double)*M*subsize, cudaMemcpyDeviceToHost);
+        arma::mat y_temp(dy, N, subsize);
+        std::cout<<"Y: "<<y_temp.submat(0,0,5,5)<<"\n";
         cudaMemcpy(dW0, W0, sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
         cudaMemcpy(dW1, W1, sizeof(double) * K * N, cudaMemcpyDeviceToDevice);
 
@@ -884,7 +887,7 @@ void gpu_updatecoeffcient(NeuralNetwork& nn, struct grads& bpgrads, double learn
  * Train the neural network &nn of rank 0 in parallel. Your MPI implementation
  * should mainly be in this function.
  */
-void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
+void parallel_train1(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                     double learning_rate, double reg,
                     const int epochs, const int batch_size, bool grad_check, int print_every,
                     int debug) {
@@ -1133,9 +1136,9 @@ void parallel_train1(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             subsize = (this_batch_size + num_procs - 1) / num_procs;
             int counts = (rank == (num_procs - 1)) ? (this_batch_size-(num_procs-1)*subsize) : subsize;
 
-            arma::mat X_subbatch(X.memptr()+batch_posx, pp.M1(), subsize);
-            arma::mat y_subbatch(pp.N1(), subsize);
-            std::cout<<"Our X: \n"<<X.submat(0,0,5,5);
+            //arma::mat X_subbatch(X.memptr()+batch_posx, pp.M1(), subsize);
+            //arma::mat y_subbatch(pp.N1(), subsize);
+            //std::cout<<"Our X: \n"<<X.submat(0,0,5,5);
             //std::cout<<rank<<" rank Scatter begins...\n";
             //std::cout<<rank<<" rank Scatter done...\n";
             pp.FeedForward(batch_posx + subsize * rank * pp.M1(), counts, this_batch_size, X);
