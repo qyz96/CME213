@@ -1109,6 +1109,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     error_file.open("Outputs/CpuGpuDiff.txt");
     int print_flag = 0;
     int iter = 0;
+    int N = (rank == 0)?X.n_cols:0;
+    MPI_SAFE_CALL(MPI_Bcast(&N, 1, MPI_INT, 0, MPI_COMM_WORLD));
 
     int *displsx = new int[num_procs];
     int *displsy = new int[num_procs];
@@ -1123,7 +1125,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     std::cout<<pp.T1()<<" "<<pp.M1()<<" "<<pp.N1()<<"\n";
     //std::cout<<"Initialization done...\n";
     for(int epoch = 0; epoch < epochs; ++epoch) {
-        int num_batches = (pp.T1() + batch_size - 1)/batch_size;
+        int num_batches = (N + batch_size - 1)/batch_size;
         for(int batch = 0; batch < num_batches; ++batch) {
             //std::cout<<"Calculating pointer...\n";
             int batch_posx =  batch * batch_size * pp.M1();
@@ -1133,7 +1135,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             this_batch_size = last_col - batch * batch_size + 1;
             subsize = (this_batch_size + num_procs - 1) / num_procs;
             int counts = (rank == (num_procs - 1)) ? (this_batch_size-(num_procs-1)*subsize) : subsize;
-            std::cout<<subsize<<"\n";
+            //std::cout<<subsize<<"\n";
 
             //arma::mat X_subbatch(X.memptr()+batch_posx, pp.M1(), subsize);
             //arma::mat y_subbatch(pp.N1(), subsize);
