@@ -295,12 +295,11 @@ class OneBatchUpdate2  {
 
 
     public:
-    OneBatchUpdate2(NeuralNetwork& nn, int sub_size, int bs, double regularizer, double lr, int r, int np, const arma::mat X, const arma::mat y): M(nn.W[0].n_cols), N(nn.W[1].n_rows), 
-    K(nn.W[0].n_rows), num_sample(sub_size), batch_size(bs), reg(regularizer), learning_rate(lr), rank(r), num_procs(np) {
+    OneBatchUpdate2(NeuralNetwork& nn, int sub_size, int bs, double regularizer, double lr, int r, int np, int ts): M(nn.W[0].n_cols), N(nn.W[1].n_rows), 
+    K(nn.W[0].n_rows), num_sample(sub_size), batch_size(bs), reg(regularizer), learning_rate(lr), rank(r), num_procs(np), totalsize(ts) {
 
 
 
-        LoadData(X, y);
         stat = cublasCreate(&handle);
         if(stat != CUBLAS_STATUS_SUCCESS) {
             std::cerr << "CUBLAS initialization failed!" << std::endl;
@@ -320,8 +319,8 @@ class OneBatchUpdate2  {
         cudaMalloc((void**)&dW1, sizeof(double) * K * N);
         cudaMalloc((void**)&db0, sizeof(double) * K);
         cudaMalloc((void**)&db1, sizeof(double) * N);
-        cudaMalloc((void**)&dy, sizeof(double) * N * num_sample);
-        cudaMalloc((void**)&dx, sizeof(double) * M * num_sample);
+        cudaMalloc((void**)&dX, sizeof(double) * M * totalsize);
+        cudaMalloc((void**)&dY, sizeof(double) * N * totalsize);
 
 
         dW0_h = (double*)malloc(sizeof(double)*M*K);
@@ -380,6 +379,12 @@ class OneBatchUpdate2  {
         }
 
 
+    void LoadXY(int posx, int posy, const double* xptr, const double* yptr, int subsize) {
+        
+        cudaMemcpy(dX+posx, xptr, sizeof(double) * M * subsize, cudaMemcpyHostToDevice);
+        cudaMemcpy(dY+posy, yptr, sizeof(double) * N * subsize, cudaMemcpyHostToDevice);
+
+    }
 
 
     void FeedForward(int pos, int subsize, int wholesize)  {
@@ -524,7 +529,6 @@ class OneBatchUpdate2  {
         cudaFree(db1);
         cudaFree(dX);
         cudaFree(dY);
-        cudaFree(dy);
         cudaFree(dexp);
 
     }
@@ -559,10 +563,8 @@ class OneBatchUpdate2  {
     double* db0;
     double* db1;
     double* dX;
-    double* dx;
     double* dexp;
     double* dY;
-    double* dy;
     double reg;
     double learning_rate;
     double* dW0_h;
@@ -848,9 +850,10 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     MPI_SAFE_CALL(MPI_Bcast(&y_row, 1, MPI_INT, 0, MPI_COMM_WORLD));
     int subsize = (batch_size + num_procs - 1) / num_procs;
     int this_batch_size = batch_size;
+    double* xptr_sub = (double*)malloc(sizeof(double)*x_row*subsize);
+    double* yptr_sub = (double*)malloc(sizeof(double)*y_row*subsize);
 
-
-    OneBatchUpdate2 pp(nn, subsize, batch_size, reg, learning_rate, rank, num_procs, X, y);
+    OneBatchUpdate2 pp(nn, subsize, batch_size, reg, learning_rate, rank, num_procs, N);
     for(int epoch = 0; epoch < epochs; ++epoch) {
         int num_batches = (N + batch_size - 1)/batch_size;
         for(int batch = 0; batch < num_batches; ++batch) {
@@ -864,6 +867,21 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             int xpos = batch * batch_size * x_row + subsize * rank * x_row;
             int ypos = batch * batch_size * y_row + subsize * rank * y_row;
 
+            if (epoch == 0) {
+                const double* xptr = X.memptr() + batch * batch_size * x_row;
+                const double* yptr = y.memptr() + batch * batch_size * y_row;
+                for (unsigned int i = 0; i < num_procs; i++) {
+                    displsx[i] = subsize * i * x_row;
+                    countsx[i] = (rank == (num_procs - 1)) ? (this_batch_size-(num_procs-1)*subsize) * x_row : subsize * x_row;
+                    displsy[i] = subsize * i * y_row;
+                    countsy[i] = (rank == (num_procs - 1)) ? (this_batch_size-(num_procs-1)*subsize) * y_row : subsize * x_row;
+                }
+                MPI_SAFE_CALL(MPI_Scatterv(xptr, countsx, displsx, MPI_DOUBLE, xptr_sub, countsx[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
+                MPI_SAFE_CALL(MPI_Scatterv(yptr, countsy, displsy, MPI_DOUBLE, yptr_sub, countsy[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD)); 
+                pp.LoadXY(posx, posy, xptr_sub, yptr_sub, counts);
+
+            }
+
             pp.FeedForward(xpos, counts, this_batch_size);
             pp.BackProp(xpos, ypos);
             pp.ReduceGradient();
@@ -871,11 +889,16 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             if(debug && rank == 0 && print_flag) {
                 write_diff_gpu_cpu(nn, iter, error_file);
             }
+/*             if (iter > 5) {
+                return;
+            } */
             iter++;
 
         }
     }
     pp.UpdateCoefficient(nn);
+    free(xptr_sub);
+    free(yptr_sub);
     error_file.close();
 }
 
