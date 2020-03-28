@@ -300,7 +300,7 @@ class OneBatchUpdate  {
 
 
 
-        //LoadData(X, y);
+        LoadData(X, y);
         stat = cublasCreate(&handle);
         if(stat != CUBLAS_STATUS_SUCCESS) {
             std::cerr << "CUBLAS initialization failed!" << std::endl;
