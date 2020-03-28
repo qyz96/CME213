@@ -1338,7 +1338,7 @@ void parallel_train1(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 }
 
 
-void parallel_train2(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
+void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                     double learning_rate, double reg,
                     const int epochs, const int batch_size, bool grad_check, int print_every,
                     int debug) {
@@ -1408,7 +1408,7 @@ void parallel_train2(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     error_file.close();
 }
 
-void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
+void parallel_train2(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                     double learning_rate, double reg,
                     const int epochs, const int batch_size, bool grad_check, int print_every,
                     int debug) {
