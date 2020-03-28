@@ -880,9 +880,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 if (rank == 0 ) {
                     for (unsigned int i = 0; i < num_procs; i++) {
                     std::cout << displsx[i] <<"\n";
-                    std::cout << countsx[i] <<"\n"
-                    std::cout <<displsy[i]  <<"\n"
-                    std::cout <<countsy[i] <<"\n"
+                    std::cout << countsx[i] <<"\n";
+                    std::cout <<displsy[i]  <<"\n";
+                    std::cout <<countsy[i] <<"\n";
                 }
                 }
                 MPI_SAFE_CALL(MPI_Scatterv(xptr, countsx, displsx, MPI_DOUBLE, xptr_sub, countsx[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
