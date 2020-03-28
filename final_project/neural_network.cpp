@@ -336,7 +336,7 @@ class OneBatchUpdate  {
         cudaMemcpy(b1, nn.b[1].memptr(), sizeof(double) * N, cudaMemcpyHostToDevice);
         cudaMemcpy(W0, nn.W[0].memptr(), sizeof(double) * M * K, cudaMemcpyHostToDevice);
         cudaMemcpy(W1, nn.W[1].memptr(), sizeof(double) * K * N, cudaMemcpyHostToDevice);
-        std::cout<<totalsize<<" "<<M<<" "<<N<<" "<<K<<"\n";
+        //std::cout<<totalsize<<" "<<M<<" "<<N<<" "<<K<<"\n";
 
 /*      MPI_SAFE_CALL(MPI_Bcast(W0, M*K, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Bcast(b0, K, MPI_DOUBLE, 0, MPI_COMM_WORLD));
@@ -367,7 +367,7 @@ class OneBatchUpdate  {
         cudaMalloc((void**)&dY, sizeof(double) * N * totalsize);
         MPI_SAFE_CALL(MPI_Bcast(xdata, M*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Bcast(ydata, N*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));    
-        std::cout<<"X: \n"<<X.submat(0,0,5,5);
+        //std::cout<<"X: \n"<<X.submat(0,0,5,5);
         cudaMemcpy(dX, xdata, sizeof(double) * M * totalsize, cudaMemcpyHostToDevice);
         cudaMemcpy(dY, ydata, sizeof(double) * N * totalsize, cudaMemcpyHostToDevice);
         free(xdata);
@@ -380,7 +380,7 @@ class OneBatchUpdate  {
 
 
 
-    void FeedForward(int pos, int subsize, int wholesize, const arma::mat X)  {
+    void FeedForward(int pos, int subsize, int wholesize)  {
         num_sample = subsize;
         batch_size = wholesize;
 
@@ -1130,7 +1130,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             //std::cout<<"Our X: \n"<<X.submat(0,0,5,5);
             //std::cout<<rank<<" rank Scatter begins...\n";
             //std::cout<<rank<<" rank Scatter done...\n";
-            pp.FeedForward(batch_posx + subsize * rank * pp.M1(), counts, this_batch_size, X);
+            pp.FeedForward(batch_posx + subsize * rank * pp.M1(), counts, this_batch_size);
             //std::cout<<rank<<"Feedforward done...\n";
             pp.BackProp(batch_posy + subsize * rank * pp.N1());
             //std::cout<<rank<<"Backprop done...\n";
