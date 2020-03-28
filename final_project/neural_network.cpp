@@ -893,6 +893,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 pp.LoadXY(xpos, ypos, xptr_sub, yptr_sub, counts);
 
             }
+            if (counts == 0) break;
 
             pp.FeedForward(xpos, counts, this_batch_size);
             pp.BackProp(xpos, ypos);
