@@ -201,7 +201,7 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
             for (int p = 0; p < BLOCK_SIZE_X * BLOCK_SIZE_Y; p++) {
                 int pp = (p + row) % (BLOCK_SIZE_Y * BLOCK_SIZE_X);
                 int ii = pp % BLOCK_SIZE_X;
-                int kk = PP / BLOCK_SIZE_X;
+                int kk = pp / BLOCK_SIZE_X;
                 if (((blockIdx.x * blockDim.x+ii) >=N) || ((BLOCK_SIZE_Y*m+kk) >= K)) {
                     continue;
                 }
