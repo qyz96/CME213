@@ -382,7 +382,7 @@ class OneBatchUpdate2  {
 
 
 
-    void FeedForward(const double* xptr, int subsize, int wholesize)  {
+/*     void FeedForward(const double* xptr, int subsize, int wholesize)  {
         num_sample = subsize;
         batch_size = wholesize;
 
@@ -426,6 +426,76 @@ class OneBatchUpdate2  {
         cudaMemcpy(dW1, W1, sizeof(double) * K * N, cudaMemcpyDeviceToDevice);
 
         gpu_addmat(a1, dy, a1, 1/(double)(batch_size), -1/(double)(batch_size), N, num_sample);
+        check_launch("add mat");
+        //myGEMM2(dW1, dDff, da1, &alpha1, &beta1, K, num_sample, N, true, false);
+        cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, K, num_sample, N, &alpha1, W1, N, dy, N, &beta1, z0, K);
+        check_launch("myGEMM");
+        //myGEMM2(dDff, da0, dW1, &alpha1, &reg, N, K, num_sample, false, true);
+        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, N, K, num_sample, &alpha1, dy, N, a0, K, &r, dW1, N);
+        check_launch("myGEMM 2");
+
+        gpu_hadmard(z0, z0, a0, K, num_sample);
+        check_launch("hadmard");
+
+
+        gpu_sumrow(dy, db1, N, num_sample);
+        check_launch("sumrow");
+
+        //myGEMM2(dz1, dX, dW0, &alpha1, &reg, K, M, num_sample, false, true);
+        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, K, M, num_sample, &alpha1, z0, K, dX, M, &r, dW0, K);
+        check_launch("myGEMM 3");
+
+        gpu_sumrow(z0, db0, K, num_sample);
+        check_launch("sumrow2");
+
+
+
+    } */
+
+        void FeedForward(const double* xptr, int subsize, int wholesize)  {
+        num_sample = subsize;
+        batch_size = wholesize;
+        cudaMemcpy(dX, xptr, sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
+        check_launch("Copying X");
+        gpu_repmat(b0, z0, K, num_sample);
+        check_launch("repmat b0");
+        gpu_repmat(b1, z1, N, num_sample);
+        check_launch("repmat b1");
+        
+
+
+
+
+        double alpha = 1;
+        double beta = 1;
+
+        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, K, num_sample, M, &alpha, W0, K, dX, M, &beta, z0, K);
+        check_launch("myGEMM 1");
+        gpu_sigmoid(z0, a0, K, num_sample);
+        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, num_sample, K, &alpha, W1, N, a0, K, &beta, z1, N);
+        check_launch("myGEMM 2");
+        gpu_exp(z1, a1, N, num_sample);
+        check_launch("exp");
+        gpu_sumcol(a1, dexp, N, num_sample);
+        check_launch("sumcol");
+        gpu_softmax(dexp, a1, N, num_sample);
+
+    }
+
+    void BackProp(const double* yptr) {
+
+        double alpha = 1/(double)(num_sample);
+        double beta = -1/(double)(num_sample);
+        double alpha1 = 1;
+        double beta1=0;
+
+        double r = reg/(double)(num_procs);
+        
+        cudaMemcpy(dy, yptr, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
+        cudaMemcpy(dW0, W0, sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
+        cudaMemcpy(dW1, W1, sizeof(double) * K * N, cudaMemcpyDeviceToDevice);
+
+        gpu_addmat(a1, dy, dy, 1/(double)(batch_size), -1/(double)(batch_size), N, num_sample);
         check_launch("add mat");
         //myGEMM2(dW1, dDff, da1, &alpha1, &beta1, K, num_sample, N, true, false);
         cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, K, num_sample, N, &alpha1, W1, N, dy, N, &beta1, z0, K);
@@ -625,78 +695,7 @@ class OneBatchUpdate  {
 
 
 
-/*     void FeedForward(const double* xptr, int subsize, int wholesize)  {
-        num_sample = subsize;
-        batch_size = wholesize;
-        cudaMemcpy(dX, xptr, sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
-        check_launch("Copying X");
-        gpu_repmat(b0, z0, K, num_sample);
-        check_launch("repmat b0");
-        gpu_repmat(b1, z1, N, num_sample);
-        check_launch("repmat b1");
-        
-
-
-
-
-        double alpha = 1;
-        double beta = 1;
-
-        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, K, num_sample, M, &alpha, W0, K, dX, M, &beta, z0, K);
-        check_launch("myGEMM 1");
-        gpu_sigmoid(z0, a0, K, num_sample);
-        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, num_sample, K, &alpha, W1, N, a0, K, &beta, z1, N);
-        check_launch("myGEMM 2");
-        gpu_exp(z1, a1, N, num_sample);
-        check_launch("exp");
-        gpu_sumcol(a1, dexp, N, num_sample);
-        check_launch("sumcol");
-        gpu_softmax(dexp, a1, N, num_sample);
-
-    }
-
-    void BackProp(const double* yptr) {
-
-        double alpha = 1/(double)(num_sample);
-        double beta = -1/(double)(num_sample);
-        double alpha1 = 1;
-        double beta1=0;
-
-        double r = reg/(double)(num_procs);
-        
-        cudaMemcpy(dy, yptr, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
-        cudaMemcpy(dW0, W0, sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
-        cudaMemcpy(dW1, W1, sizeof(double) * K * N, cudaMemcpyDeviceToDevice);
-
-        gpu_addmat(a1, dy, dy, 1/(double)(batch_size), -1/(double)(batch_size), N, num_sample);
-        check_launch("add mat");
-        //myGEMM2(dW1, dDff, da1, &alpha1, &beta1, K, num_sample, N, true, false);
-        cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, K, num_sample, N, &alpha1, W1, N, dy, N, &beta1, z0, K);
-        check_launch("myGEMM");
-        //myGEMM2(dDff, da0, dW1, &alpha1, &reg, N, K, num_sample, false, true);
-        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, N, K, num_sample, &alpha1, dy, N, a0, K, &r, dW1, N);
-        check_launch("myGEMM 2");
-
-        gpu_hadmard(z0, z0, a0, K, num_sample);
-        check_launch("hadmard");
-
-
-        gpu_sumrow(dy, db1, N, num_sample);
-        check_launch("sumrow");
-
-        //myGEMM2(dz1, dX, dW0, &alpha1, &reg, K, M, num_sample, false, true);
-        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, K, M, num_sample, &alpha1, z0, K, dX, M, &r, dW0, K);
-        check_launch("myGEMM 3");
-
-        gpu_sumrow(z0, db0, K, num_sample);
-        check_launch("sumrow2");
-
-
-
-    } */
-
-
-        void FeedForward(const double* xptr, int subsize, int wholesize)  {
+    void FeedForward(const double* xptr, int subsize, int wholesize)  {
         num_sample = subsize;
         batch_size = wholesize;
         cudaMemcpy(dX, xptr, sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
