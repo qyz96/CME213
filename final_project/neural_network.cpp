@@ -1197,7 +1197,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
         MPI_SAFE_CALL(MPI_Bcast(nn.b[i].memptr(), nn.b[i].n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD));
     }
     //std::cout<<"Broadcast done...\n";
-    OneBatchUpdate pp(nn, subsize, batch_size, reg, learning_rate, rank, num_procs);
+    OneBatchUpdate pp(nn, subsize, batch_size, reg, learning_rate, rank, num_procs, X, y);
     //std::cout<<"Initialization done...\n";
     for(int epoch = 0; epoch < epochs; ++epoch) {
         int num_batches = (N + batch_size - 1)/batch_size;
