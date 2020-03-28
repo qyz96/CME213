@@ -368,7 +368,7 @@ class OneBatchUpdate  {
         MPI_SAFE_CALL(MPI_Bcast(xdata, M*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Bcast(ydata, N*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));    
         std::cout<<"X: \n"<<X.submat(0,0,5,5);
-        cudaMemcpy(dX, X.memptr(), sizeof(double) * M * totalsize, cudaMemcpyHostToDevice);
+        cudaMemcpy(dX, xdata, sizeof(double) * M * totalsize, cudaMemcpyHostToDevice);
         cudaMemcpy(dY, ydata, sizeof(double) * N * totalsize, cudaMemcpyHostToDevice);
         free(xdata);
         free(ydata);
