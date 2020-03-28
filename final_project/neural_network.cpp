@@ -425,7 +425,7 @@ class OneBatchUpdate2  {
             gpu_addmat(dW0, dW0, dW0, 0, 0, M, K);
             gpu_addmat(dW1, dW1, dW1, 0, 0, K, N);
             gpu_addmat(db0, db0, db0, 0, 0, K, 1);
-            gpu_addmat(db1, gb1, db1, 0, 0, N, 1);
+            gpu_addmat(db1, db1, db1, 0, 0, N, 1);
             return;
         }
         double alpha = 1/(double)(num_sample);
