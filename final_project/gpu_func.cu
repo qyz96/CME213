@@ -142,7 +142,7 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
             } 
         }
         
-    __syncthreads();
+        __syncthreads();
     }
     if ((i<M)) {
         for (int ii=0; ii<BLOCK_SIZE_X; ii++) {
