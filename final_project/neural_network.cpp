@@ -425,20 +425,20 @@ class OneBatchUpdate2  {
         cudaMemcpy(dW0, W0, sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
         cudaMemcpy(dW1, W1, sizeof(double) * K * N, cudaMemcpyDeviceToDevice);
 
-        gpu_addmat(a1, dy, dy, 1/(double)(batch_size), -1/(double)(batch_size), N, num_sample);
+        gpu_addmat(a1, dy, a1, 1/(double)(batch_size), -1/(double)(batch_size), N, num_sample);
         check_launch("add mat");
         //myGEMM2(dW1, dDff, da1, &alpha1, &beta1, K, num_sample, N, true, false);
-        cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, K, num_sample, N, &alpha1, W1, N, dy, N, &beta1, z0, K);
+        cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, K, num_sample, N, &alpha1, W1, N, a1, N, &beta1, z0, K);
         check_launch("myGEMM");
         //myGEMM2(dDff, da0, dW1, &alpha1, &reg, N, K, num_sample, false, true);
-        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, N, K, num_sample, &alpha1, dy, N, a0, K, &r, dW1, N);
+        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, N, K, num_sample, &alpha1, a1, N, a0, K, &r, dW1, N);
         check_launch("myGEMM 2");
 
         gpu_hadmard(z0, z0, a0, K, num_sample);
         check_launch("hadmard");
 
 
-        gpu_sumrow(dy, db1, N, num_sample);
+        gpu_sumrow(a1, db1, N, num_sample);
         check_launch("sumrow");
 
         //myGEMM2(dz1, dX, dW0, &alpha1, &reg, K, M, num_sample, false, true);
