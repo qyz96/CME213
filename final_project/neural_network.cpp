@@ -295,7 +295,7 @@ class OneBatchUpdate2  {
 
 
     public:
-    OneBatchUpdate(NeuralNetwork& nn, int sub_size, int bs, double regularizer, double lr, int r, int np, const arma::mat& X, const arma::mat& y): M(nn.W[0].n_cols), N(nn.W[1].n_rows), 
+    OneBatchUpdate2(NeuralNetwork& nn, int sub_size, int bs, double regularizer, double lr, int r, int np, const arma::mat& X, const arma::mat& y): M(nn.W[0].n_cols), N(nn.W[1].n_rows), 
     K(nn.W[0].n_rows), num_sample(sub_size), batch_size(bs), reg(regularizer), learning_rate(lr), rank(r), num_procs(np) {
 
 
