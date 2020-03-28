@@ -139,19 +139,20 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
                     }
                     temp[ii]+=As[k]*Bs[k][ii];
                     
-            }
+                }
+                C[i+M*(blockIdx.x * blockDim.x+ii)]=alpha*temp[ii]+beta*C[i+M*(blockIdx.x * blockDim.x+ii)];
             }
         }
-        __syncthreads();
+        //__syncthreads();
     }
-        if ((i<M)) {
+/*         if ((i<M)) {
             for (int ii=0; ii<BLOCK_SIZE_X; ii++) {
                 if ((blockIdx.x * blockDim.x+ii) >=N) {
                     break;
                 }
                 C[i+M*(blockIdx.x * blockDim.x+ii)]=alpha*temp[ii]+beta*C[i+M*(blockIdx.x * blockDim.x+ii)];
             }
-        }
+        } */
 }
 
 __global__
