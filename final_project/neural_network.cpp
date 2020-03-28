@@ -442,7 +442,7 @@ class OneBatchUpdate  {
         check_launch("sumrow");
 
         //myGEMM2(dz1, dX, dW0, &alpha1, &reg, K, M, num_sample, false, true);
-        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, K, M, num_sample, &alpha1, z0, K, dX, M, &r, dW0, K);
+        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, K, M, num_sample, &alpha1, z0, K, dx, M, &r, dW0, K);
         check_launch("myGEMM 3");
 
         gpu_sumrow(z0, db0, K, num_sample);
