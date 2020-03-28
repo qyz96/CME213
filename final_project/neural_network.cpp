@@ -421,19 +421,21 @@ class OneBatchUpdate2  {
 
     void BackProp(int posx, int posy) {
 
-        if (num_sample == 0) {
-            gpu_addmat(dW0, dW0, dW0, (double)0, (double)0, K, M);
-            gpu_addmat(dW1, dW1, dW1, (double)0, (double)0, N, K);
-            gpu_addmat(db0, db0, db0, 0, 0, K, 1);
-            gpu_addmat(db1, db1, db1, 0, 0, N, 1);
-            return;
-        }
+        
         double alpha = 1/(double)(num_sample);
         double beta = -1/(double)(num_sample);
         double alpha1 = 1;
         double beta1=0;
 
         double r = reg/(double)(num_procs);
+
+        if (num_sample == 0) {
+            gpu_addmat(dW0, W0, dW0, (double)0, r, K, M);
+            gpu_addmat(dW1, W1, dW1, (double)0, r, N, K);
+            gpu_addmat(db0, db0, db0, 0, 0, K, 1);
+            gpu_addmat(db1, db1, db1, 0, 0, N, 1);
+            return;
+        }
         
         //cudaMemcpy(dy, yptr, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
 
