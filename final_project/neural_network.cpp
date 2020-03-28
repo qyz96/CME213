@@ -1120,6 +1120,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
 
 
     OneBatchUpdate pp(nn, subsize, batch_size, reg, learning_rate, rank, num_procs, X, y);
+    std::cout<<pp.T1()<<" "<<pp.M1()<<" "<<pp.N1()<<"\n";
     //std::cout<<"Initialization done...\n";
     for(int epoch = 0; epoch < epochs; ++epoch) {
         int num_batches = (pp.T1() + batch_size - 1)/batch_size;
