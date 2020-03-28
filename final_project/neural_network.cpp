@@ -382,7 +382,7 @@ class OneBatchUpdate2  {
 
 
 
-    void FeedForward(const double* xptr, int pos, int subsize, int wholesize)  {
+    void FeedForward(int pos, int subsize, int wholesize)  {
         num_sample = subsize;
         batch_size = wholesize;
 
@@ -392,7 +392,7 @@ class OneBatchUpdate2  {
         check_launch("repmat b1");
         
         
-        cudaMemcpy(dx, xptr, sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
+        //cudaMemcpy(dx, xptr, sizeof(double) * M * num_sample, cudaMemcpyHostToDevice);
 
 
 
