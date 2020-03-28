@@ -877,13 +877,6 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                     displsy[i] = subsize * i * y_row;
                     countsy[i] = (i == (num_procs - 1)) ? ((this_batch_size-(num_procs-1)*subsize) * y_row) : subsize * y_row;
                 }
-                if (rank == 0 ) {
-                    for (unsigned int i = 0; i < num_procs; i++) {
-                    printf("displsx[%d]=%d\n", i, displsx[i]);
-                    printf("countsx[%d]=%d\n", i, countsx[i]);
-                    printf("displsy[%d]=%d\n", i, displsy[i]);
-                    printf("countsy[%d]=%d\n", i, countsy[i]);
-                }
                 }
                 MPI_SAFE_CALL(MPI_Scatterv(xptr, countsx, displsx, MPI_DOUBLE, xptr_sub, countsx[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
                 MPI_SAFE_CALL(MPI_Scatterv(yptr, countsy, displsy, MPI_DOUBLE, yptr_sub, countsy[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD)); 
