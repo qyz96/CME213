@@ -1373,8 +1373,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
         int num_batches = (N + batch_size - 1)/batch_size;
         for(int batch = 0; batch < num_batches; ++batch) {
             //std::cout<<"Calculating pointer...\n";
-            int batch_posx =  batch * batch_size * x_row;
-            int batch_posy =  batch * batch_size * y_row;
+            const double* xptr = X.memptr() + batch * batch_size * x_row;
+            const double* yptr = y.memptr() + batch * batch_size * y_row;
 
             int last_col = std::min((batch + 1) * batch_size-1, pp.T1()-1);
             this_batch_size = last_col - batch * batch_size + 1;
@@ -1387,9 +1387,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             //std::cout<<"Our X: \n"<<X.submat(0,0,5,5);
             //std::cout<<rank<<" rank Scatter begins...\n";
             //std::cout<<rank<<" rank Scatter done...\n";
-            pp.FeedForward(X.memptr()+batch_posx, counts, this_batch_size);
+            pp.FeedForward(xptr, counts, this_batch_size);
             //std::cout<<rank<<"Feedforward done...\n";
-            pp.BackProp(y.memptr()+batch_posy);
+            pp.BackProp(yptr);
             //std::cout<<rank<<"Backprop done...\n";
             pp.ReduceGradient();
             //std::cout<<"Reduce done...\n";
