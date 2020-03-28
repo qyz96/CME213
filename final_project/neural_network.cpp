@@ -1362,7 +1362,7 @@ void parallel_train2(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     int this_batch_size = batch_size;
 
 
-    OneBatchUpdate2 pp(nn, subsize, batch_size, reg, learning_rate, rank, num_procs, X, y);
+    OneBatchUpdate2 pp(nn, subsize, batch_size, reg, learning_rate, rank, num_procs);
     std::cout<<pp.T1()<<" "<<pp.M1()<<" "<<pp.N1()<<"\n";
     //std::cout<<"Initialization done...\n";
     for(int epoch = 0; epoch < epochs; ++epoch) {
