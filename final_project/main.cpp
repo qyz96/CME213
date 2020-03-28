@@ -295,7 +295,7 @@ int main(int argc, char* argv[]) {
         std::cout << std::endl << "Grading mode on. Checking for correctness" <<
                   std::endl;
 
-        for(int i = 0; i < seq_nn.b[0].n_rows; ++i) {
+/*         for(int i = 0; i < seq_nn.b[0].n_rows; ++i) {
             for(int j = 0; j < seq_nn.b[0].n_cols; ++j) {
                 if(abs(seq_nn.b[0](i,j) - nn.b[0](i,j)) > 1e-10) {
                     std::cout << "b0 Mismatch at pos (" << i << ", " << j << " )seq: "
@@ -326,7 +326,7 @@ int main(int argc, char* argv[]) {
                         << seq_nn.W[1](i,j) << " par: " << nn.W[1](i,j) << std::endl;
                 }
             }
-        }
+        } */
         checkNNErrors(seq_nn, nn, "Outputs/NNErrors.txt");
     }
 
