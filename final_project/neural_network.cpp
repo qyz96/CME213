@@ -862,7 +862,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             int last_col = std::min((batch + 1) * batch_size-1, N-1);
             this_batch_size = last_col - batch * batch_size + 1;
             subsize = (this_batch_size + num_procs - 1) / num_procs;
-            int counts = (rank == (num_procs - 1)) ? (this_batch_size-(num_procs-1)*subsize) : subsize;
+            int counts = std::min((this_batch_size-(rank-1)*subsize, subsize));
+            if (counts<0) counts=0;
             std::cout<<rank<<" "<<counts<<" "<<this_batch_size<<"\n";
             
             int xpos = batch * batch_size * x_row + subsize * rank * x_row;
@@ -873,9 +874,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 const double* yptr = y.memptr() + batch * batch_size * y_row;
                 for (unsigned int i = 0; i < num_procs; i++) {
                     displsx[i] = subsize * i * x_row;
-                    countsx[i] = (i == (num_procs - 1)) ? ((this_batch_size-(num_procs-1)*subsize) * x_row) : subsize * x_row;
+                    countsx[i] = counts * x_row;
                     displsy[i] = subsize * i * y_row;
-                    countsy[i] = (i == (num_procs - 1)) ? ((this_batch_size-(num_procs-1)*subsize) * y_row) : subsize * y_row;
+                    countsy[i] = counts * y_row;
                 }
                 if (rank == 0 ) {
                     for (unsigned int i = 0; i < num_procs; i++) {
