@@ -873,9 +873,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                 const double* yptr = y.memptr() + batch * batch_size * y_row;
                 for (unsigned int i = 0; i < num_procs; i++) {
                     displsx[i] = subsize * i * x_row;
-                    countsx[i] = (rank == (num_procs - 1)) ? ((this_batch_size-(num_procs-1)*subsize) * x_row) : subsize * x_row;
+                    countsx[i] = (i == (num_procs - 1)) ? ((this_batch_size-(num_procs-1)*subsize) * x_row) : subsize * x_row;
                     displsy[i] = subsize * i * y_row;
-                    countsy[i] = (rank == (num_procs - 1)) ? ((this_batch_size-(num_procs-1)*subsize) * y_row) : subsize * y_row;
+                    countsy[i] = (i == (num_procs - 1)) ? ((this_batch_size-(num_procs-1)*subsize) * y_row) : subsize * y_row;
                 }
                 if (rank == 0 ) {
                     for (unsigned int i = 0; i < num_procs; i++) {
