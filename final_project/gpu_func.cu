@@ -107,7 +107,7 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
     int j = blockIdx.x * blockDim.x + threadIdx.x;
     int rj = threadIdx.x;
     int ri = threadIdx.y;
-    int row = ri + BLOCK_SIZE_Y * rj;
+    int row = ri * BLOCK_SIZE_X + rj;
     int i = blockIdx.y * BLOCK_SIZE_Y * BLOCK_SIZE_X + row;
     __shared__ double Bs[BLOCK_SIZE_Y][BLOCK_SIZE_X];
 
