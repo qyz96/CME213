@@ -864,7 +864,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             subsize = (this_batch_size + num_procs - 1) / num_procs;
             int counts = (rank == (num_procs - 1)) ? (this_batch_size-(num_procs-1)*subsize) : subsize;
             
-            int xpos = batch * batch_size * x_row + subsize * rank * x_row, counts;
+            int xpos = batch * batch_size * x_row + subsize * rank * x_row;
             int ypos = batch * batch_size * y_row + subsize * rank * y_row;
 
             pp.FeedForward(xpos, counts, this_batch_size);
