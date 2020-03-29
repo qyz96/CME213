@@ -206,7 +206,7 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
     //int col = ri + BLOCK_SIZE_Y * rj;
     int col = ri * BLOCK_SIZE_X + rj;
     int j = blockIdx.x * BLOCK_SIZE_X * BLOCK_SIZE_Y + col;
-    __shared__ double As[BLOCK_SIZE_Y][BLOCK_SIZE_X];
+    __shared__ double As[BLOCK_SIZE_Y][BLOCK_SIZE_X+1];
 
     double Bs[BLOCK_SIZE_X];
     double temp[BLOCK_SIZE_Y]={0};
