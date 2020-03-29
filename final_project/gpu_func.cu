@@ -152,7 +152,7 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
     int ri = threadIdx.y;
     int row = ri * BLOCK_SIZE_X + rj;
     int i = blockIdx.y * BLOCK_SIZE_Y * BLOCK_SIZE_X + row;
-    __shared__ double Bs[BLOCK_SIZE_Y][BLOCK_SIZE_X];
+    __shared__ double Bs[BLOCK_SIZE_Y][BLOCK_SIZE_X+1];
 
     double As[BLOCK_SIZE_Y];
     double temp[BLOCK_SIZE_X]={0};
@@ -174,7 +174,7 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
         }
         if ((i<M)) {           
             for (int p = 0; p < BLOCK_SIZE_X * BLOCK_SIZE_Y; p++) {
-                int pp = (p + 4 * row) % (BLOCK_SIZE_Y * BLOCK_SIZE_X);
+                int pp = (p + 1 * row) % (BLOCK_SIZE_Y * BLOCK_SIZE_X);
                 int ii = pp / BLOCK_SIZE_Y;
                 int kk = pp % BLOCK_SIZE_Y;
                 if (((blockIdx.x * blockDim.x+ii) >=N) || ((BLOCK_SIZE_Y*m+kk) >= K)) {
