@@ -78,10 +78,10 @@ void device_gemm_shared(double* __restrict__ A, double* __restrict__ B,
         for (int m=0; m<nb; m++)   {
             if (((blockIdx.y * blockDim.y + rj)<M) && ((BLOCK_SIZE*m+ri)<K)){
                 //As[ri][rj]=A[i+M*(BLOCK_SIZE*m+rj)];
-                As[ri][rj]=A[blockIdx.y * blockDim.y + rj +M*(BLOCK_SIZE*m+ri)];
+                As[rj][ri]=A[blockIdx.y * blockDim.y + rj +M*(BLOCK_SIZE*m+ri)];
             }
             if (((blockIdx.x * blockDim.x + ri)<N) && ((BLOCK_SIZE*m+rj)<K)) {
-                Bs[ri][rj]=B[BLOCK_SIZE*m+rj+K*(blockIdx.x * blockDim.x + ri)];
+                Bs[rj][ri]=B[BLOCK_SIZE*m+rj+K*(blockIdx.x * blockDim.x + ri)];
             }
             __syncthreads();
             if ((i<M) && (j<N)) {
@@ -269,17 +269,17 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     double al=*alpha;
     double be=*beta;
     
-/*     int block_size_x = BLOCK_SIZE;
+    int block_size_x = BLOCK_SIZE;
     int block_size_y = BLOCK_SIZE;
     int numBlocks_x = (N + block_size_x - 1) / block_size_x;
-    int numBlocks_y = (M + block_size_y - 1) / (block_size_y); */
+    int numBlocks_y = (M + block_size_y - 1) / (block_size_y);
     
-    int block_size_x = BLOCK_SIZE_X;
+/*     int block_size_x = BLOCK_SIZE_X;
     int block_size_y = BLOCK_SIZE_Y;
     int 
     int numBlocks_x = (N + block_size_x - 1) / (block_size_x);
     //int numBlocks_x = (N + block_size_y * block_size_x - 1) / (block_size_x * block_size_y);
-    int numBlocks_y = (M + block_size_y * block_size_x - 1) / (block_size_x * block_size_y); 
+    int numBlocks_y = (M + block_size_y * block_size_x - 1) / (block_size_x * block_size_y);  */
     //printf("myGEMM is called!\n"); 
     dim3 threads(block_size_x, block_size_y);
     dim3 blocks(numBlocks_x, numBlocks_y);
