@@ -206,7 +206,8 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
     //int col = ri + BLOCK_SIZE_Y * rj;
     int col = ri * BLOCK_SIZE_X + rj;
     int j = blockIdx.x * BLOCK_SIZE_X * BLOCK_SIZE_Y + col;
-    __shared__ double As[BLOCK_SIZE_Y][BLOCK_SIZE_X+1];
+    //__shared__ double As[BLOCK_SIZE_Y][BLOCK_SIZE_X+1];
+    __shared__ double As[BLOCK_SIZE_X][BLOCK_SIZE_Y+1];
 
     double Bs[BLOCK_SIZE_X];
     double temp[BLOCK_SIZE_Y]={0};
@@ -225,7 +226,7 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
 
 
         if ((i<M) && ((BLOCK_SIZE_X*m+rj)<K)) {
-            As[ri][rj]=A[i+M*(rj+BLOCK_SIZE_X*m)];
+            As[rj][ri]=A[i+M*(rj+BLOCK_SIZE_X*m)];
             //printf("A(%d, %d)=%f\n", i, rj+BLOCK_SIZE_X*m, A[i+M*(rj+BLOCK_SIZE_X*m)]);
         }
 
@@ -241,7 +242,7 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
                     if ((BLOCK_SIZE_X*m+k) >= K)  {
                         break;
                     }
-                    temp[ii]+=As[ii][k]*Bs[k];
+                    temp[ii]+=As[k][ii]*Bs[k];
                     //printf("C(%d, %d, %d)+= %f * %f\n", blockIdx.y * blockDim.y+ii, BLOCK_SIZE_X*m+k, j, As[ii+BLOCK_SIZE_Y*k],Bs[k]);
             }
             }
