@@ -64,40 +64,40 @@ __global__
 void device_gemm_shared(double* __restrict__ A, double* __restrict__ B,
            double* __restrict__ C, double alpha, double beta,
            int M, int N, int K) {
-    int j = blockIdx.x * blockDim.x + threadIdx.x;
-    int i = blockIdx.y * blockDim.y + threadIdx.y;
-    int rj = threadIdx.x;
-    int ri = threadIdx.y;
-    double temp=0;
-    __shared__ double As[BLOCK_SIZE_Y][BLOCK_SIZE_K];
-    __shared__ double Bs[BLOCK_SIZE_K][BLOCK_SIZE_X];
-
-    
-    int nb = (K+BLOCK_SIZE_K-1)/BLOCK_SIZE_K;
-    for (int m=0; m<nb; m++)   {
-        if ((i<M) && ((BLOCK_SIZE_K*m+rj)<K)){
-            As[ri][rj]=A[i+M*(BLOCK_SIZE_Y*m+rj)];
-        }
-        if ((j<N) && ((BLOCK_SIZE_K*m+ri)<K)) {
-            Bs[ri][rj]=B[BLOCK_SIZE_X*m+ri+K*j];
-        }
-        __syncthreads();
-        if ((i<M) && (j<N)) {
-            for (int k=0; k < BLOCK_SIZE; k++) {
-                if ((BLOCK_SIZE_K*m+k) >= K)  {
-                    break;
-                }
-                temp+=As[ri][k]*Bs[k][rj];
-                //printf("Ctrue(%d,%d, %d)+= %f * %f\n", i, k, j, As[ri+BLOCK_SIZE*k], Bs[k+BLOCK_SIZE*rj]);
-                
+        int j = blockIdx.x * blockDim.x + threadIdx.x;
+        int i = blockIdx.y * blockDim.y + threadIdx.y;
+        int rj = threadIdx.x;
+        int ri = threadIdx.y;
+        double temp=0;
+        __shared__ double As[BLOCK_SIZE][BLOCK_SIZE+1];
+        __shared__ double Bs[BLOCK_SIZE][BLOCK_SIZE+1];
+        //__shared__ double Accumu[BLOCK_SIZE][BLOCK_SIZE];
+        
+        int nb = (K+BLOCK_SIZE-1)/BLOCK_SIZE;
+        for (int m=0; m<nb; m++)   {
+            if ((i<M) && ((BLOCK_SIZE*m+rj)<K)){
+                As[ri][rj]=A[i+M*(BLOCK_SIZE*m+rj)];
             }
+            if ((j<N) && ((BLOCK_SIZE*m+ri)<K)) {
+                Bs[ri][rj]=B[BLOCK_SIZE*m+ri+K*j];
+            }
+            __syncthreads();
+            if ((i<M) && (j<N)) {
+                for (int k=0; k < BLOCK_SIZE; k++) {
+                    if ((BLOCK_SIZE*m+k) >= K)  {
+                        break;
+                    }
+                    temp+=As[ri][k]*Bs[k][rj];
+                    //printf("Ctrue(%d,%d, %d)+= %f * %f\n", i, k, j, As[ri+BLOCK_SIZE*k], Bs[k+BLOCK_SIZE*rj]);
+                    
+                }
+            }
+            __syncthreads();
         }
-        __syncthreads();
-    }
-    if ((i<M) && (j<N)) {
-            C[i+j*M]=alpha*temp+beta*C[i+j*M];
-            //printf("Ctrue(%d,%d)=%f\n", i, j, C[i+j*M]);
-        }
+        if ((i<M) && (j<N)) {
+                C[i+j*M]=alpha*temp+beta*C[i+j*M];
+                //printf("Ctrue(%d,%d)=%f\n", i, j, C[i+j*M]);
+            }
     
 }
 
