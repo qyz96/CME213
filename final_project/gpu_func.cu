@@ -280,7 +280,7 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     
     int block_size_x = BLOCK_SIZE_X;
     int block_size_y = BLOCK_SIZE_Y;
-    int numBlocks_x = (N + block_size_x - 1) / (block_size_x);
+    //int numBlocks_x = (N + block_size_x - 1) / (block_size_x);
     int numBlocks_x = (N + block_size_x - 1) / (block_size_x);
     int numBlocks_y = (M + block_size_y * block_size_x - 1) / (block_size_x * block_size_y);
     //printf("myGEMM is called!\n");
