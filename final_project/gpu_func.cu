@@ -152,34 +152,34 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
     int j = blockIdx.x * blockDim.x + threadIdx.x;
     int rj = threadIdx.x;
     int ri = threadIdx.y;
-    int row = ri * blockDim.x + rj;
-    int i = blockIdx.y * blockDim.y * blockDim.x + row;
-    __shared__ double Bs[blockDim.y][blockDim.x+1];
+    int row = ri * BLOCK_SIZE_X + rj;
+    int i = blockIdx.y * BLOCK_SIZE_Y * BLOCK_SIZE_X + row;
+    __shared__ double Bs[BLOCK_SIZE_Y][BLOCK_SIZE_X+1];
 
-    double As[blockDim.y];
-    double temp[blockDim.x]={0};
+    double As[BLOCK_SIZE_Y];
+    double temp[BLOCK_SIZE_X]={0};
 
-    int nb = (K+blockDim.y-1)/blockDim.y;
+    int nb = (K+BLOCK_SIZE_Y-1)/BLOCK_SIZE_Y;
     for (int m=0; m<nb; m++)   {
-        if ((j<N) && ((blockDim.y*m+ri)<K)) {
-            Bs[ri][rj]=B[blockDim.y*m+ri+K*j];
+        if ((j<N) && ((BLOCK_SIZE_Y*m+ri)<K)) {
+            Bs[ri][rj]=B[BLOCK_SIZE_Y*m+ri+K*j];
         }
         
         __syncthreads();
         if (i<M) {
-            for (int ii=0; ii<blockDim.y;ii++) {
-                if ((blockDim.y*m+ii)>=K) {
+            for (int ii=0; ii<BLOCK_SIZE_Y;ii++) {
+                if ((BLOCK_SIZE_Y*m+ii)>=K) {
                     break;
                 }
-                As[ii]=A[i+M*(blockDim.y*m+ii)];
+                As[ii]=A[i+M*(BLOCK_SIZE_Y*m+ii)];
             }
         }
         if ((i<M)) {           
-            for (int p = 0; p < blockDim.x * blockDim.y; p++) {
-                int pp = (p + 0 * row) % (blockDim.y * blockDim.x);
-                int ii = pp / blockDim.y;
-                int kk = pp % blockDim.y;
-                if (((blockIdx.x * blockDim.x+ii) >=N) || ((blockDim.y*m+kk) >= K)) {
+            for (int p = 0; p < BLOCK_SIZE_X * BLOCK_SIZE_Y; p++) {
+                int pp = (p + 0 * row) % (BLOCK_SIZE_Y * BLOCK_SIZE_X);
+                int ii = pp / BLOCK_SIZE_Y;
+                int kk = pp % BLOCK_SIZE_Y;
+                if (((blockIdx.x * blockDim.x+ii) >=N) || ((BLOCK_SIZE_Y*m+kk) >= K)) {
                     continue;
                 }
                 temp[ii]+=As[kk]*Bs[kk][ii];
@@ -273,9 +273,13 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     int block_size_y = BLOCK_SIZE;
     int numBlocks_x = (N + block_size_x - 1) / block_size_x;
     int numBlocks_y = (M + block_size_y - 1) / (block_size_y); */
-    
-    int block_size_x = (N < BLOCK_SIZE_X) ? BLOCK_SIZE_Y : BLOCK_SIZE_X;
-    int block_size_y = (N < BLOCK_SIZE_X) ? BLOCK_SIZE_X : BLOCK_SIZE_Y;
+    if (N < BLOCK_SIZE_X) {
+        int temp = BLOCK_SIZE_X;
+        BLOCK_SIZE_X = BLOCK_SIZE_Y;
+        BLOCK_SIZE_Y = temp;
+    }
+    int block_size_x = BLOCK_SIZE_X;
+    int block_size_y = BLOCK_SIZE_Y;
     int numBlocks_x = (N + block_size_x - 1) / (block_size_x);
     //int numBlocks_x = (N + block_size_y * block_size_x - 1) / (block_size_x * block_size_y);
     int numBlocks_y = (M + block_size_y * block_size_x - 1) / (block_size_x * block_size_y); 
