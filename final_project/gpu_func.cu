@@ -201,7 +201,7 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
     delete[] temp;
 }
 
-__global__
+/* __global__
 void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
            double* __restrict__ C, double alpha, double beta,
            int M, int N, int K, int BLOCK_SIZE_X, int BLOCK_SIZE_Y) {
@@ -256,7 +256,7 @@ void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
                 C[i+M*(blockIdx.x * blockDim.x+ii)]=alpha*temp[ii]+beta*C[i+M*(blockIdx.x * blockDim.x+ii)];
             }
         }
-}
+} */
 
 
 
