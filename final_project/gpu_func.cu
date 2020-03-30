@@ -202,7 +202,7 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
 __global__
 void device_gemm_shared3(double* __restrict__ A, double* __restrict__ B,
            double* __restrict__ C, double alpha, double beta,
-           int M, int N, int K) {
+           int M, int N, int K, int BLOCK_SIZE_X, int BLOCK_SIZE_Y) {
         int j = blockIdx.x * blockDim.x + threadIdx.x;
         int rj = threadIdx.x % BLOCK_SIZE_X;
         int ri = threadIdx.y % BLOCK_SIZE_Y;
