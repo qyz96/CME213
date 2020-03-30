@@ -157,8 +157,8 @@ void device_gemm_shared2(double* __restrict__ A, double* __restrict__ B,
     //__shared__ double Bs[BLOCK_SIZE_Y][BLOCK_SIZE_X+1];
     extern __shared__ double Bs[];
 
-    double As = new double[BLOCK_SIZE_Y];
-    double temp = new double[BLOCK_SIZE_X];
+    double* As = new double[BLOCK_SIZE_Y];
+    double* temp = new double[BLOCK_SIZE_X];
 
     int nb = (K+BLOCK_SIZE_Y-1)/BLOCK_SIZE_Y;
     for (int m=0; m<nb; m++)   {
