@@ -7,8 +7,8 @@
 #include <math.h>
 #include "cublas_v2.h"
 #define BLOCK_SIZE 32
-#define BLOCK_SIZE_X 16
-#define BLOCK_SIZE_Y 4
+#define BLOCK_SIZE_X 4
+#define BLOCK_SIZE_Y 16
 #define BLOCK_SIZE_K 32
 #define BLOCK_SIZE_Z 16
 __global__
@@ -273,11 +273,7 @@ int myGEMM(double* __restrict__ A, double* __restrict__ B,
     int block_size_y = BLOCK_SIZE;
     int numBlocks_x = (N + block_size_x - 1) / block_size_x;
     int numBlocks_y = (M + block_size_y - 1) / (block_size_y); */
-    if (N < BLOCK_SIZE_X) {
-        int temp = BLOCK_SIZE_X;
-        BLOCK_SIZE_X = BLOCK_SIZE_Y;
-        BLOCK_SIZE_Y = temp;
-    }
+
     int block_size_x = BLOCK_SIZE_X;
     int block_size_y = BLOCK_SIZE_Y;
     int numBlocks_x = (N + block_size_x - 1) / (block_size_x);
