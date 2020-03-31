@@ -591,7 +591,322 @@ class OneBatchUpdate  {
 
 
 
+class OneBatchUpdateBonus  {
 
+
+
+    public:
+    OneBatchUpdateBonus(NeuralNetwork& nn, int sub_size, int bs, double regularizer, double lr, int r, int np, int ts): M(nn.W[0].n_cols), N(nn.W[1].n_rows), 
+    K(nn.W[0].n_rows), num_sample(sub_size), batch_size(bs), reg(regularizer), learning_rate(lr), rank(r), num_procs(np), totalsize(ts) {
+
+
+
+        stat = cublasCreate(&handle);
+        if(stat != CUBLAS_STATUS_SUCCESS) {
+            std::cerr << "CUBLAS initialization failed!" << std::endl;
+            return;
+        }
+        displs = new int[num_procs];
+        counts = new int[num_procs]
+
+        int subrow = K / num_procs;
+        for (int i = 0; i < num_procs = 1; i++) {
+            displs[i] = subrow * M * i;
+            counts[i] = subrow;
+        }
+        displs[num_procs - 1] = M * (num_procs - 1) * subrow;
+        counts[num_procs - 1] = K - (num_procs - 1) * subrow;
+        K = counts[rank];
+        cudaMalloc((void**)&z0, sizeof(double) * K * num_sample);
+        cudaMalloc((void**)&z1, sizeof(double) * N * num_sample);
+        cudaMalloc((void**)&a0, sizeof(double) * K * num_sample);
+        cudaMalloc((void**)&a1, sizeof(double) * N * num_sample);
+        cudaMalloc((void**)&W0, sizeof(double) * M * K);
+        cudaMalloc((void**)&W1, sizeof(double) * K * N);
+        cudaMalloc((void**)&b0, sizeof(double) * K);
+        cudaMalloc((void**)&b1, sizeof(double) * N);
+        cudaMalloc((void**)&dexp, sizeof(double) * 1 * num_sample);
+        cudaMalloc((void**)&dW0, sizeof(double) * M * K);
+        cudaMalloc((void**)&dW0T, sizeof(double) * M * K);
+        cudaMalloc((void**)&dW1, sizeof(double) * K * N);
+        cudaMalloc((void**)&db0, sizeof(double) * K);
+        cudaMalloc((void**)&db1, sizeof(double) * N);
+        cudaMalloc((void**)&dX, sizeof(double) * M * totalsize);
+        cudaMalloc((void**)&dY, sizeof(double) * N * totalsize);
+
+
+        dW0_h = (double*)malloc(sizeof(double)*M*K);
+        dW1_h = (double*)malloc(sizeof(double)*K*N);
+        db0_h = (double*)malloc(sizeof(double)*K);
+        db1_h = (double*)malloc(sizeof(double)*N);
+
+/*         for (unsigned int i=0; i<nn.W.size(); i++) {
+            MPI_SAFE_CALL(MPI_Bcast(nn.W[i].memptr(), nn.W[i].n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+            MPI_SAFE_CALL(MPI_Bcast(nn.b[i].memptr(), nn.b[i].n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+        } */
+
+        cudaMemcpy(b0, nn.b[0].memptr(), sizeof(double) * K , cudaMemcpyHostToDevice);
+        cudaMemcpy(b1, nn.b[1].memptr(), sizeof(double) * N, cudaMemcpyHostToDevice);
+        cudaMemcpy(W0, nn.W[0].memptr(), sizeof(double) * M * K, cudaMemcpyHostToDevice);
+        cudaMemcpy(W1, nn.W[1].memptr(), sizeof(double) * K * N, cudaMemcpyHostToDevice);
+        gpu_transpose(W0, W0T, K, M);
+        //std::cout<<totalsize<<" "<<M<<" "<<N<<" "<<K<<"\n";
+
+/*      MPI_SAFE_CALL(MPI_Bcast(W0, M*K, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Bcast(b0, K, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Bcast(W1, K*N, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Bcast(b1, N, MPI_DOUBLE, 0, MPI_COMM_WORLD)); */
+        
+
+    }
+
+
+    void LoadData(const arma::mat& X, const arma::mat& y) {
+
+
+        totalsize = (rank == 0)?X.n_cols:0;
+        MPI_SAFE_CALL(MPI_Bcast(&totalsize, 1, MPI_INT, 0, MPI_COMM_WORLD));
+        
+        
+        double* xdata=(double*)malloc(sizeof(double)*M*totalsize);
+        double* ydata=(double*)malloc(sizeof(double)*totalsize*N);
+        
+        if (rank == 0) {
+            cudaMemcpy(xdata, X.memptr(), sizeof(double) * M * totalsize, cudaMemcpyHostToHost);
+            cudaMemcpy(ydata, y.memptr(), sizeof(double) * N * totalsize, cudaMemcpyHostToHost);
+        }
+       
+        cudaMalloc((void**)&dX, sizeof(double) * M * totalsize);
+        cudaMalloc((void**)&dY, sizeof(double) * N * totalsize);
+        MPI_SAFE_CALL(MPI_Bcast(xdata, M*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Bcast(ydata, N*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));      
+
+        //std::cout<<"X: \n"<<X.submat(0,0,5,5);
+        cudaMemcpy(dX, xdata, sizeof(double) * M * totalsize, cudaMemcpyHostToDevice);
+        cudaMemcpy(dY, ydata, sizeof(double) * N * totalsize, cudaMemcpyHostToDevice);
+        free(xdata);
+        free(ydata);
+
+
+
+        }
+
+
+    void LoadXY(int posx, int posy, const double* xptr, const double* yptr, int subsize) {
+        
+        cudaMemcpy(dX+posx, xptr, sizeof(double) * M * subsize, cudaMemcpyHostToDevice);
+        cudaMemcpy(dY+posy, yptr, sizeof(double) * N * subsize, cudaMemcpyHostToDevice);
+
+    }
+
+
+    void FeedForward(int pos, int subsize, int wholesize)  {
+        num_sample = subsize;
+        batch_size = wholesize;
+        if (num_sample == 0) return;
+        gpu_repmat(b0, z0, K, num_sample);
+        check_launch("repmat b0");
+        gpu_repmat(b1, z1, N, num_sample);
+        check_launch("repmat b1");
+        
+        
+
+
+
+
+        double alpha = 1;
+        double beta = 1;
+
+        //gpu_addmat(dx, dX+pos, a1, 1, -1, M, num_sample);
+        
+        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, K, num_sample, M, &alpha, W0, K, dX+pos, M, &beta, z0, K);
+        check_launch("myGEMM 1");
+        gpu_sigmoid(z0, a0, K, num_sample);
+        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, num_sample, K, &alpha, W1, N, a0, K, &beta, z1, N);
+        check_launch("myGEMM 2");
+        gpu_exp(z1, a1, N, num_sample);
+        check_launch("exp");
+        gpu_sumcol(a1, dexp, N, num_sample);
+        check_launch("sumcol");
+        gpu_softmax(dexp, a1, N, num_sample);
+
+    } 
+
+    void BackProp(int posx, int posy) {
+
+        
+        double alpha = 1/(double)(num_sample);
+        double beta = -1/(double)(num_sample);
+        double alpha1 = 1;
+        double beta1=0;
+
+        double r = reg/(double)(num_procs);
+
+        if (num_sample == 0) {
+            gpu_addmat(dW0, W0, dW0, 0, r, K, M);
+            gpu_addmat(dW1, W1, dW1, 0, r, N, K);
+            gpu_addmat(db0, db0, db0, 0, 0, K, 1);
+            gpu_addmat(db1, db1, db1, 0, 0, N, 1);
+            return;
+        }
+        
+        //cudaMemcpy(dy, yptr, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
+
+        cudaMemcpy(dW0, W0, sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
+        cudaMemcpy(dW1, W1, sizeof(double) * K * N, cudaMemcpyDeviceToDevice);
+
+        gpu_addmat(a1, dY+posy, a1, 1/(double)(batch_size), -1/(double)(batch_size), N, num_sample);
+        check_launch("add mat");
+        //myGEMM2(dW1, dDff, da1, &alpha1, &beta1, K, num_sample, N, true, false);
+        cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, K, num_sample, N, &alpha1, W1, N, a1, N, &beta1, z0, K);
+
+        check_launch("myGEMM");
+        //myGEMM2(dDff, da0, dW1, &alpha1, &reg, N, K, num_sample, false, true);
+        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, N, K, num_sample, &alpha1, a1, N, a0, K, &r, dW1, N);
+        check_launch("myGEMM 2");
+
+        gpu_hadmard(z0, z0, a0, K, num_sample);
+        check_launch("hadmard");
+
+
+        gpu_sumrow(a1, db1, N, num_sample);
+        check_launch("sumrow");
+
+        //myGEMM2(dz1, dX, dW0, &alpha1, &reg, K, M, num_sample, false, true);
+        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, K, M, num_sample, &alpha1, z0, K, dX+posx, M, &r, dW0, K);
+        check_launch("myGEMM 3");
+
+        gpu_sumrow(z0, db0, K, num_sample);
+        check_launch("sumrow2");
+
+
+
+    } 
+
+ 
+
+
+
+
+    void GradientDescent() {
+
+        gpu_addmat(W0, dW0, W0, 1, -learning_rate, K, M);
+        check_launch("addmat 1");
+        gpu_addmat(W1, dW1, W1, 1, -learning_rate, N, K);
+        check_launch("addmat 2");
+        gpu_addmat(b0, db0, b0, 1, -learning_rate, K, 1);
+        check_launch("addmat 3");
+        gpu_addmat(b1, db1, b1, 1, -learning_rate, N, 1);
+        check_launch("addmat 4");
+    }
+
+    void ReduceGradient() {
+
+        cudaMemcpy(dW0_h, dW0, sizeof(double) * M * K, cudaMemcpyDeviceToHost);
+        cudaMemcpy(db0_h, db0, sizeof(double) * K, cudaMemcpyDeviceToHost);
+        cudaMemcpy(dW1_h, dW1, sizeof(double) * N * K, cudaMemcpyDeviceToHost);
+        cudaMemcpy(db1_h, db1, sizeof(double) * N, cudaMemcpyDeviceToHost);
+
+        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, dW0_h, M * K, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, dW1_h, K * N, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, db0_h, K, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, db1_h, N, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
+
+        cudaMemcpy(dW0, dW0_h, sizeof(double) * M * K, cudaMemcpyHostToDevice);
+        cudaMemcpy(db0, db0_h, sizeof(double) * K, cudaMemcpyHostToDevice);
+        cudaMemcpy(dW1, dW1_h, sizeof(double) * N * K, cudaMemcpyHostToDevice);
+        cudaMemcpy(db1, db1_h, sizeof(double) * N, cudaMemcpyHostToDevice);
+    }
+
+
+
+    void UpdateCoefficient(NeuralNetwork& nn) {
+        
+        cudaMemcpy(nn.W[0].memptr(), W0, sizeof(double) * M * K, cudaMemcpyDeviceToHost);
+        cudaMemcpy(nn.b[0].memptr(), b0, sizeof(double) * K, cudaMemcpyDeviceToHost);
+        cudaMemcpy(nn.W[1].memptr(), W1, sizeof(double) * N * K, cudaMemcpyDeviceToHost);
+        cudaMemcpy(nn.b[1].memptr(), b1, sizeof(double) * N, cudaMemcpyDeviceToHost);
+
+    }
+
+    int T1() {return totalsize;}
+    int M1() {return M;}
+    int K1() {return K;}
+    int N1() {return N;}
+
+
+    ~OneBatchUpdateBonus()   {
+        
+        cudaFree(W0);
+        cudaFree(W1);
+        cudaFree(b0);
+        cudaFree(b1);
+        cudaFree(z0);
+        cudaFree(z1);
+        cudaFree(a0);
+        cudaFree(a1);
+        cudaFree(dW0);
+        cudaFree(dW1);
+        cudaFree(db0);
+        cudaFree(db1);
+        cudaFree(dX);
+        cudaFree(dY);
+        cudaFree(dexp);
+        delete[] displs;
+        delete[] counts;
+
+    }
+
+    
+
+
+    private:
+
+    cudaError_t cudaStat;
+    cublasStatus_t stat;
+    cublasHandle_t handle;
+
+    int totalsize;
+    int rank;
+    int num_sample;
+    int batch_size;
+    int N;
+    int M;  
+    int K;  
+    int K0;
+    int* displs;
+    int* counts;
+
+    double* z0; 
+    double* z1;
+    double* a0;
+    double* a1;
+    double* W0;
+    double* dW0T;
+    double* W1;
+    double* b0;
+    double* b1;
+    double* dW0;
+    double* dW1;
+    double* db0;
+    double* db1;
+    double* dX;
+    double* dexp;
+    double* dY;
+    double reg;
+    double learning_rate;
+    double* dW0_h;
+    double* dW1_h;
+    double* db0_h;
+    double* db1_h;
+
+
+    int num_procs;
+
+
+
+
+};
 
 
 
