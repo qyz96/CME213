@@ -725,7 +725,7 @@ class OneBatchUpdateBonus  {
         gpu_sigmoid(z0, a0, K, num_sample);
         cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, num_sample, K, &alpha, W1, N, a0, K, &zeta, z1, N);
         check_launch("myGEMM 2");
-        double* dz1 = new double[N*?num_sample];
+        double* dz1 = new double[N*num_sample];
         std::cout<<N<<" "<<num_sample<<"\n";
         cudaError_t err = cudaMemcpy(dz1, z1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
         if(err != cudaSuccess) {
