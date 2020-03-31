@@ -820,7 +820,6 @@ class OneBatchUpdateBonus  {
 
     void UpdateCoefficient(NeuralNetwork& nn) {
         
-        gpu_transpose(W0, dW0T, M, K0);
         arma::mat W0t(M, K0);
         cudaMemcpy(W0t.memptr()+displs[rank], dW0T+displs[rank], sizeof(double) * M * K0, cudaMemcpyDeviceToHost);
         cudaMemcpy(nn.b[0].memptr() + rank * subrow, b0 + rank * subrow, sizeof(double) * K, cudaMemcpyDeviceToHost);
