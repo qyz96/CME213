@@ -647,8 +647,9 @@ class OneBatchUpdateBonus  {
         } */
         
         cudaMemcpy(b0, nn.b[0].memptr()+rank * subrow, sizeof(double) * K , cudaMemcpyHostToDevice);
-        std::cout<<"TT1\n";
+        
         cudaMemcpy(b1, nn.b[1].memptr(), sizeof(double) * N, cudaMemcpyHostToDevice);
+        std::cout<<"TT1\n";
         cudaMemcpy(W0, nn.W[0].memptr(), sizeof(double) * M * K0, cudaMemcpyHostToDevice);
         cudaMemcpy(W1, nn.W[1].memptr()+ N * rank * subrow, sizeof(double) * K * N, cudaMemcpyHostToDevice);
         
