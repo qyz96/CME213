@@ -1055,10 +1055,10 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     pp.LoadData(X,y);
     for(int epoch = 0; epoch < epochs; ++epoch) {
         int num_batches = (N + batch_size - 1)/batch_size;
-        for(int batch = 0; batch < num_batches; ++batch) 
+        for(int batch = 0; batch < num_batches; ++batch)  {
            
             
-            pp.FeedForward(batch * batch_size * x_row;, this_batch_size, this_batch_size);
+            pp.FeedForward(batch * batch_size * x_row, this_batch_size, this_batch_size);
             pp.BackProp(batch * batch_size * x_row;, batch * batch_size * y_row);
             //pp.ReduceGradient();
             pp.GradientDescent();
