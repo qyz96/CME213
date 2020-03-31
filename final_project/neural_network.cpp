@@ -732,7 +732,7 @@ class OneBatchUpdateBonus  {
         cudaMemcpy(ddz1, dz1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
         MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, ddz1, N * num_sample, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
         cudaMemcpy(dz1, ddz1, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
-    }
+        free(ddz1);
         gpu_exp(z1, a1, N, num_sample);
         check_launch("exp");
         gpu_sumcol(a1, dexp, N, num_sample);
