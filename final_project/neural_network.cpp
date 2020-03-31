@@ -616,7 +616,7 @@ class OneBatchUpdateBonus  {
             counts[i] = subrow;
         }
         displs[num_procs - 1] = M * (num_procs - 1) * subrow;
-        counts[num_procs - 1] = K - (num_procs - 1) * subrow;
+        counts[num_procs - 1] = K0 - (num_procs - 1) * subrow;
         K = counts[rank];
         cudaMalloc((void**)&z0, sizeof(double) * K * num_sample);
         cudaMalloc((void**)&z1, sizeof(double) * N * num_sample);
