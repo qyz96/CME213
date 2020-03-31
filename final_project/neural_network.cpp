@@ -606,6 +606,8 @@ class OneBatchUpdateBonus  {
             std::cerr << "CUBLAS initialization failed!" << std::endl;
             return;
         }
+
+        int subrow = K / num_procs;
         displs = new int[num_procs];
         counts = new int[num_procs]
 
@@ -621,13 +623,13 @@ class OneBatchUpdateBonus  {
         cudaMalloc((void**)&z1, sizeof(double) * N * num_sample);
         cudaMalloc((void**)&a0, sizeof(double) * K * num_sample);
         cudaMalloc((void**)&a1, sizeof(double) * N * num_sample);
-        cudaMalloc((void**)&W0, sizeof(double) * M * K);
+        cudaMalloc((void**)&W0, sizeof(double) * M * K0);
         cudaMalloc((void**)&W1, sizeof(double) * K * N);
         cudaMalloc((void**)&b0, sizeof(double) * K);
         cudaMalloc((void**)&b1, sizeof(double) * N);
         cudaMalloc((void**)&dexp, sizeof(double) * 1 * num_sample);
         cudaMalloc((void**)&dW0, sizeof(double) * M * K);
-        cudaMalloc((void**)&dW0T, sizeof(double) * M * K);
+        cudaMalloc((void**)&dW0T, sizeof(double) * M * K0);
         cudaMalloc((void**)&dW1, sizeof(double) * K * N);
         cudaMalloc((void**)&db0, sizeof(double) * K);
         cudaMalloc((void**)&db1, sizeof(double) * N);
@@ -645,11 +647,11 @@ class OneBatchUpdateBonus  {
             MPI_SAFE_CALL(MPI_Bcast(nn.b[i].memptr(), nn.b[i].n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         } */
 
-        cudaMemcpy(b0, nn.b[0].memptr(), sizeof(double) * K , cudaMemcpyHostToDevice);
+        cudaMemcpy(b0, nn.b[0].memptr()+rank * subrow, sizeof(double) * K , cudaMemcpyHostToDevice);
         cudaMemcpy(b1, nn.b[1].memptr(), sizeof(double) * N, cudaMemcpyHostToDevice);
-        cudaMemcpy(W0, nn.W[0].memptr(), sizeof(double) * M * K, cudaMemcpyHostToDevice);
-        cudaMemcpy(W1, nn.W[1].memptr(), sizeof(double) * K * N, cudaMemcpyHostToDevice);
-        gpu_transpose(W0, W0T, K, M);
+        cudaMemcpy(W0, nn.W[0].memptr(), sizeof(double) * M * K0, cudaMemcpyHostToDevice);
+        cudaMemcpy(W1, nn.W[1].memptr()+ N * rank * subrow, sizeof(double) * K * N, cudaMemcpyHostToDevice);
+        gpu_transpose(W0, dW0T, K, M);
         //std::cout<<totalsize<<" "<<M<<" "<<N<<" "<<K<<"\n";
 
 /*      MPI_SAFE_CALL(MPI_Bcast(W0, M*K, MPI_DOUBLE, 0, MPI_COMM_WORLD));
@@ -716,14 +718,16 @@ class OneBatchUpdateBonus  {
 
         double alpha = 1;
         double beta = 1;
+        double zeta = 1/(double)num_procs;
 
         //gpu_addmat(dx, dX+pos, a1, 1, -1, M, num_sample);
         
-        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, K, num_sample, M, &alpha, W0, K, dX+pos, M, &beta, z0, K);
+        cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, K, num_sample, M, &alpha, W0T+displs[rank], M, dX+pos, M, &beta, z0, K);
         check_launch("myGEMM 1");
         gpu_sigmoid(z0, a0, K, num_sample);
-        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, num_sample, K, &alpha, W1, N, a0, K, &beta, z1, N);
+        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, num_sample, K, &alpha, W1, N, a0, K, &zeta, z1, N);
         check_launch("myGEMM 2");
+        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, z1, N * num_sample, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
         gpu_exp(z1, a1, N, num_sample);
         check_launch("exp");
         gpu_sumcol(a1, dexp, N, num_sample);
@@ -752,7 +756,7 @@ class OneBatchUpdateBonus  {
         
         //cudaMemcpy(dy, yptr, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
 
-        cudaMemcpy(dW0, W0, sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
+        cudaMemcpy(dW0, W0T+displs[rank], sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
         cudaMemcpy(dW1, W1, sizeof(double) * K * N, cudaMemcpyDeviceToDevice);
 
         gpu_addmat(a1, dY+posy, a1, 1/(double)(batch_size), -1/(double)(batch_size), N, num_sample);
@@ -773,7 +777,7 @@ class OneBatchUpdateBonus  {
         check_launch("sumrow");
 
         //myGEMM2(dz1, dX, dW0, &alpha1, &reg, K, M, num_sample, false, true);
-        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, K, M, num_sample, &alpha1, z0, K, dX+posx, M, &r, dW0, K);
+        cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, M, K, num_sample, &alpha1, dX+posx, M, z0, K, &r, dW0, M);
         check_launch("myGEMM 3");
 
         gpu_sumrow(z0, db0, K, num_sample);
@@ -790,7 +794,7 @@ class OneBatchUpdateBonus  {
 
     void GradientDescent() {
 
-        gpu_addmat(W0, dW0, W0, 1, -learning_rate, K, M);
+        gpu_addmat(W0T+displs[rank], dW0, W0T+displs[rank], 1, -learning_rate, M, K);
         check_launch("addmat 1");
         gpu_addmat(W1, dW1, W1, 1, -learning_rate, N, K);
         check_launch("addmat 2");
@@ -822,11 +826,27 @@ class OneBatchUpdateBonus  {
 
     void UpdateCoefficient(NeuralNetwork& nn) {
         
-        cudaMemcpy(nn.W[0].memptr(), W0, sizeof(double) * M * K, cudaMemcpyDeviceToHost);
-        cudaMemcpy(nn.b[0].memptr(), b0, sizeof(double) * K, cudaMemcpyDeviceToHost);
-        cudaMemcpy(nn.W[1].memptr(), W1, sizeof(double) * N * K, cudaMemcpyDeviceToHost);
+        gpu_transpose(W0, dW0T, M, K0);
+        arma::mat W0t(M, K0);
+        cudaMemcpy(W0t.memptr()+displs[rank], dW0T+displs[rank], sizeof(double) * M * K0, cudaMemcpyDeviceToHost);
+        cudaMemcpy(nn.b[0].memptr() + rank * subrow, b0 + rank * subrow, sizeof(double) * K, cudaMemcpyDeviceToHost);
+        cudaMemcpy(nn.W[1].memptr() + N * rank * subrow, W1 + N * rank * subrow, sizeof(double) * N * K, cudaMemcpyDeviceToHost);
         cudaMemcpy(nn.b[1].memptr(), b1, sizeof(double) * N, cudaMemcpyDeviceToHost);
-
+        int* displsb0 = new int[num_procs];
+        int* displsW1 = new int[num_procs];
+        int* countsb0 = new int[num_procs];
+        int* countsW0 = new int[num_procs];
+        int* countsW1 = new int[num_procs];
+        for (unsigned int i=0; i<num_procs; i++) {
+            displsb0[i] = i * subrow;
+            displsW1[i] = i * subrow * N;
+            countsb0[i] = counts[i];
+            countsW0[i] = counts[i] * M;
+            countsW1[i] = counts[i] * N;
+        }
+        MPI_SAFE_CALL(MPI_Gatherv(W0t.memptr()+ displs[rank], K * M, MPI_DOUBLE, W0t.memptr(), countsW0, displs, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Gatherv(nn.b[0],memptr() + displsb0[rank], K, MPI_DOUBLE, nn.b[0].memptr(), countsb0, displsb0, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Gatherv(nn.W[1].memptr() + displsW1[rank] , K * N, MPI_DOUBLE, nn.W[1].memptr(), countsW1, displsW1, MPI_DOUBLE, 0, MPI_COMM_WORLD));
     }
 
     int T1() {return totalsize;}
