@@ -606,7 +606,7 @@ class OneBatchUpdateBonus  {
             std::cerr << "CUBLAS initialization failed!" << std::endl;
             return;
         }
-
+        std::cout<<"K0 = "<<K0 <<"\n";
         subrow = K0 / num_procs;
         displs = new int[num_procs];
         counts = new int[num_procs];
