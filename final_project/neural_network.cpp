@@ -607,7 +607,7 @@ class OneBatchUpdateBonus  {
             return;
         }
 
-        int subrow = K / num_procs;
+        subrow = K / num_procs;
         displs = new int[num_procs];
         counts = new int[num_procs]
 
@@ -847,6 +847,12 @@ class OneBatchUpdateBonus  {
         MPI_SAFE_CALL(MPI_Gatherv(W0t.memptr()+ displs[rank], K * M, MPI_DOUBLE, W0t.memptr(), countsW0, displs, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Gatherv(nn.b[0],memptr() + displsb0[rank], K, MPI_DOUBLE, nn.b[0].memptr(), countsb0, displsb0, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Gatherv(nn.W[1].memptr() + displsW1[rank] , K * N, MPI_DOUBLE, nn.W[1].memptr(), countsW1, displsW1, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+
+        delete[] displsb0;
+        delete[] displsW1;
+        delete[] countsb0;
+        delete[] countsW1;
+        delete[] countsW0;
     }
 
     int T1() {return totalsize;}
@@ -894,6 +900,7 @@ class OneBatchUpdateBonus  {
     int M;  
     int K;  
     int K0;
+    int subrow;
     int* displs;
     int* counts;
 
