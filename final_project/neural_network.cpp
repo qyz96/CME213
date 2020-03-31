@@ -725,7 +725,7 @@ class OneBatchUpdateBonus  {
         gpu_sigmoid(z0, a0, K, num_sample);
         cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, num_sample, K, &alpha, W1, N, a0, K, &zeta, z1, N);
         check_launch("myGEMM 2");
-        double* dz1 = new double[N*num_sample];
+/*         double* dz1 = new double[N*num_sample];
         std::cout<<N<<" "<<num_sample<<"\n";
         cudaError_t err = cudaMemcpy(dz1, z1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
         if(err != cudaSuccess) {
@@ -738,7 +738,7 @@ class OneBatchUpdateBonus  {
             std::cerr << "Error copying CPU to z1" << std::endl;
             exit(1);
         }
-        free(dz1);
+        free(dz1); */
         gpu_exp(z1, a1, N, num_sample);
         check_launch("exp");
         gpu_sumcol(a1, dexp, N, num_sample);
@@ -1045,7 +1045,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     int this_batch_size = batch_size;
 
     OneBatchUpdateBonus pp(nn, subsize, batch_size, reg, learning_rate, rank, num_procs, N);
-    //pp.LoadData(X,y);
+    pp.LoadData(X,y);
     for(int epoch = 0; epoch < epochs; ++epoch) {
         int num_batches = (N + batch_size - 1)/batch_size;
         for(int batch = 0; batch < num_batches; ++batch)  {
