@@ -612,7 +612,7 @@ class OneBatchUpdateBonus  {
         counts = new int[num_procs]
 
         int subrow = K / num_procs;
-        for (int i = 0; i < num_procs = 1; i++) {
+        for (int i = 0; i < num_procs; i++) {
             displs[i] = subrow * M * i;
             counts[i] = subrow;
         }
@@ -722,7 +722,7 @@ class OneBatchUpdateBonus  {
 
         //gpu_addmat(dx, dX+pos, a1, 1, -1, M, num_sample);
         
-        cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, K, num_sample, M, &alpha, W0T+displs[rank], M, dX+pos, M, &beta, z0, K);
+        cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, K, num_sample, M, &alpha, dW0T+displs[rank], M, dX+pos, M, &beta, z0, K);
         check_launch("myGEMM 1");
         gpu_sigmoid(z0, a0, K, num_sample);
         cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, num_sample, K, &alpha, W1, N, a0, K, &zeta, z1, N);
@@ -756,7 +756,7 @@ class OneBatchUpdateBonus  {
         
         //cudaMemcpy(dy, yptr, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
 
-        cudaMemcpy(dW0, W0T+displs[rank], sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
+        cudaMemcpy(dW0, dW0T+displs[rank], sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
         cudaMemcpy(dW1, W1, sizeof(double) * K * N, cudaMemcpyDeviceToDevice);
 
         gpu_addmat(a1, dY+posy, a1, 1/(double)(batch_size), -1/(double)(batch_size), N, num_sample);
@@ -794,7 +794,7 @@ class OneBatchUpdateBonus  {
 
     void GradientDescent() {
 
-        gpu_addmat(W0T+displs[rank], dW0, W0T+displs[rank], 1, -learning_rate, M, K);
+        gpu_addmat(dW0T+displs[rank], dW0, dW0T+displs[rank], 1, -learning_rate, M, K);
         check_launch("addmat 1");
         gpu_addmat(W1, dW1, W1, 1, -learning_rate, N, K);
         check_launch("addmat 2");
