@@ -1059,7 +1059,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
            
             
             pp.FeedForward(batch * batch_size * x_row, this_batch_size, this_batch_size);
-            pp.BackProp(batch * batch_size * x_row;, batch * batch_size * y_row);
+            pp.BackProp(batch * batch_size * x_row, batch * batch_size * y_row);
             //pp.ReduceGradient();
             pp.GradientDescent();
             if(debug && rank == 0 && print_flag) {
