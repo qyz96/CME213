@@ -609,7 +609,7 @@ class OneBatchUpdateBonus  {
 
         subrow = K / num_procs;
         displs = new int[num_procs];
-        counts = new int[num_procs]
+        counts = new int[num_procs];
 
         for (int i = 0; i < num_procs; i++) {
             displs[i] = subrow * M * i;
@@ -940,7 +940,7 @@ class OneBatchUpdateBonus  {
 
 
 
-void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
+void parallel_train0(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                     double learning_rate, double reg,
                     const int epochs, const int batch_size, bool grad_check, int print_every,
                     int debug) {
@@ -1028,3 +1028,49 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     error_file.close();
 }
 
+
+void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
+                    double learning_rate, double reg,
+                    const int epochs, const int batch_size, bool grad_check, int print_every,
+                    int debug) {
+
+    int rank, num_procs;
+    MPI_SAFE_CALL(MPI_Comm_size(MPI_COMM_WORLD, &num_procs));
+    MPI_SAFE_CALL(MPI_Comm_rank(MPI_COMM_WORLD, &rank));
+
+    std::ofstream error_file;
+    error_file.open("Outputs/CpuGpuDiff.txt");
+    int print_flag = 0;
+    int iter = 0;
+    int N = (rank == 0)?X.n_cols:0;
+    MPI_SAFE_CALL(MPI_Bcast(&N, 1, MPI_INT, 0, MPI_COMM_WORLD));
+
+    int x_row = X.n_rows;
+    int y_row = y.n_rows;
+    MPI_SAFE_CALL(MPI_Bcast(&x_row, 1, MPI_INT, 0, MPI_COMM_WORLD));
+    MPI_SAFE_CALL(MPI_Bcast(&y_row, 1, MPI_INT, 0, MPI_COMM_WORLD));
+    int subsize = (batch_size + num_procs - 1) / num_procs;
+    int this_batch_size = batch_size;
+
+    OneBatchUpdateBonus pp(nn, subsize, batch_size, reg, learning_rate, rank, num_procs, N);
+    pp.LoadData(X,y);
+    for(int epoch = 0; epoch < epochs; ++epoch) {
+        int num_batches = (N + batch_size - 1)/batch_size;
+        for(int batch = 0; batch < num_batches; ++batch) 
+           
+            
+            pp.FeedForward(batch * batch_size * x_row;, this_batch_size, this_batch_size);
+            pp.BackProp(batch * batch_size * y_row, ypos);
+            //pp.ReduceGradient();
+            pp.GradientDescent();
+            if(debug && rank == 0 && print_flag) {
+                write_diff_gpu_cpu(nn, iter, error_file);
+            }
+
+            iter++;
+
+        }
+    }
+    pp.UpdateCoefficient(nn);
+    error_file.close();
+}
