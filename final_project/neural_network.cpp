@@ -1045,7 +1045,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     int this_batch_size = batch_size;
 
     OneBatchUpdateBonus pp(nn, subsize, batch_size, reg, learning_rate, rank, num_procs, N);
-    pp.LoadData(X,y);
+    //pp.LoadData(X,y);
     for(int epoch = 0; epoch < epochs; ++epoch) {
         int num_batches = (N + batch_size - 1)/batch_size;
         for(int batch = 0; batch < num_batches; ++batch)  {
