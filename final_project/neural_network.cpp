@@ -733,7 +733,7 @@ class OneBatchUpdateBonus  {
         MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, ddz1, N * num_sample, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
         err = cudaMemcpy(z1, ddz1, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
         if(err != cudaSuccess) {
-            std::cerr << "Error copying z1 to CPU" << std::endl;
+            std::cerr << "Error copying CPU to z1" << std::endl;
             exit(1);
         }
         gpu_exp(z1, a1, N, num_sample);
