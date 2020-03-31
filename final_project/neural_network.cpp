@@ -804,23 +804,6 @@ class OneBatchUpdateBonus  {
         check_launch("addmat 4");
     }
 
-    void ReduceGradient() {
-
-        cudaMemcpy(dW0_h, dW0, sizeof(double) * M * K, cudaMemcpyDeviceToHost);
-        cudaMemcpy(db0_h, db0, sizeof(double) * K, cudaMemcpyDeviceToHost);
-        cudaMemcpy(dW1_h, dW1, sizeof(double) * N * K, cudaMemcpyDeviceToHost);
-        cudaMemcpy(db1_h, db1, sizeof(double) * N, cudaMemcpyDeviceToHost);
-
-        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, dW0_h, M * K, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
-        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, dW1_h, K * N, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
-        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, db0_h, K, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
-        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, db1_h, N, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
-
-        cudaMemcpy(dW0, dW0_h, sizeof(double) * M * K, cudaMemcpyHostToDevice);
-        cudaMemcpy(db0, db0_h, sizeof(double) * K, cudaMemcpyHostToDevice);
-        cudaMemcpy(dW1, dW1_h, sizeof(double) * N * K, cudaMemcpyHostToDevice);
-        cudaMemcpy(db1, db1_h, sizeof(double) * N, cudaMemcpyHostToDevice);
-    }
 
 
 
