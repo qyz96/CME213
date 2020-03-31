@@ -649,7 +649,6 @@ class OneBatchUpdateBonus  {
         cudaMemcpy(b0, nn.b[0].memptr()+rank * subrow, sizeof(double) * K , cudaMemcpyHostToDevice);
         
         cudaMemcpy(b1, nn.b[1].memptr(), sizeof(double) * N, cudaMemcpyHostToDevice);
-        std::cout<<"TT1\n";
         cudaMemcpy(W0, nn.W[0].memptr(), sizeof(double) * M * K0, cudaMemcpyHostToDevice);
         cudaMemcpy(W1, nn.W[1].memptr()+ N * rank * subrow, sizeof(double) * K * N, cudaMemcpyHostToDevice);
         
@@ -760,7 +759,7 @@ class OneBatchUpdateBonus  {
 
         cudaMemcpy(dW0, dW0T+displs[rank], sizeof(double) * M * K, cudaMemcpyDeviceToDevice);
         cudaMemcpy(dW1, W1, sizeof(double) * K * N, cudaMemcpyDeviceToDevice);
-
+        std::cout<<posy<<" "<<N<<" "<<num_sample<<"\n";
         gpu_addmat(a1, dY+posy, a1, 1/(double)(batch_size), -1/(double)(batch_size), N, num_sample);
         check_launch("add mat");
         //myGEMM2(dW1, dDff, da1, &alpha1, &beta1, K, num_sample, N, true, false);
