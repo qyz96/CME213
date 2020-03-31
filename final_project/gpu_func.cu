@@ -398,7 +398,7 @@ void device_sumcol(double* data, double* result, int M, int N) {
 
     if ((i==0) && (j<N)) {
         result[j]=sdata[0];
-        //printf("result[%d]=%f\n", j, result[j]);
+        printf("result[%d]=%f\n", j, result[j]);
     }
 }
 
