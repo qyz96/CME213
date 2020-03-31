@@ -398,7 +398,7 @@ void device_sumcol(double* data, double* result, int M, int N) {
 
     if ((i==0) && (j<N)) {
         result[j]=sdata[0];
-        printf("result[%d]=%f\n", j, result[j]);
+        //printf("result[%d]=%f\n", j, result[j]);
     }
 }
 
@@ -441,7 +441,7 @@ void device_sumrow(double* data, double* result, int M, int N) {
 
     if ((j==0) && (i<M)) {
         result[i]=sdata[0];
-        printf("result[%d]=%f\n", j, result[j]);
+        printf("result[%d]=%f\n", i, result[j]);
     }
 }
 
@@ -487,6 +487,7 @@ void device_sigmoid(double* data, double* result, int M, int N) {
     int j = blockIdx.x * blockDim.x + threadIdx.x;
     if ((i < M) && (j < N)) {
         result[i + j * M] = 1 / (double)(1+std::exp(-data[i + j * M]));
+        printf("a0[%d,%d]=%f\n", i, j, result[i+j*M]);
     }
     return;
 }
