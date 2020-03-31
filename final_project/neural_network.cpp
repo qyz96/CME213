@@ -719,7 +719,7 @@ class OneBatchUpdateBonus  {
         double zeta = 1/(double)num_procs;
 
         //gpu_addmat(dx, dX+pos, a1, 1, -1, M, num_sample);
-        
+        std::cout<<displs[rank]<<"\n";
         cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, K, num_sample, M, &alpha, dW0T+displs[rank], M, dX+pos, M, &beta, z0, K);
         check_launch("myGEMM 1");
         gpu_sigmoid(z0, a0, K, num_sample);
