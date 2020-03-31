@@ -611,7 +611,6 @@ class OneBatchUpdateBonus  {
         displs = new int[num_procs];
         counts = new int[num_procs]
 
-        int subrow = K / num_procs;
         for (int i = 0; i < num_procs; i++) {
             displs[i] = subrow * M * i;
             counts[i] = subrow;
@@ -744,7 +743,7 @@ class OneBatchUpdateBonus  {
         double alpha1 = 1;
         double beta1=0;
 
-        double r = reg/(double)(num_procs);
+        double r = reg;
 
         if (num_sample == 0) {
             gpu_addmat(dW0, W0, dW0, 0, r, K, M);
@@ -845,7 +844,7 @@ class OneBatchUpdateBonus  {
             countsW1[i] = counts[i] * N;
         }
         MPI_SAFE_CALL(MPI_Gatherv(W0t.memptr()+ displs[rank], K * M, MPI_DOUBLE, W0t.memptr(), countsW0, displs, MPI_DOUBLE, 0, MPI_COMM_WORLD));
-        MPI_SAFE_CALL(MPI_Gatherv(nn.b[0],memptr() + displsb0[rank], K, MPI_DOUBLE, nn.b[0].memptr(), countsb0, displsb0, MPI_DOUBLE, 0, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Gatherv(nn.b[0].memptr() + displsb0[rank], K, MPI_DOUBLE, nn.b[0].memptr(), countsb0, displsb0, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Gatherv(nn.W[1].memptr() + displsW1[rank] , K * N, MPI_DOUBLE, nn.W[1].memptr(), countsW1, displsW1, MPI_DOUBLE, 0, MPI_COMM_WORLD));
 
         delete[] displsb0;
