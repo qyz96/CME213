@@ -1058,6 +1058,8 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     for(int epoch = 0; epoch < epochs; ++epoch) {
         int num_batches = (N + batch_size - 1)/batch_size;
         for(int batch = 0; batch < num_batches; ++batch)  {
+            int last_col = std::min((batch + 1) * batch_size-1, N-1);
+            this_batch_size = last_col - batch * batch_size + 1;
            
             std::cout<<"Feedforward..\n";
             pp.FeedForward(batch * batch_size * x_row, this_batch_size, this_batch_size);
