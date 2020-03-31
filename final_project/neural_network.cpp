@@ -732,14 +732,14 @@ class OneBatchUpdateBonus  {
             std::cerr << "Error copying CPU to z1" << std::endl;
             exit(1);
         } */
-        exit(1);
+        
         free(dz1); 
         gpu_exp(z1, a1, N, num_sample);
         check_launch("exp");
         gpu_sumcol(a1, dexp, N, num_sample);
         check_launch("sumcol");
         gpu_softmax(dexp, a1, N, num_sample);
-
+        exit(1);
     } 
 
     void BackProp(int posx, int posy) {
