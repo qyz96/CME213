@@ -1057,10 +1057,12 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
         int num_batches = (N + batch_size - 1)/batch_size;
         for(int batch = 0; batch < num_batches; ++batch)  {
            
-            
+            std::cout<<"Feedforward..\n";
             pp.FeedForward(batch * batch_size * x_row, this_batch_size, this_batch_size);
+            std::cout<<"Backprop..\n";
             pp.BackProp(batch * batch_size * x_row, batch * batch_size * y_row);
             //pp.ReduceGradient();
+            std::cout<<"Gradient Descent..\n";
             pp.GradientDescent();
             if(debug && rank == 0 && print_flag) {
                 write_diff_gpu_cpu(nn, iter, error_file);
