@@ -636,10 +636,7 @@ class OneBatchUpdateBonus  {
         cudaMalloc((void**)&dY, sizeof(double) * N * totalsize);
 
 
-        dW0_h = (double*)malloc(sizeof(double)*M*K);
-        dW1_h = (double*)malloc(sizeof(double)*K*N);
-        db0_h = (double*)malloc(sizeof(double)*K);
-        db1_h = (double*)malloc(sizeof(double)*N);
+        ddz1 = (double*)malloc(sizeof(double)*N*num_sample);
 
 /*         for (unsigned int i=0; i<nn.W.size(); i++) {
             MPI_SAFE_CALL(MPI_Bcast(nn.W[i].memptr(), nn.W[i].n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD));
@@ -728,11 +725,9 @@ class OneBatchUpdateBonus  {
         gpu_sigmoid(z0, a0, K, num_sample);
         cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, num_sample, K, &alpha, W1, N, a0, K, &zeta, z1, N);
         check_launch("myGEMM 2");
-        double* ddz1 = (double*)malloc(sizeof(double)*N*num_sample);
         cudaMemcpy(ddz1, dz1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
         MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, ddz1, N * num_sample, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
         cudaMemcpy(dz1, ddz1, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
-        free(ddz1);
         gpu_exp(z1, a1, N, num_sample);
         check_launch("exp");
         gpu_sumcol(a1, dexp, N, num_sample);
@@ -886,6 +881,7 @@ class OneBatchUpdateBonus  {
         cudaFree(dexp);
         delete[] displs;
         delete[] counts;
+        free(ddz1);
 
     }
 
@@ -928,10 +924,7 @@ class OneBatchUpdateBonus  {
     double* dY;
     double reg;
     double learning_rate;
-    double* dW0_h;
-    double* dW1_h;
-    double* db0_h;
-    double* db1_h;
+    double* ddz1;
 
 
     int num_procs;
