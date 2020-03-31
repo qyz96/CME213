@@ -720,6 +720,7 @@ class OneBatchUpdateBonus  {
         check_launch("myGEMM 2");
         double* dz1 = new double[N*num_sample];
         std::cout<<K0<<" "<<K<<" "<<N<<" "<<num_sample<<"\n";
+        gpu_sumcol(z1, a1, N, num_sample);
         cudaError_t err = cudaMemcpy(nn.W[0].memptr(), z1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
 /*         if(err != cudaSuccess) {
             std::cerr << "Error copying z1 to CPU" << std::endl;
@@ -731,6 +732,7 @@ class OneBatchUpdateBonus  {
             std::cerr << "Error copying CPU to z1" << std::endl;
             exit(1);
         } */
+        exit(1);
         free(dz1); 
         gpu_exp(z1, a1, N, num_sample);
         check_launch("exp");
