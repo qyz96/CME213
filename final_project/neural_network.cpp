@@ -721,13 +721,13 @@ class OneBatchUpdateBonus  {
         double* dz1 = new double[N*num_sample];
         std::cout<<K0<<" "<<K<<" "<<N<<" "<<num_sample<<"\n";
         gpu_sumcol(z1, a1, N, num_sample);
-        cudaError_t err = cudaMemcpy(nn.W[0].memptr(), z1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
+        cudaError_t err = cudaMemcpy(dz1, z1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
 /*         if(err != cudaSuccess) {
             std::cerr << "Error copying z1 to CPU" << std::endl;
             exit(1);
         } */
         //MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, dz1, N * num_sample, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
-        err = cudaMemcpy(z1, nn.W[0].memptr(), sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
+        err = cudaMemcpy(z1, dz1, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
 /*         if(err != cudaSuccess) {
             std::cerr << "Error copying CPU to z1" << std::endl;
             exit(1);
