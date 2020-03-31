@@ -713,7 +713,7 @@ class OneBatchUpdateBonus  {
 
 
 
-
+        gpu_sigmoid(dW0T+displs[rank], dW0T+displs[rank], M, K);
         double alpha = 1;
         double beta = 1;
         double zeta = 1/(double)num_procs;
