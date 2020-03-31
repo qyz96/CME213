@@ -1044,7 +1044,6 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     int iter = 0;
     int N = (rank == 0)?X.n_cols:0;
     MPI_SAFE_CALL(MPI_Bcast(&N, 1, MPI_INT, 0, MPI_COMM_WORLD));
-
     int x_row = X.n_rows;
     int y_row = y.n_rows;
     MPI_SAFE_CALL(MPI_Bcast(&x_row, 1, MPI_INT, 0, MPI_COMM_WORLD));
@@ -1060,7 +1059,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
            
             
             pp.FeedForward(batch * batch_size * x_row;, this_batch_size, this_batch_size);
-            pp.BackProp(batch * batch_size * y_row, ypos);
+            pp.BackProp(batch * batch_size * x_row;, batch * batch_size * y_row);
             //pp.ReduceGradient();
             pp.GradientDescent();
             if(debug && rank == 0 && print_flag) {
