@@ -711,7 +711,7 @@ class OneBatchUpdateBonus  {
         
         arma::mat temp(M, K);
         cudaMemcpy(temp.memptr(), dW0T+displs[rank], sizeof(double)*M*K, cudaMemcpyDeviceToHost);
-        std::cout<<rank<<": \n"<<temp;
+        if (rank==1) std::cout<<rank<<": \n"<<temp;
 
 
 
