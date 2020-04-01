@@ -723,9 +723,9 @@ class OneBatchUpdateBonus  {
         //std::cout<<displs[rank]<<"\n";
         cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, K, num_sample, M, &alpha, dW0T+displs[rank], M, dX+pos, M, &beta, z0, K);
         check_launch("myGEMM 1");
-        arma::mat temp(K, num_sample);
+/*         arma::mat temp(K, num_sample);
         cudaMemcpy(temp.memptr(), z0, sizeof(double)*K*num_sample, cudaMemcpyDeviceToHost);
-        std::cout<<rank<<": \n"<<temp;
+        std::cout<<rank<<": \n"<<temp; */
         gpu_sigmoid(z0, a0, K, num_sample);
         cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, num_sample, K, &alpha, W1, N, a0, K, &zeta, z1, N);
         check_launch("myGEMM 2");
@@ -750,7 +750,7 @@ class OneBatchUpdateBonus  {
         gpu_sumcol(a1, dexp, N, num_sample);
         check_launch("sumcol");
         gpu_softmax(dexp, a1, N, num_sample);
-        exit(1);
+        //exit(1);
     } 
 
     void BackProp(int posx, int posy) {
