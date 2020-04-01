@@ -1046,10 +1046,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     int y_row = y.n_rows;
     MPI_SAFE_CALL(MPI_Bcast(&x_row, 1, MPI_INT, 0, MPI_COMM_WORLD));
     MPI_SAFE_CALL(MPI_Bcast(&y_row, 1, MPI_INT, 0, MPI_COMM_WORLD));
-    int subsize = (batch_size + num_procs - 1) / num_procs;
     int this_batch_size = batch_size;
 
-    OneBatchUpdateBonus pp(nn, subsize, batch_size, reg, learning_rate, rank, num_procs, N);
+    OneBatchUpdateBonus pp(nn, this_batch_size, batch_size, reg, learning_rate, rank, num_procs, N);
     pp.LoadData(X,y);
     for(int epoch = 0; epoch < epochs; ++epoch) {
         int num_batches = (N + batch_size - 1)/batch_size;
