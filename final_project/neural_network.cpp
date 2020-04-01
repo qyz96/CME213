@@ -749,6 +749,7 @@ class OneBatchUpdateBonus  {
         gpu_sumcol(a1, dexp, N, num_sample);
         check_launch("sumcol");
         gpu_softmax(dexp, a1, N, num_sample);
+        exit(1);
     } 
 
     void BackProp(int posx, int posy) {
