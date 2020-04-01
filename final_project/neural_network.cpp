@@ -723,6 +723,8 @@ class OneBatchUpdateBonus  {
         //std::cout<<displs[rank]<<"\n";
         cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, K, num_sample, M, &alpha, dW0T+displs[rank], M, dX+pos, M, &beta, z0, K);
         check_launch("myGEMM 1");
+        arma::mat temp(K, num_sample);
+        cudaMemcpy(temp.memptr(), z0, sizeof(double)*K*num_sample, cudaMemcpyDeviceToHost);
         gpu_sigmoid(z0, a0, K, num_sample);
         cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, num_sample, K, &alpha, W1, N, a0, K, &zeta, z1, N);
         check_launch("myGEMM 2");
@@ -734,7 +736,7 @@ class OneBatchUpdateBonus  {
             std::cerr << "Error copying z1 to CPU" << std::endl;
             exit(1);
         }
-        //MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, dz1, N * num_sample, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
+        MPI_SAFE_CALL(MPI_Allreduce(MPI_IN_PLACE, dz1, N * num_sample, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD));
         err = cudaMemcpy(z1, dz1, sizeof(double) * N * num_sample, cudaMemcpyHostToDevice);
         if(err != cudaSuccess) {
             std::cerr << "Error copying CPU to z1" << std::endl;
@@ -747,7 +749,6 @@ class OneBatchUpdateBonus  {
         gpu_sumcol(a1, dexp, N, num_sample);
         check_launch("sumcol");
         gpu_softmax(dexp, a1, N, num_sample);
-        //exit(1);
     } 
 
     void BackProp(int posx, int posy) {
