@@ -797,7 +797,7 @@ class OneBatchUpdateBonus  {
         gpu_sumrow(z0, db0, K, num_sample);
         check_launch("sumrow2");
         arma::mat temp(K, 1);
-        cudaMemcpy(temp.memptr(), db0, sizeof(double)*K, cudaMemcpyDeviceToHost);
+        cudaMemcpy(temp.memptr(), a0, sizeof(double)*K, cudaMemcpyDeviceToHost);
         if (1) std::cout<<rank<<": \n"<<temp;
         exit(1);
 
