@@ -487,7 +487,7 @@ void device_sigmoid(double* data, double* result, int M, int N) {
     if ((i < M) && (j < N)) {
         if (i<5)  {
         result[i + j * M] = 1 / (double)(1+std::exp(-data[i + j * M]));
-        printf("a0[%d,%d]=%f\n", i, j, data[i+j*M]);
+        //printf("a0[%d,%d]=%f\n", i, j, data[i+j*M]);
         }
     }
     return;
