@@ -726,8 +726,8 @@ class OneBatchUpdateBonus  {
         gpu_sigmoid(z0, a0, K, num_sample);
         cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, num_sample, K, &alpha, W1, N, a0, K, &zeta, z1, N);
         check_launch("myGEMM 2");
-         arma::mat temp(K, num_sample);
-        cudaMemcpy(temp.memptr(), z0, sizeof(double)*K*num_sample, cudaMemcpyDeviceToHost);
+         arma::mat temp(M, num_sample);
+        cudaMemcpy(temp.memptr(), dX+pos, sizeof(double)*M*num_sample, cudaMemcpyDeviceToHost);
         std::cout<<rank<<": \n"<<temp;   
         double* dz1 = new double[N*num_sample];
         //std::cout<<K0<<" "<<K<<" "<<N<<" "<<num_sample<<"\n";
