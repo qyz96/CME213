@@ -844,7 +844,7 @@ class OneBatchUpdateBonus  {
         MPI_SAFE_CALL(MPI_Gatherv(nn.b[0].memptr() + displsb0[rank], K, MPI_DOUBLE, nn.b[0].memptr(), countsb0, displsb0, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         MPI_SAFE_CALL(MPI_Gatherv(nn.W[1].memptr() + displsW1[rank] , K * N, MPI_DOUBLE, nn.W[1].memptr(), countsW1, displsW1, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         nn.W[0] = W0t.t();
-        if(rank == 0) {
+        if(1) {
             std::cout<<"b0: \n"<<nn.b[0];
             std::cout<<"W1: \n"<<nn.W[1];
         }
