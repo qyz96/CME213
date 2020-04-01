@@ -709,11 +709,12 @@ class OneBatchUpdateBonus  {
         gpu_repmat(b1, z1, N, num_sample);
         check_launch("repmat b1");
         
-        
+        arma::mat temp(M, K);
+        cudaMemcpy(temp.memptr(), M, K);
+        std::cout<<rank<<": \n"<<temp;
 
 
 
-        gpu_sigmoid(dW0T+displs[rank], dW0T+displs[rank], M, K);
         double alpha = 1;
         double beta = 1;
         double zeta = 1/(double)num_procs;
@@ -727,7 +728,6 @@ class OneBatchUpdateBonus  {
         check_launch("myGEMM 2");
         double* dz1 = new double[N*num_sample];
         std::cout<<K0<<" "<<K<<" "<<N<<" "<<num_sample<<"\n";
-        gpu_sumrow(z1, b1, N, num_sample);
         //cudaError_t err = cudaMemcpy(dz1, z1, sizeof(double) * N * num_sample, cudaMemcpyDeviceToHost);
 /*         if(err != cudaSuccess) {
             std::cerr << "Error copying z1 to CPU" << std::endl;

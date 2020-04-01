@@ -441,7 +441,6 @@ void device_sumrow(double* data, double* result, int M, int N) {
 
     if ((j==0) && (i<M)) {
         result[i]=sdata[0];
-        printf("result[%d]=%f\n", i, result[j]);
     }
 }
 
