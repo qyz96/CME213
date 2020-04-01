@@ -709,10 +709,10 @@ class OneBatchUpdateBonus  {
         gpu_repmat(b1, z1, N, num_sample);
         check_launch("repmat b1");
         
-/*         arma::mat temp(N, K);
-        cudaMemcpy(temp.memptr(), W1, sizeof(double)*N*K, cudaMemcpyDeviceToHost);
-        if (rank==1) std::cout<<rank<<": \n"<<temp; */
-
+        arma::mat temp(K, 1);
+        cudaMemcpy(temp.memptr(), b0, sizeof(double)*K, cudaMemcpyDeviceToHost);
+        if (1) std::cout<<rank<<": \n"<<temp;
+        exit(1);
 
 
         double alpha = 1;
