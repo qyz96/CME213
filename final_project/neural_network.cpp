@@ -720,7 +720,7 @@ class OneBatchUpdateBonus  {
         double zeta = 1/(double)num_procs;
 
         //gpu_addmat(dx, dX+pos, a1, 1, -1, M, num_sample);
-        std::cout<<displs[rank]<<"\n";
+        //std::cout<<displs[rank]<<"\n";
         cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, K, num_sample, M, &alpha, dW0T+displs[rank], M, dX+pos, M, &beta, z0, K);
         check_launch("myGEMM 1");
         gpu_sigmoid(z0, a0, K, num_sample);
@@ -1054,12 +1054,12 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
             int last_col = std::min((batch + 1) * batch_size-1, N-1);
             this_batch_size = last_col - batch * batch_size + 1;
            
-            std::cout<<"Feedforward..\n";
+            //std::cout<<"Feedforward..\n";
             pp.FeedForward(batch * batch_size * x_row, this_batch_size, this_batch_size);
-            std::cout<<"Backprop..\n";
+            //std::cout<<"Backprop..\n";
             pp.BackProp(batch * batch_size * x_row, batch * batch_size * y_row);
             //pp.ReduceGradient();
-            std::cout<<"Gradient Descent..\n";
+            //std::cout<<"Gradient Descent..\n";
             pp.GradientDescent();
             if(debug && rank == 0 && print_flag) {
                 write_diff_gpu_cpu(nn, iter, error_file);
