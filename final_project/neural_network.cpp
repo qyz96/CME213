@@ -824,7 +824,7 @@ class OneBatchUpdateBonus  {
     void UpdateCoefficient(NeuralNetwork& nn) {
         
         arma::mat W0t(M, K0);
-        cudaMemcpy(W0t.memptr()+displs[rank], dW0T+displs[rank], sizeof(double) * M * K0, cudaMemcpyDeviceToHost);
+        cudaMemcpy(W0t.memptr()+displs[rank], dW0T+displs[rank], sizeof(double) * M * K, cudaMemcpyDeviceToHost);
         cudaMemcpy(nn.b[0].memptr() + rank * subrow, b0 + rank * subrow, sizeof(double) * K, cudaMemcpyDeviceToHost);
         cudaMemcpy(nn.W[1].memptr() + N * rank * subrow, W1 + N * rank * subrow, sizeof(double) * N * K, cudaMemcpyDeviceToHost);
         cudaMemcpy(nn.b[1].memptr(), b1, sizeof(double) * N, cudaMemcpyDeviceToHost);
