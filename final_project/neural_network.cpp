@@ -704,9 +704,11 @@ class OneBatchUpdateBonus  {
             cudaMemcpy(dX, xdata, sizeof(double) * M * totalsize, cudaMemcpyHostToDevice);
             cudaMemcpy(dY, ydata, sizeof(double) * N * totalsize, cudaMemcpyHostToDevice);
         }
-        
+        if (rank!=0)  {
         free(xdata);
         free(ydata);
+
+        }
 
 
 
