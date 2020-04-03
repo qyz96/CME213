@@ -700,7 +700,7 @@ class OneBatchUpdateBonus  {
                     MPI_SAFE_CALL(MPI_Send(X.memptr(), M*totalsize, MPI_DOUBLE, rank+s, 0, MPI_COMM_WORLD));
                     MPI_SAFE_CALL(MPI_Send(y.memptr(), N*totalsize, MPI_DOUBLE, rank+s, 0, MPI_COMM_WORLD));
                 }
-                else {
+                else if (rank+s<num_procs) {
                     MPI_SAFE_CALL(MPI_Send(xdata, M*totalsize, MPI_DOUBLE, rank+s, 0, MPI_COMM_WORLD));
                     MPI_SAFE_CALL(MPI_Send(ydata, N*totalsize, MPI_DOUBLE, rank+s, 0, MPI_COMM_WORLD));
                 }
