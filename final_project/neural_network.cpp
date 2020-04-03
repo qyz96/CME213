@@ -681,7 +681,7 @@ class OneBatchUpdateBonus  {
         cudaMalloc((void**)&dX, sizeof(double) * M * totalsize);
         cudaMalloc((void**)&dY, sizeof(double) * N * totalsize);
 
-        if (rank == 0)  {
+/*         if (rank == 0)  {
             for (int i = 1; i < num_procs; i++) {
                 MPI_SAFE_CALL(MPI_Send(X.memptr(), M*totalsize, MPI_DOUBLE, i, 0, MPI_COMM_WORLD));
                 MPI_SAFE_CALL(MPI_Send(y.memptr(), N*totalsize, MPI_DOUBLE, i, 0, MPI_COMM_WORLD));
@@ -691,6 +691,19 @@ class OneBatchUpdateBonus  {
             MPI_SAFE_CALL(MPI_Recv(xdata, M*totalsize, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE));
             MPI_SAFE_CALL(MPI_Recv(ydata, N*totalsize, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE));
 
+        }
+ */
+
+        for (int s=1; s<num_procs; s*=2) {
+            if (rank < s) {
+                MPI_SAFE_CALL(MPI_Send(X.memptr(), M*totalsize, MPI_DOUBLE, rank+s, 0, MPI_COMM_WORLD));
+                MPI_SAFE_CALL(MPI_Send(y.memptr(), N*totalsize, MPI_DOUBLE, rank+s, 0, MPI_COMM_WORLD));
+            }
+
+            else if (rank < 2*s) {
+                MPI_SAFE_CALL(MPI_Recv(xdata, M*totalsize, MPI_DOUBLE, rank-s, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE));
+                MPI_SAFE_CALL(MPI_Recv(ydata, N*totalsize, MPI_DOUBLE, rank-s, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE));
+            }
         }
         //MPI_SAFE_CALL(MPI_Bcast(xdata, M*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));
         //MPI_SAFE_CALL(MPI_Bcast(ydata, N*totalsize, MPI_DOUBLE, 0, MPI_COMM_WORLD));      
