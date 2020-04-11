@@ -983,8 +983,8 @@ class OneBatchUpdateBonus  {
 
 
 
-
-
+/*This is version 1.0 that splits the batches instead of weights across nodes*/
+/*
 void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                     double learning_rate, double reg,
                     const int epochs, const int batch_size, bool grad_check, int print_every,
@@ -1041,14 +1041,7 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                     displsy[i] = subsize * i * y_row;
                     countsy[i] = count_t * y_row;
                 }
-/*                 if (rank == 0 ) {
-                    for (unsigned int i = 0; i < num_procs; i++) {
-                    printf("displsx[%d]=%d\n", i, displsx[i]);
-                    printf("countsx[%d]=%d\n", i, countsx[i]);
-                    printf("displsy[%d]=%d\n", i, displsy[i]);
-                    printf("countsy[%d]=%d\n", i, countsy[i]);
-                }
-                } */
+
                 MPI_SAFE_CALL(MPI_Scatterv(xptr, countsx, displsx, MPI_DOUBLE, xptr_sub, countsx[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD));
                 MPI_SAFE_CALL(MPI_Scatterv(yptr, countsy, displsy, MPI_DOUBLE, yptr_sub, countsy[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD)); 
                 pp.LoadXY(xpos, ypos, xptr_sub, yptr_sub, counts);
@@ -1072,9 +1065,9 @@ void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
     free(yptr_sub);
     error_file.close();
 }
+*/
 
-
-void parallel_train1(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
+void parallel_train(NeuralNetwork& nn, const arma::mat& X, const arma::mat& y,
                     double learning_rate, double reg,
                     const int epochs, const int batch_size, bool grad_check, int print_every,
                     int debug) {
